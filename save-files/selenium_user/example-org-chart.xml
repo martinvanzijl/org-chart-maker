@@ -1,0 +1,8 @@
+<genealogy width="5000" height="5000">
+    <item y="2529" first_name="John" x="2587" last_name="Smith" place_of_death="" date_of_death="Fri Dec 31 7999" bio="" country_of_birth="" id="{71c25fb7-f714-433d-9add-2e6c0689e9a0}" text_color="#000000" place_of_birth="" name="John Smith" date_of_birth="Mon Jan 1 1900" fill_color="#ffffff"/>
+    <item y="2665" first_name="Jill" x="2864" last_name="Smith" place_of_death="" date_of_death="Fri Dec 31 7999" bio="" country_of_birth="" id="{287f9def-562e-4ea0-a941-040c24c8f4e1}" text_color="#000000" place_of_birth="" name="Jill Smith" date_of_birth="Mon Jan 1 1900" fill_color="#ffffff"/>
+    <item y="2667" first_name="Jack" x="2495" last_name="Smith" place_of_death="" date_of_death="Fri Dec 31 7999" bio="" country_of_birth="" id="{b1eea196-a780-4874-beb2-2375bab4dae5}" text_color="#000000" place_of_birth="" name="Jack Smith" date_of_birth="Mon Jan 1 1900" fill_color="#ffffff"/>
+    <item y="2529" first_name="Mary" x="2788" last_name="Smith" place_of_death="" date_of_death="Fri Dec 31 7999" bio="" country_of_birth="" id="{ef8a96c1-c37b-40c5-8eca-63330125fcad}" text_color="#000000" place_of_birth="" name="Mary Smith" date_of_birth="Mon Jan 1 1900" fill_color="#ffffff"/>
+    <relationship to="{b1eea196-a780-4874-beb2-2375bab4dae5}" from="{71c25fb7-f714-433d-9add-2e6c0689e9a0}" color="#000000"/>
+    <relationship to="{287f9def-562e-4ea0-a941-040c24c8f4e1}" from="{71c25fb7-f714-433d-9add-2e6c0689e9a0}" color="#000000"/>
+</genealogy>

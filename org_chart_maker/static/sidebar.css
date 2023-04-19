@@ -1,0 +1,57 @@
+.sidebar {
+  /* overflow: hidden; */
+  /* This works, but scrolls the whole side bar, not just the table. */
+  overflow: auto;
+  background-color: gray;
+  /* background-color: lightgray; */
+  position: fixed;
+  left: 0px;
+  height: 90%;
+  width: 150px;
+  z-index: 1;
+}
+
+.sidebar span {
+  display: block;
+  color: #e2e2e2;
+  text-align: center;
+  padding: 16px 4px 6px;
+  font-size: 15px;
+}
+
+.sidebar button {
+  display: block;
+  margin: auto;
+  max-width: 80%;
+}
+
+#personsTable {
+  font-family: Arial, Helvetica, sans-serif;
+  border-collapse: collapse;
+  width: 90%;
+  align-self: center;
+  margin: auto;
+  background: white;
+  margin-bottom: 8px;
+}
+
+#personsTable td, #personsTable th {
+  /* border: 1px solid black; */
+  padding: 8px;
+}
+
+#personsTable tr:nth-child(odd){background-color: #eee;}
+
+#personsTable tr:hover {background-color: lightblue;}
+
+#personsTable th {
+  padding-top: 8px;
+  padding-bottom: 8px;
+  text-align: left;
+  background-color: #aaa;
+  color: white;
+}
+
+#personsTable td {
+  cursor: default; /* Avoid the I-beam cursor. */
+}

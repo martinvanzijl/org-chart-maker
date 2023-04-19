@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="static/general.css">
+<link rel="stylesheet" href="static/menu-bar.css">
+<link rel="stylesheet" href="static/table.css">
+<link rel="stylesheet" href="static/toast-message.css">
+
+<!-- JQuery. -->
+<script src="static/jquery-3.6.0.min.js"></script>
+<script src="static/toast-message.js"></script>
+
+<title>Org Chart Maker - Manage</title>
+</head>
+<body>
+
+<ul class="menu">
+  <li class="menu"><a class="menu" href="/">Home</a></li>
+  <li class="menu" style="float:right"><a class="menu" href="/static/help.html">Help</a></li>
+</ul>
+
+<!-- The toast message. -->
+<div id="snackbar">Diagram deleted.</div>
+
+<h2>Manage Diagrams</h2>
+
+<p><b>Summary</b></p>
+
+<p>To rename a diagram, click the "Rename" link on the right. To delete a diagram, click the "Delete" link on the right. You can delete multiple diagrams by checking the boxes and clicking "Delete Selected".</p>
+
+<p><b>Diagrams</b></p>
+
+<script>
+
+{{ diagramList|safe }}
+
+</script>
+
+<script>
+// Function to delete diagram.
+function deleteDiagram(index) {
+  // Check if the user really wants to delete.
+  var diagramId = diagramList[index];
+  var answer = confirm("Are you sure you want to delete " + diagramId + "?");
+  if (!answer) {
+    return;
+  }
+
+  // Use AJAX to ask the server to delete the diagram.
+  var url = "/delete";
+  var params = { diagram: diagramId };
+  $.post( url, params );
+
+  // Remove table row.
+  $('#row' + index).remove();
+
+  // Show message.
+  showToastMessage("Diagram deleted.");
+}
+
+// Function to delete multiple diagrams.
+function deleteMultipleDiagrams(indexes) {
+  // Check if the user really wants to delete.
+  var answer = confirm("Are you sure you want to delete the selected diagrams?");
+  if (!answer) {
+    return;
+  }
+
+  // Use AJAX to ask the server to delete the diagram.
+  for (var i in indexes) {
+    // Get ID.
+    var index = indexes[i];
+    var diagramId = diagramList[index];
+
+    // Use AJAX call.
+    var url = "/delete";
+    var params = { diagram: diagramId };
+    $.post( url, params );
+
+    // Remove table row.
+    $('#row' + index).remove();
+  }
+
+  // Show message.
+  showToastMessage("Diagrams deleted.");
+}
+
+// Function to rename diagram.
+function renameDiagram(index) {
+  // Prompt for new name.
+  var currentName = diagramList[index];
+  let newName = prompt("Enter the new name", currentName);
+  if (newName == null) {
+    // Cancel.
+    // alert("Cancelled.");
+    return;
+  }
+
+  // TODO: Warn if name already exists.
+
+  // Use AJAX to ask the server to rename the diagram.
+  var url = "/rename";
+  var diagramId = diagramList[index];
+  var params = { diagram: diagramId, name: newName };
+  $.post( url, params, function(data, status) {
+    // Get AJAX response.
+    var jsonReply = data;
+
+    // Check result.
+    var replyStatus = jsonReply.status;
+
+    if (replyStatus == "OK") {
+      // Get final name.
+      newName = jsonReply.newName;
+
+      // Update dictionary.
+      diagramList[index] = newName;
+
+      // Update table row.
+      var row = document.getElementById('row' + index);
+      row.cells[1].innerHTML = newName;
+
+      // Show message.
+      alert("Diagram renamed.");
+    }
+    else {
+      // An error happened.
+      alert("Could not rename diagram. Details:\n" + jsonReply.problem);
+    }
+  });
+}
+</script>
+
+<table id="diagramsTable">
+    <tr><th style="width:50px">Select</th><th style="width:250px">Name</th><th>Rename</th><th>Delete</th></tr>
+</table>
+
+<br />
+
+<div>
+  <button id="buttonDeleteSelected" onclick="deleteSelected()">Delete Selected</button>
+</div>
+
+<script>
+// Style the UI widgets.
+// $( "#buttonDeleteSelected" ).button();
+var buttonDeleteSelected = document.getElementById("buttonDeleteSelected");
+buttonDeleteSelected.disabled = true; // Initially disabled.
+
+// Add diagrams.
+var diagramsTable = document.getElementById("diagramsTable");
+
+for (var index in diagramList) {
+  // Get diagram name.
+  var diagram = diagramList[index];
+
+  // Add a row to the table.
+  var row = diagramsTable.insertRow(diagramsTable.rows.length);
+
+  // Assign ID.
+  row.id = "row" + index
+
+  // Add a cell to the row.
+  var cell0 = row.insertCell(0);
+  var cell1 = row.insertCell(1);
+  var cell2 = row.insertCell(2);
+  var cell3 = row.insertCell(3);
+
+  // Set the cell text.
+  cell0.innerHTML = '<input type="checkbox" onchange="onCheckBoxChange()" id="checkBox' + index + '"/>';
+
+  // Set the cell text.
+  cell1.innerHTML = diagram;
+
+  // Add the "rename" button.
+  cell2.innerHTML = '<a href="javascript:renameDiagram(' + index + ');">Rename</a>';
+
+  // Add the "delete" button.
+  cell3.innerHTML = '<a href="javascript:deleteDiagram(' + index + ');">Delete</a>';
+}
+
+// Delete selected diagrams.
+function deleteSelected() {
+  var indexes = [];
+
+  // Use minus one to avoid counting the header row.
+  for (var row = 0; row < diagramsTable.rows.length - 1; ++row) {
+    var checkBox = document.getElementById("checkBox" + row);
+    if (checkBox && checkBox.checked) {
+      indexes.push(row);
+    }
+  }
+
+  if (indexes.length > 0) {
+    deleteMultipleDiagrams(indexes);
+  }
+}
+
+// Callback for when checkbox is toggled.
+function onCheckBoxChange() {
+  // Use minus one to avoid counting the header row.
+  for (var row = 0; row < diagramsTable.rows.length - 1; ++row) {
+    var checkBox = document.getElementById("checkBox" + row);
+    if (checkBox && checkBox.checked) {
+      // Something selected.
+      buttonDeleteSelected.disabled = false;
+      return;
+    }
+  }
+
+  // Nothing selected.
+  buttonDeleteSelected.disabled = true;
+}
+</script>
+
+</body>
+</html>

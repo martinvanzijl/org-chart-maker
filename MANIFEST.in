@@ -1,0 +1,6 @@
+include LICENSE.rst
+include org_chart_maker/schema.sql
+graft org_chart_maker/static
+graft org_chart_maker/templates
+graft tests
+global-exclude *.pyc

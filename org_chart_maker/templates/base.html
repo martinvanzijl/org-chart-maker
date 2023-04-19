@@ -1,0 +1,43 @@
+<!doctype html>
+<html>
+<head>
+
+<!-- Favicon. -->
+<link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+
+<!-- General. -->
+<link rel="stylesheet" href="static/general.css">
+
+<!-- Additional header includes. -->
+{% block includes %}{% endblock %}
+
+<!-- Page title. -->
+<title>Org Chart Maker</title>
+
+</head>
+<body>
+
+<!-- Navigation block. -->
+{% block navigation %}{% endblock %}
+
+<!-- Title section. -->
+<title>{% block title %}{% endblock %} - Org Chart Maker</title>
+
+<!-- Content. -->
+<section class="content">
+  <!-- Header. -->
+  <header>
+    {% block header %}{% endblock %}
+  </header>
+
+  <!-- Messages. -->
+  {% for message in get_flashed_messages() %}
+    <div class="flash">{{ message }}</div>
+  {% endfor %}
+
+  <!-- Main. -->
+  {% block content %}{% endblock %}
+</section>
+
+</body>
+</html>

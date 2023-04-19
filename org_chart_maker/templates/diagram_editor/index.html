@@ -1,0 +1,1287 @@
+{% extends 'base.html' %}
+
+{% block includes %}
+<script src="static/konva.min.js"></script>
+<script src="static/geometry.js"></script>
+
+<!-- Menu. -->
+<link rel="stylesheet" href="{{ url_for('static', filename='navbar.css') }}">
+
+<!-- Context menu. -->
+<link rel="stylesheet" href="{{ url_for('static', filename='context-menu.css') }}">
+
+<!-- Side bar. -->
+<link rel="stylesheet" href="{{ url_for('static', filename='sidebar.css') }}">
+
+<!-- Toast message. -->
+<link rel="stylesheet" href="static/toast-message.css">
+<script src="static/toast-message.js"></script>
+
+<!-- JQuery UI components. -->
+<script src="static/jquery-3.6.0.min.js"></script>
+<script src="static/jquery-ui.min.js"></script>
+<link rel="stylesheet" href="static/jquery-ui.min.css">
+
+<script>
+    $( function() {
+        $( "#tabs" ).tabs();
+    } );
+</script>
+{% endblock %}
+
+{% block navigation %}
+
+<!-- The toast message. -->
+<div id="snackbar">Started new diagram</div>
+
+<!-- The menu. -->
+<div class="navbar">
+  <!-- If user is logged in, do not show the "home" link. -->
+  {% if not g.user %}
+    <a href="/">Home</a>
+  {% endif %}
+  <a href="/new">New</a>
+  <a href="javascript:showOpenDialog();">Open...</a>
+  <a href="javascript:saveDiagram();">Save</a>
+  <a href="javascript:saveDiagramAs();">Save As...</a>
+  <a href="javascript:showUploadDialog();">Upload...</a>
+  <a href="javascript:exportImage();">Export...</a>
+  <a href="/manage">Manage</a>
+
+  <a style="float:right" href="/static/help.html">Help</a>
+  {% if g.user %}
+    <a style="float:right" href="{{ url_for('auth.logout') }}">Log Out</a>
+    <span style="float:right">Logged in as {{ g.user['username'] }}</span>
+  {% else %}
+    <a style="float:right" href="{{ url_for('auth.login') }}">Log In</a>
+    {% if g.allow_register_new_users %}
+      <a style="float:right" href="{{ url_for('auth.register') }}">Register</a>
+    {% endif %}
+  {% endif %}
+</div>
+
+{% endblock %}
+
+{% block content %}
+
+<!-- The context menu for persons. -->
+<div id="person-context-menu-container"></div>
+<div id="person-context-menu">
+  <div>
+    <button id="person-context-menu-edit-button">Edit...</button>
+    <button id="person-context-menu-remove-button">Remove</button>
+  </div>
+</div>
+
+<!-- The main content. -->
+<div class="main">
+
+<!-- The side bar. -->
+<div class="sidebar">
+  <span>Add Items</span>
+  <button id="buttonAddPerson" onclick="addPersonClicked()" draggable="true" ondragstart="addPersonStartDrag(event)">Person</button>
+  <br />
+  <button id="buttonAddRelationship" onclick="addRelationshipClicked()">Relationship</button>
+  <span>Selected Item</span>
+  <button id="buttonDeletePerson" onclick="deletePersonClicked()">Delete</button>
+  <span>Tree View</span>
+  <table id="personsTable">
+      <tr><th>Name</th></tr>
+  </table>
+</div>
+
+<script>
+// Set reference.
+var personsTable = document.getElementById("personsTable");
+var personsTableRows = {};
+
+// Style the UI widgets.
+$( "#buttonAddPerson" ).button();
+$( "#buttonAddRelationship" ).button();
+$( "#buttonDeletePerson" ).button();
+
+// Diagram mode.
+var DEFAULT = 0;
+var ADD_PERSON = 1;
+var ADD_RELATIONSHIP = 2;
+var diagramMode = DEFAULT;
+
+// Set diagram mode.
+function setDiagramMode(mode) {
+  diagramMode = mode;
+
+  var groupsAreDraggable = !(mode == ADD_RELATIONSHIP);
+  for (var index in persons) {
+    persons[index].group.draggable (groupsAreDraggable);
+  }
+
+  // Highlight the correct button.
+  var buttonAddPerson = document.getElementById("buttonAddPerson");
+  var buttonAddRelationship = document.getElementById("buttonAddRelationship");
+
+  if (mode == ADD_PERSON) {
+    highlightButton(buttonAddPerson);
+    unHighlightButton(buttonAddRelationship);
+  }
+  else if (mode == ADD_RELATIONSHIP) {
+    highlightButton(buttonAddRelationship);
+    unHighlightButton(buttonAddPerson);
+  }
+  else {
+    unHighlightButton(buttonAddPerson);
+    unHighlightButton(buttonAddRelationship);
+  }
+}
+
+// Highlight the given button.
+function highlightButton(button) {
+  var highlightedBorder = "3px solid lime";
+  var highlightedMargin = "-2px";
+
+  button.style.border = highlightedBorder;
+  button.style.marginBottom = highlightedMargin;
+  button.style.marginTop = highlightedMargin;
+}
+
+// Un-highlight the given button.
+function unHighlightButton(button) {
+  button.style.border = null;
+  button.style.margin = null;
+}
+
+// Callback for clicking the "Add Person" button.
+function addPersonClicked()
+{
+  setDiagramMode (ADD_PERSON);
+}
+
+function addPersonStartDrag(ev)
+{
+  ev.dataTransfer.setData("text", ev.target.id);
+}
+
+// Callback for clicking the "Add Relationship" button.
+function addRelationshipClicked()
+{
+  setDiagramMode (ADD_RELATIONSHIP);
+}
+
+// Remove item from array.
+// https://stackoverflow.com/questions/5767325/how-can-i-remove-a-specific-item-from-an-array
+function removeItemOnce(arr, value) {
+  var index = arr.indexOf(value);
+  if (index > -1) {
+    arr.splice(index, 1);
+  }
+  return arr;
+}
+
+// Callback for clicking the "Delete Person" button.
+function deletePersonClicked()
+{
+  if (selectedPerson) {
+    // Remove shapes from diagram.
+    selectedPerson.group.remove();
+
+    // Remove relationships.
+    var arrayCopy = selectedPerson.relationships.slice(); // Copy array.
+    for (var index in arrayCopy) {
+      var relationship = arrayCopy[index];
+      deleteRelationship(relationship);
+    }
+
+    // Remove from tree view.
+    personsTable.deleteRow(personsTableRows[selectedPerson.personId].rowIndex);
+
+    // Remove person from dictionary.
+    delete persons[selectedPerson.personId];
+
+    // Reset.
+    selectedPerson = null;
+  }
+
+  if (selectedRelationship) {
+    // Delete.
+    deleteRelationship(selectedRelationship);
+
+    // Reset.
+    selectedRelationship = null;
+  }
+}
+
+// Delete a relationship.
+function deleteRelationship (relationship) {
+  // Remove shape.
+  relationship.arrow.remove();
+
+  // Remove pointers.
+  removeItemOnce(persons[relationship.fromPersonId].relationships, relationship);
+  removeItemOnce(persons[relationship.toPersonId].relationships, relationship);
+  removeItemOnce(relationships, relationship);
+}
+
+// Add keyboard shortcut.
+var KEY_DELETE = 46;
+var KEY_ENTER = 13;
+
+$( document ).keydown(function() {
+  if (event.which == KEY_DELETE) {
+    deletePersonClicked();
+  }
+  else if (event.which == KEY_ENTER) {
+    // Use Ctrl+Enter to save person details.
+    if (event.ctrlKey && personDetailsDialog.dialog("isOpen")) {
+      savePersonDetails();
+    }
+    // Use Enter as shortcut key to "Save" button in "Save" dialog.
+    else if (saveOrgChartDialog.dialog("isOpen")) {
+      saveOrgChartDialogSaveClicked();
+    }
+  }
+});
+</script>
+
+<!-- The dialog -->
+<div id="personDetailsDialog" title="Person Details" style="display: none;">
+
+  <!-- Details. -->
+  <div id="tabs">
+    <ul>
+      <li><a href="#tabs-1">Details</a></li>
+      <li><a href="#tabs-2">Photos</a></li>
+    </ul>
+    <div id="tabs-1">
+      <p><label for="name">Name: </label><input id="name"/></p>
+      <p><label for="title">Title: </label><input id="title"/></p>
+    </div>
+    <div id="tabs-2">
+      <p>Photos:</p>
+      <table id="photosTable">
+          <tr><td>ICON</td><td>Name</td><td><!-- Remove --></td></tr>
+      </table>
+      <button id="buttonAddPhoto" onclick="addPhotoClicked()">Add...</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- The hidden form for adding a photo. -->
+<form action="/add_photo" id="uploadPhotoForm" enctype="multipart/form-data" style="display: none;">
+  <input type="file" id="photoToAdd" name="photoToAdd" accept="image/*" />
+  <input type="submit" value="Upload">
+</form>
+
+<script>
+// Submit form when photo chosen.
+$('#photoToAdd').on('change',function ()
+{
+   $( '#uploadPhotoForm' ).trigger("submit");
+});
+
+// Attach a submit handler to the form
+$( "#uploadPhotoForm" ).submit(function( event ) {
+
+  // Stop form from submitting normally
+  event.preventDefault();
+
+  // Send the data using post.
+  var formData = new FormData(this);
+  $.ajax({
+      type: 'POST',
+      url: $(this).attr('action'),
+      data: formData,
+      cache: false,
+      contentType: false,
+      processData: false,
+      success: function(data) {
+          addPhotoToList(data.photoPath, data.photoName); // Add to GUI.
+          currentPerson.photos.push(data.photoPath); // Add to model.
+          updateThumbnail(currentPerson);
+      },
+      error: function(data) {
+          console.log("error");
+          console.log(data);
+      }
+  });
+});
+
+// Create the dialog.
+personDetailsDialog = $( "#personDetailsDialog" ).dialog({ autoOpen: false, closeOnEscape: true, modal: true, width: 420,
+  buttons: {
+    "Save": savePersonDetails,
+    "Cancel": function() { personDetailsDialog.dialog( "close" ); }
+  },
+  maxHeight: ($(window).height() - 50)
+});
+
+// Style the UI widgets.
+$( "#buttonAddPhoto" ).button();
+
+// Callback for clicking the "Add Photo" button.
+function addPhotoClicked()
+{
+  $('#photoToAdd').trigger('click'); // Show the dialog.
+}
+
+// Function to save person details.
+function savePersonDetails() {
+  // Update details.
+  currentPerson.name = $( "#name" ).val();
+  currentPerson.title = $( "#title" ).val();
+
+  // Update diagram.
+  currentPerson.text.text( currentPerson.name );
+  updateBoxToFitName( currentPerson );
+
+  updateRelationshipEndPoints(currentPerson);
+
+  // Update tree view.
+  personsTableRows[currentPerson.personId].cells[0].innerHTML = currentPerson.name;
+
+  // Close the dialog.
+  personDetailsDialog.dialog( "close" );
+}
+
+// Function to get base name of file.
+function getBaseName(path) {
+  var list = path.split("/");
+  var name = list[list.length - 1];
+  return name;
+}
+
+// Function to show person details.
+function showPersonDetails(personId) {
+  // Get person.
+  var person = persons[personId];
+
+  // Store.
+  currentPerson = person;
+
+  // Set title.
+  $( "#personDetailsDialog" ).dialog( "option", "title", "Person details - " + person.name );
+
+  // Add person details.
+  document.getElementById("name").value = person.name;
+  document.getElementById("title").value = person.title;
+
+  // Add photos.
+  var photosTable = document.getElementById("photosTable");
+
+  // Clear existing rows.
+  var rowCount = photosTable.rows.length;
+  for (var i = 0; i < rowCount; i++) {
+    photosTable.deleteRow(0);
+  }
+
+  for (var index in person.photos) {
+    // Get parts.
+    var path = person.photos[index]
+    var name = getBaseName(path);
+
+    // Add to list.
+    addPhotoToList(path, name);
+  }
+
+  // Show dialog.
+  $( "#personDetailsDialog" ).dialog( "open" );
+
+  // Set the dialog to a constant height.
+  $( "#tabs" ).tabs( "option", "heightStyle", "auto" );
+}
+
+// Add a photo to the list.
+function addPhotoToList(photoPath, photoName) {
+  // Create an empty <tr> element and add it to the 1st position of the table:
+  var row = photosTable.insertRow(0);
+
+  // Create ID for row.
+  var rowId = "photosRow" + photosTable.rows.length;
+  row.id = rowId;
+
+  // Create ID for delete button.
+  var deleteButtonId = rowId + "DeleteButton";
+
+  // Insert new cells (<td> elements) at the 1st and 2nd position of the "new" <tr> element:
+  var cell1 = row.insertCell(0);
+  var cell2 = row.insertCell(1);
+  var cell3 = row.insertCell(2);
+
+  // Add some text to the new cells:
+  cell1.innerHTML = '<img src="' + photoPath + '" border="0" width="32" height="32" ondblclick="showPhoto(\'' + photoPath + '\')">';
+  cell2.innerHTML = photoName;
+  // cell3.innerHTML = '<button id="' + deleteButtonId + '" class="remove">Remove</button>';
+  cell3.innerHTML = '<button id="' + deleteButtonId + '" class="remove"><span class="trash-icon"/></button>';
+
+  // Format the widgets.
+  $( "#" + deleteButtonId ).button({
+    // icon: "ui-icon-trash",
+    showLabel: false
+  });
+
+  // Add click handler for delete button.
+  $( "#" + deleteButtonId ).click( function(event) {
+    row.remove();
+    removeItemOnce(currentPerson.photos, photoPath);
+    updateThumbnail(currentPerson);
+  });
+}
+
+// Show a photo in a new tab or window.
+function showPhoto(photoPath) {
+  window.open(photoPath, "_blank");
+}
+</script>
+
+<!-- The "open" dialog. -->
+<div id="openOrgChartDialog" title="Open Org Chart">
+</div>
+
+<script>
+$( "#openOrgChartDialog" ).dialog({
+  autoOpen: false,
+  maxHeight: ($(window).height() - 50)
+});
+
+function showOpenDialog() {
+    $( "#openOrgChartDialog" ).dialog( "open" );
+};
+</script>
+
+<!-- The "save" dialog. -->
+<div id="saveOrgChartDialog" title="Save Org Chart">
+  <p>
+    <label for="saveFileNameInput">Name: </label>
+    <input name="saveFileNameInput" id="saveFileNameInput" pattern="[a-zA-Z0-9_-]*" required>
+  </p>
+  <span style="font-size: smaller;">Only letters, numbers, underscores and hyphens are allowed.</span>
+</div>
+
+<script>
+// Check if name is valid.
+function isValidDiagramName(name) {
+  return name.length > 0 && /^[a-zA-Z0-9_-]*$/.test(name);
+}
+
+saveOrgChartDialog = $( "#saveOrgChartDialog" ).dialog({
+  autoOpen: false,
+  maxHeight: ($(window).height() - 50),
+  modal: true,
+  buttons: {
+    "Save": saveOrgChartDialogSaveClicked,
+    "Cancel": function() { saveOrgChartDialog.dialog( "close" ); }
+  },
+});
+
+function showSaveDialog() {
+    $( "#saveOrgChartDialog" ).dialog( "open" );
+};
+
+// Handler for when the "save" button is clicked.
+function saveOrgChartDialogSaveClicked() {
+  var userInput = $( "#saveFileNameInput" ).val();
+
+  if (isValidDiagramName(userInput)) {
+    // Accept.
+    diagramName = userInput;
+    savingAsNewFilename = true;
+
+    // Save.
+    postDiagramToServer();
+  }
+  else {
+    // Reject.
+    alert("Please enter a valid name. Only letters, numbers, underscores and hyphens are allowed.");
+  }
+}
+</script>
+
+<!-- The "upload" dialog. -->
+<form id="uploadDiagramForm" action="/" method="post" enctype="multipart/form-data" style="display: none;">
+    <input id="upload_file_input" type="file" name="uploaded_file" accept=".xml, application/xml" />
+    <input type="submit" value="Upload" />
+</form>
+
+<script>
+var uploadFileInput = document.getElementById('upload_file_input');
+
+uploadFileInput.onchange = e => {
+    // Submit the form.
+    $('#uploadDiagramForm').trigger("submit");
+};
+
+function showUploadDialog() {
+    $('#upload_file_input').trigger('click');
+};
+</script>
+
+<!-- The diagram. -->
+<div id="scroll-container">
+  <div id="large-container">
+    <div id="container"></div>
+  </div>
+</div>
+<script>
+      var width = window.innerWidth;
+      var height = window.innerHeight;
+
+      // padding will increase the size of stage
+      // so scrolling will look smoother
+      var PADDING = 500;
+
+      var stage = new Konva.Stage({
+        container: 'container',
+        width: window.innerWidth + PADDING * 2,
+        height: window.innerHeight + PADDING * 2,
+      });
+
+      var layer = new Konva.Layer();
+
+      // Add the layer to the stage.
+      stage.add(layer);
+
+      // Handle scrolling.
+      var scrollContainer = document.getElementById('scroll-container');
+      function repositionStage() {
+        var dx = scrollContainer.scrollLeft - PADDING;
+        var dy = scrollContainer.scrollTop - PADDING;
+        stage.container().style.transform =
+          'translate(' + dx + 'px, ' + dy + 'px)';
+        stage.x(-dx);
+        stage.y(-dy);
+      }
+      scrollContainer.addEventListener('scroll', repositionStage);
+      repositionStage();
+
+      // Selection handling.
+      selectedPerson = null;
+      selectedRelationship = null;
+
+      // Add click listener.
+      stage.on('click', function() {
+        if (diagramMode == ADD_PERSON) {
+          createNewPerson(stage.getRelativePointerPosition());
+        }
+        else {
+          // Clear current selection.
+          console.log("Stage clicked.");
+          selectNone();
+        }
+      });
+
+      // Drawing arrows.
+      newRelationshipParent = null;
+      newRelationshipChild = null;
+      drawingArrow = false;
+
+      // Persons dictionary.
+      persons = {};
+
+      // Add person to diagram at the given coordinates.
+      function addPersonToDiagram(person, x, y) {
+        // Set size.
+        var width = 200; // Math.max(simpleText.width() + 32, 200)
+        var height = 50;
+
+        // Calculate group coordinates.
+        var groupX = x;
+        var groupY = y;
+
+        // Create the group (for drag and drop).
+        var group = new Konva.Group({
+          x: groupX,
+          y: groupY,
+          draggable: true,
+        });
+
+        // Calculate center.
+        var centerX = (width / 2);
+        var centerY = (height / 2);
+
+        // Center the text in the box.
+        var fontSize = 20;
+        var textX = 20;
+        var textY = centerY - (fontSize / 2);
+
+        // Create the text element.
+        var text = new Konva.Text({
+            x: textX,
+            y: textY,
+            text: person.name,
+            fontSize: fontSize,
+            fontFamily: 'Calibri',
+            fill: 'black',
+        });
+
+        // Create the rectangle.
+        var rect = new Konva.Rect({
+          x: 0,
+          y: 0,
+          width: width,
+          height: height,
+          fill: 'white',
+          stroke: 'black',
+          strokeWidth: 1,
+        });
+
+        // Add the shapes to the group.
+        group.add(rect);
+        group.add(text);
+
+        // Add the group to the layer.
+        layer.add(group);
+
+        // Get id.
+        var personId = person.personId;
+
+        // Add to dictionary.
+        persons[personId] = person;
+
+        // Add click handlers.
+        group.on('pointerdblclick', function () {
+            showPersonDetails(personId);
+        });
+
+        rect.on('click', function (e) {
+          if (diagramMode == DEFAULT) {
+            selectPerson(person);
+            e.cancelBubble = true; // Stop event propogation.
+          }
+        });
+
+        text.on('click', function (e) {
+          if (diagramMode == DEFAULT) {
+            selectPerson(person);
+            e.cancelBubble = true; // Stop event propogation.
+          }
+        });
+
+        group.on('dragstart', function (e) {
+          if (diagramMode == DEFAULT) {
+            selectPerson(person);
+          }
+        });
+
+        group.on('mousedown', function (e) {
+          if (diagramMode == ADD_RELATIONSHIP) {
+            newRelationshipParent = person;
+            drawingArrow = true;
+          }
+        });
+
+        group.on('mouseup', function (e) {
+          if (diagramMode == ADD_RELATIONSHIP) {
+            newRelationshipChild = person;
+          }
+        });
+
+        group.on('dragmove', function (e) {
+          // Move relationships.
+          updateRelationshipEndPoints(person);
+        });
+
+        // Add pointers to shapes.
+        person.rect = rect;
+        person.text = text;
+        person.group = group;
+
+        // Add relationship list.
+        person.relationships = [];
+
+        // Set border color.
+        restoreBorderColor(person);
+
+        // Update thumbnail.
+        person.thumbnailBox = null;
+        updateThumbnail(person);
+
+        // Update box to fit name.
+        updateBoxToFitName(person);
+
+        // Add to tree view.
+        var row = personsTable.insertRow(personsTable.rows.length);
+        var cell = row.insertCell(0);
+        cell.innerHTML = person.name;
+        cell.onclick = function() {
+          goToPerson(person);
+          selectPerson(person);
+        }
+        personsTableRows[personId] = row;
+      }
+
+      // Scroll to given person.
+      function goToPerson(person) {
+        scrollContainer.scrollLeft = person.group.x() - (scrollContainer.clientWidth / 2) + (person.rect.width() / 2);
+        scrollContainer.scrollTop = person.group.y() - (scrollContainer.clientHeight / 2) + (person.rect.height() / 2);
+      }
+
+      // Update box to fit name.
+      function updateBoxToFitName(person) {
+        // Constants.
+        var MARGIN = 20;
+        var THUMBNAIL_MARGIN = 32;
+
+        // Calculate margin.
+        var width = person.text.width() + (MARGIN * 2);
+
+        if (person.photos.length > 0) {
+          width += THUMBNAIL_MARGIN;
+        }
+
+        // Set width.
+        person.rect.width(width);
+      }
+
+      // Reset border color for the given person.
+      function restoreBorderColor(person) {
+        person.rect.stroke(person.borderColor);
+      }
+
+      // Update thumbnail for person.
+      function updateThumbnail(person) {
+
+        if (person.photos.length > 0) {
+          // Get image.
+          var thumbnailPhoto = person.photos[0];
+
+          // Check if box already exists.
+          if (person.thumbnailBox) {
+            if (getBaseName(person.thumbnailBox.image().src) == getBaseName(thumbnailPhoto)) {
+              // No need to update.
+              return;
+            }
+            else {
+              // Remove existing box.
+              person.thumbnailBox.remove();
+            }
+          }
+
+          // Create thumbnail box.
+          Konva.Image.fromURL(thumbnailPhoto, function (imageNode) {
+            // Set image attributes.
+            imageNode.setAttrs({
+              x: person.rect.width() - 42,
+              y: 8,
+              width: 32,
+              height: 32,
+            });
+
+            // Add to group.
+            person.group.add(imageNode);
+
+            // Set field.
+            person.thumbnailBox = imageNode;
+          });
+        }
+        else {
+          // Remove box if exists.
+          if (person.thumbnailBox) {
+            person.thumbnailBox.remove();
+            person.thumbnailBox = null;
+          }
+        }
+
+        // Update box to fit contents.
+        updateBoxToFitName(person);
+      }
+
+      // Update relationship endpoints for the given person.
+      function updateRelationshipEndPoints(person) {
+        for (var index in person.relationships) {
+          var relationship = person.relationships[index];
+          updateArrowEndPoints(relationship);
+        }
+      }
+
+      // Update the end points for a relationship.
+      function updateArrowEndPoints(relationship) {
+        // Get start coordinate.
+        var fromPerson = persons[relationship.fromPersonId];
+        var x1 = fromPerson.group.x() + (fromPerson.rect.width() / 2);
+        var y1 = fromPerson.group.y() + fromPerson.rect.height();
+
+        // Get end coordinate.
+        var toPerson = persons[relationship.toPersonId];
+        // var x2 = toPerson.group.x() + (toPerson.rect.width() / 2);
+        // var y2 = toPerson.group.y();
+        intersectionPoint = lineIntersectionOnRect(
+          toPerson.rect.width(),
+          toPerson.rect.height(),
+          toPerson.group.x() + (toPerson.rect.width() / 2),
+          toPerson.group.y() + (toPerson.rect.height() / 2),
+          x1,
+          y1);
+        var x2 = intersectionPoint.x;
+        var y2 = intersectionPoint.y;
+
+        // Move arrow.
+        relationship.arrow.points( [x1, y1, x2, y2] );
+      }
+
+      // De-select all items.
+      function selectNone() {
+        // Deselect relationships.
+        if (selectedRelationship) {
+          selectedRelationship.arrow.stroke(selectedRelationship.color);
+          // selectedRelationship.arrow.strokeWidth(2);
+        }
+        selectedRelationship = null;
+
+        // Deselect persons.
+        if (selectedPerson) {
+          restoreBorderColor(selectedPerson);
+          selectedPerson.rect.strokeWidth(1)
+        }
+        selectedPerson = null;
+      }
+
+      // Function to select person.
+      function selectPerson(person) {
+        // Deselect previous person.
+        selectNone();
+
+        // Select the person.
+        selectedPerson = person;
+
+        // Highlight the person.
+        person.rect.stroke("blue");
+        person.rect.strokeWidth(2);
+      }
+
+      // Relationship list.
+      relationships = [];
+
+      // Check if relationship exists between two people.
+      function relationshipExists(person1, person2) {
+        return isParentOf(person1, person2) || isParentOf(person2, person1);
+      }
+
+      // Check for relationship.
+      function isParentOf(parent, child) {
+        for (var index in parent.relationships) {
+          if (parent.relationships[index].toPersonId == child.personId) {
+            // Exists.
+            return true;
+          }
+        }
+
+        // Does not exist.
+        return false;
+      }
+
+      // Add relationship to diagram.
+      function addRelationshipToDiagram(x1, y1, x2, y2, parentId, childId, color) {
+
+        // Check that relationship does not already exist.
+        var parent = persons[parentId];
+        var child = persons[childId];
+
+        if (relationshipExists(parent, child)) {
+          // Do not add a duplicate relationship.
+          console.log("Relationship already exists. Not added again.")
+          return null;
+        }
+
+        // Create arrow.
+        var arrow = new Konva.Arrow({
+          points: [x1, y1, x2, y2],
+          stroke: color,
+          tension: 1,
+          pointerLength : 20,
+          pointerWidth : 20,
+          fill: color,
+        });
+
+        // Add the arrow to the layer.
+        layer.add(arrow);
+
+        // Create model.
+        var relationship = {
+          fromPersonId: parentId,
+          toPersonId: childId,
+          color: color,
+          arrow: arrow,
+        };
+
+        // Add to dictionary.
+        relationships.push(relationship);
+
+        // Add relationships to persons.
+        persons[parentId].relationships.push(relationship);
+        persons[childId].relationships.push(relationship);
+
+        // Add click handler.
+        arrow.on('click', function (e) {
+          selectRelationship(relationship);
+          e.cancelBubble = true; // Stop event propogation.
+        });
+
+        // Update end-points.
+        updateArrowEndPoints(relationship);
+
+        // Return new relationship.
+        return relationship;
+      }
+
+      // Function to select relationship.
+      function selectRelationship(relationship) {
+        // Deselect previous item.
+        selectNone();
+
+        // Select the relationship.
+        selectedRelationship = relationship;
+
+        // Highlight the relationship.
+        relationship.arrow.stroke("blue");
+        // relationship.arrow.strokeWidth(3);
+      }
+
+      // Contents top left. This may be set by "canvasContent" below.
+      var contentsTopLeft = null;
+
+      // Add content from the diagram XML file.
+      {{ canvasContent|safe }}
+
+      // Set stage position.
+      {% if g.scrollLeft %}
+        // Set the scroll position.
+        scrollContainer.scrollLeft = {{ g.scrollLeft }};
+        scrollContainer.scrollTop = {{ g.scrollTop }};
+
+        // Debug.
+        console.log("g.scrollLeft:", {{ g.scrollLeft }}, {{ g.scrollTop }});
+      {% else %}
+        // Set the diagram offset.
+        if (contentsTopLeft) {
+          // stage.setPosition(contentsTopLeft);
+
+          // Debug.
+          console.log("contentsTopLeft:", contentsTopLeft.x, contentsTopLeft.y);
+
+          // Set scroll position.
+          // This does not work! It sets the position, but reverts immediately.
+          // document.documentElement.scrollLeft = -contentsTopLeft.x;
+          // document.documentElement.scrollTop = -contentsTopLeft.y;
+
+          // Set stage position. This works and has a nice animation,
+          // but still does not solve the original problem.
+          // stage.to({ x: contentsTopLeft.x, y: contentsTopLeft.y });
+
+          scrollContainer.scrollLeft = -contentsTopLeft.x;
+          scrollContainer.scrollTop = -contentsTopLeft.y;
+        }
+      {% endif %}
+
+      // Export to image.
+
+      // function from https://stackoverflow.com/a/15832662/512042
+      function downloadURI(uri, name) {
+        var link = document.createElement('a');
+        link.download = name;
+        link.href = uri;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        delete link;
+      }
+
+      function exportImage() {
+        // Find diagram content size.
+        var clientRect = layer.getClientRect();
+
+        // Limit image to contents.
+        var MARGIN = 16
+        var config = {
+          x: clientRect.x,
+          y: clientRect.y,
+          width: clientRect.width + (MARGIN * 2),
+          height: clientRect.height + (MARGIN * 2)
+        }
+
+        // Export.
+        var dataURL = stage.toDataURL(config);
+        downloadURI(dataURL, 'diagram-export.png');
+      }
+
+// Temporary relationship arrow.
+var newRelationshipArrow = null;
+
+// Handle dragging a relationship.
+stage.on('mousemove', function (e) {
+  if (drawingArrow) {
+    // Get position.
+    var pos = stage.getRelativePointerPosition();
+
+    // Create arrow.
+    if (!newRelationshipArrow) {
+      // Create shape.
+      newRelationshipArrow = new Konva.Arrow({
+        points: [pos.x, pos.y, pos.x, pos.y],
+        stroke: 'blue',
+        tension: 1,
+        pointerLength : 20,
+        pointerWidth : 20,
+        fill: 'blue',
+      });
+
+      // Prevent trapping mouse-up evens.
+      newRelationshipArrow.setListening (false);
+
+      // Add to layer.
+      layer.add (newRelationshipArrow);
+    }
+    else {
+      // Set points.
+      var orig = newRelationshipArrow.points ();
+      var x1 = orig[0];
+      var y1 = orig[1];
+      var x2 = pos.x;
+      var y2 = pos.y;
+      newRelationshipArrow.points ( [x1, y1, x2, y2] );
+    }
+  }
+});
+
+// End dragging a relationship.
+stage.on('mouseup', function (e) {
+  if (drawingArrow) {
+    // Reset mode.
+    setDiagramMode(DEFAULT);
+
+    // Clear flag.
+    drawingArrow = false;
+
+    // Remove temporary arrow.
+    if (newRelationshipArrow) {
+      newRelationshipArrow.remove();
+    }
+
+    // Add actual relationship.
+    if (newRelationshipParent && newRelationshipChild) {
+      if (newRelationshipParent == newRelationshipChild) {
+        console.log("No relationship added.")
+      }
+      else {
+        // Add the relationship.
+        var relationship = addRelationshipToDiagram(0, 0, 0, 0, newRelationshipParent.personId,
+          newRelationshipChild.personId, 'black');
+
+        // Select it immediately.
+        if (relationship) {
+          selectRelationship(relationship);
+        }
+      }
+    }
+
+    // Clear.
+    newRelationshipArrow = null;
+    newRelationshipParent = null;
+    newRelationshipChild = null;
+  }
+});
+
+// Set up context menu for persons.
+let currentShape;
+var menuNode = document.getElementById('person-context-menu');
+document.getElementById('person-context-menu-edit-button').addEventListener('click', () => {
+  showPersonDetails(selectedPerson.personId);
+});
+
+document.getElementById('person-context-menu-remove-button').addEventListener('click', () => {
+  deletePersonClicked();
+});
+
+// Add context menu to stage for persons.
+stage.on('contextmenu', function (e) {
+
+  // prevent default behavior
+  e.evt.preventDefault();
+  if (e.target === stage) {
+    // if we are on empty place of the stage we will do nothing
+    return;
+  }
+  currentShape = e.target;
+
+  // show menu, if it is on a person
+  if (currentShape.getClassName() == "Rect" || currentShape.getClassName() == "Text") {
+    menuNode.style.display = 'initial';
+    var containerRect = stage.container().getBoundingClientRect();
+    menuNode.style.top =
+      containerRect.top + stage.getPointerPosition().y + 4 + 'px';
+    menuNode.style.left =
+      containerRect.left + stage.getPointerPosition().x + 4 + 'px';
+  }
+});
+
+// Hide context menu after clicking.
+window.addEventListener('click', () => {
+  menuNode.style.display = 'none';
+});
+
+// Function to check intersection.
+// From: https://konvajs.org/docs/sandbox/Collision_Detection.html
+function haveIntersection(r1, r2) {
+  return !(
+    r2.x > r1.x + r1.width ||
+    r2.x + r2.width < r1.x ||
+    r2.y > r1.y + r1.height ||
+    r2.y + r2.height < r1.y
+  );
+}
+
+// Store initial diagram name.
+{% if g.diagramName %}
+  diagramName = "{{ g.diagramName }}";
+{% else %}
+  diagramName = null;
+{% endif %}
+
+// Flag for saving as new filename.
+var savingAsNewFilename = false;
+
+// Flag for preserving offset after saving diagram.
+var preserveOffsetAfterSaving = true;
+
+// Function to save the diagram.
+function saveDiagram() {
+
+  // Reset flag.
+  savingAsNewFilename = false;
+
+  // Ask for name if required.
+  if (!diagramName) {
+    preserveOffsetAfterSaving = true;
+    showSaveDialog();
+  }
+  else {
+    // Save.
+    postDiagramToServer();
+  }
+}
+
+// Function to save the diagram with a new name.
+function saveDiagramAs() {
+  preserveOffsetAfterSaving = false;
+  showSaveDialog();
+}
+
+// Function to post diagram to server.
+function postDiagramToServer() {
+  // Use AJAX to ask the server to save the diagram.
+  var url = "/save";
+
+  // Create data.
+  var pd = JSON.stringify(persons);
+  var rd = JSON.stringify(relationships);
+
+  var params = { name: diagramName, persons: pd, relationships: rd,
+    showSavedMessageOnLoad: savingAsNewFilename};
+
+  $.post( url, params, function(data, status) {
+    // Get AJAX response.
+    var jsonReply = data;
+
+    // Check result.
+    var replyStatus = jsonReply.status;
+
+    if (replyStatus == "OK") {
+      if (savingAsNewFilename) {
+        // TODO: Abort if there are unsaved changes (i.e. if saving took a long time).
+
+        // Preserve offset in diagram.
+        var scrollLeft = scrollContainer.scrollLeft;
+        var scrollTop = scrollContainer.scrollTop;
+
+        // Create URL.
+        var url = "/?diagram=" + jsonReply.diagramName;
+
+        // Pass offset.
+        if (preserveOffsetAfterSaving) {
+          url += "&scrollLeft=" + scrollLeft;
+          url += "&scrollTop=" + scrollTop;
+        }
+
+        // Redirect to saved diagram.
+        document.location = url;
+      }
+      else {
+        // Show message.
+        alert("Diagram saved.");
+      }
+    }
+    else {
+      // An error happened.
+      alert("Could not save diagram. Details:\n" + jsonReply.problem);
+    }
+  });
+}
+
+{% if g.showSavedMessageOnLoad %}
+  window.onload = function () {
+    alert("Diagram saved.");
+  }
+{% endif %}
+
+{% if g.toastMessage %}
+window.onload = function () {
+  alert("{{ g.toastMessage }}");
+}
+{% endif %}
+
+// Allow drag and drop a person onto the stage.
+var con = stage.container();
+con.addEventListener('dragover', function (e) {
+  e.preventDefault(); // !important
+});
+
+con.addEventListener('drop', function (e) {
+  e.preventDefault();
+
+  var data = e.dataTransfer.getData("text");
+
+  if (data == "buttonAddPerson") {
+    // now we need to find pointer position
+    // we can't use stage.getPointerPosition() here, because that event
+    // is not registered by Konva.Stage
+    // we can register it manually:
+    stage.setPointersPositions(e);
+
+    createNewPerson(stage.getRelativePointerPosition());
+  }
+});
+
+// Create a new person and add it to the diagram at the given position.
+function createNewPerson(pos) {
+  // Create ID.
+  // From https://stackoverflow.com/questions/105034/how-to-create-a-guid-uuid
+  var personId = Date.now().toString(36) + Math.random().toString(36).substring(2);
+
+  // Create person.
+  person = {
+      personId: personId,
+      name: "New Person",
+      title: "Associate",
+      photos: [],
+      borderColor: "black",
+  };
+
+  // Add to diagram.
+  addPersonToDiagram(person, pos.x, pos.y);
+
+  // Select it immediately.
+  selectPerson(person);
+
+  // Reset the mode.
+  setDiagramMode (DEFAULT);
+}
+
+// Show toast message if new diagram started.
+{% if not g.diagramName and not g.toastMessage %}
+  showToastMessage("Started new diagram");
+{% endif %}
+
+</script>
+
+<!-- End main content. -->
+</div>
+
+{% endblock %}

@@ -1,0 +1,24 @@
+venv/
+*.pyc
+__pycache__/
+instance/
+.cache/
+.pytest_cache/
+.coverage
+htmlcov/
+dist/
+build/
+*.egg-info/
+.idea/
+*.swp
+*~
+.flaskenv
+run-app.bat
+genealogy_maker_web/static/archive
+genealogy_maker_web/static/photos/
+
+# Ignore folders in the "save files" directory, except for "example" and "test".
+save-files/*/
+!save-files/example/
+!save-files/selenium_user/
+!save-files/test/

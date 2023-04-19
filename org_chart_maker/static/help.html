@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="general.css">
+<link rel="stylesheet" href="menu-bar.css">
+<title>Org Chart Maker - Help</title>
+</head>
+<body>
+
+<ul class="menu">
+  <li class="menu"><a class="menu" href="/">Home</a></li>
+  <li class="menu" style="float:right"><a class="menu menu-active" href="/static/help.html">Help</a></li>
+</ul>
+
+<h2>Org Chart Maker - Help</h2>
+
+<p><b>Summary</b></p>
+
+<p>This is a web application to create Org Charts with.</p>
+
+<p>You must register before using the editor. To register:</p>
+
+<ol>
+  <li>Open the <a href="/auth/register">register page</a>.</li>
+  <li>Enter a username and password.</li>
+  <li>Click "Register". This will take you to the login page.</li>
+  <li>Enter your username and password.</li>
+  <li>Click "Log In".</li>
+</ol>
+
+<p>This creates a new (blank) diagram. You can edit and save the diagram.</p>
+
+<p><b>Opening an Org Chart</b></p>
+
+<p>To open a diagram, click "Open..." from the menu, then click on the diagram you want to open.</p>
+
+<p><b>Uploading an Org Chart</b></p>
+
+<p>You can upload a diagram (XML) from your PC. To do this, click "Upload..." from the menu, then select the diagram (XML) file, and click "Open".</p>
+
+<p>The program will then upload and display the diagram.</p>
+
+<p><b>Viewing Details</b></p>
+
+<p>You can double-click on a person to view their details. You can also right-click the person and select "Edit..."</p>
+
+<p>The Person Details window has a tab for details, biography and photos. Click on each tab to view it. Click "x" or anywhere outside the window, or press Escape, to close the window.</p>
+
+<p>You can edit the person details in this window. To save changes to the person, click on the "Save" button at the bottom (or press Ctrl+Enter). To cancel your changes, click the "Cancel" button (or press Escape).</p>
+
+<p>To add a photo for the person:</p>
+
+<ol>
+   <li>Select the "Photos" tab.</li>
+   <li>Click "Add..."</li>
+   <li>Choose the photo to add.</li>
+   <li>Click "Open".</li>
+</ol>
+
+<p><u>NOTE: All uploaded photos are publicly accessible.</u></p>
+
+<p>To remove a photo for the person, click the "delete" button to the right of the photo name.</p>
+
+<p>You can double-click a photo in the Person Details window to open it in a new window or tab.</p>
+
+<p><b>Managing Uploaded Diagrams</b></p>
+
+<p>You can manage uploaded diagrams by clicking "<a href="/manage">Manage</a>" from the menu. From this page, you can rename or delete existing diagrams.</p>
+
+<p><b>Creating a New Org Chart</b></p>
+
+<p>Click "<a href="/new">New</a>" to create a new diagram.</p>
+
+<p><b>Editing a Diagram</b></p>
+
+<p>To add a new person, click the "Person" button, then click on the diagram. You can also drag from the button onto the canvas.</p>
+
+<p>To add a relationship, click the "Relationship" button. Then click and drag
+the mouse from the parent to the child in the diagram.</p>
+
+<p>To move a person, click and drag the person rectangle.</p>
+
+<p>To delete a person or relationship: click on the object to select
+it, then click the "Delete" button on the left of the page.</p>
+
+<p>You can also right-click on the person, then select "Remove" to delete it.</p>
+
+<p>To save changes to the diagram, click the "Save" link at the top of the page. If it is a new diagram, enter a diagram name and click "OK".</p>
+
+<p><b>The Person Tree View</b></p>
+
+<p>At the bottom of the left side pane there is a tree-view of all the people in the diagram. You can click on a person in the tree-view to navigate (scroll) to that person in the diagram.</p>
+
+<p><b>Exporting a Diagram</b></p>
+
+<p>To export the diagram as an image, click the "Export" button at the top.
+This will download the image as "diagram-export.png".</p>
+
+<h3>Troubleshooting</h3>
+
+<p><b>After uploading a file, the page says "Could not load diagram: (...)"</b></p>
+
+<p>There is probably an error in the uploaded file itself. More detail will be in the console output on the server.</p>
+
+</body>
+</html>
