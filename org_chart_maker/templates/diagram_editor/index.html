@@ -612,6 +612,22 @@ function showUploadDialog() {
             fill: 'black',
         });
 
+        // Create the title text element.
+        var titleText = new Konva.Text({
+            x: textX,
+            y: textY + fontSize,
+            text: person.title,
+            fontSize: 10,
+            fontFamily: 'Calibri',
+            fill: 'black',
+        });
+
+        // Center title text.
+        titleText.x(textX + text.width() / 2 - titleText.width() / 2)
+
+        // TODO: Make sure box always fits title, in case title is longer than
+        // name.
+
         // Create the rectangle.
         var rect = new Konva.Rect({
           x: 0,
@@ -626,6 +642,7 @@ function showUploadDialog() {
         // Add the shapes to the group.
         group.add(rect);
         group.add(text);
+        group.add(titleText);
 
         // Add the group to the layer.
         layer.add(group);
