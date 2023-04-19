@@ -563,7 +563,6 @@ function showUploadDialog() {
         }
         else {
           // Clear current selection.
-          console.log("Stage clicked.");
           selectNone();
         }
       });
@@ -963,26 +962,9 @@ function showUploadDialog() {
         // Set the scroll position.
         scrollContainer.scrollLeft = {{ g.scrollLeft }};
         scrollContainer.scrollTop = {{ g.scrollTop }};
-
-        // Debug.
-        console.log("g.scrollLeft:", {{ g.scrollLeft }}, {{ g.scrollTop }});
       {% else %}
         // Set the diagram offset.
         if (contentsTopLeft) {
-          // stage.setPosition(contentsTopLeft);
-
-          // Debug.
-          console.log("contentsTopLeft:", contentsTopLeft.x, contentsTopLeft.y);
-
-          // Set scroll position.
-          // This does not work! It sets the position, but reverts immediately.
-          // document.documentElement.scrollLeft = -contentsTopLeft.x;
-          // document.documentElement.scrollTop = -contentsTopLeft.y;
-
-          // Set stage position. This works and has a nice animation,
-          // but still does not solve the original problem.
-          // stage.to({ x: contentsTopLeft.x, y: contentsTopLeft.y });
-
           scrollContainer.scrollLeft = -contentsTopLeft.x;
           scrollContainer.scrollTop = -contentsTopLeft.y;
         }
