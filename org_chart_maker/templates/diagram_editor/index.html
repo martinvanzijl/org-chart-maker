@@ -41,6 +41,7 @@
     <a href="/">Home</a>
   {% endif %}
   <a href="/new">New</a>
+  <a href="javascript:showTemplateDialog();">Template...</a>
   <a href="javascript:showOpenDialog();">Open...</a>
   <a href="javascript:saveDiagram();">Save</a>
   <a href="javascript:saveDiagramAs();">Save As...</a>
@@ -444,6 +445,24 @@ $( "#openOrgChartDialog" ).dialog({
 
 function showOpenDialog() {
     $( "#openOrgChartDialog" ).dialog( "open" );
+};
+</script>
+
+<!-- The "new from template" dialog. -->
+<div id="openTemplateDialog" title="Choose Template">
+  {% for template in g.templatesList %}
+    <a href="/new?template={{ template }}"><p>{{ template }}</p></a>
+  {% endfor %}
+</div>
+
+<script>
+$( "#openTemplateDialog" ).dialog({
+  autoOpen: false,
+  maxHeight: ($(window).height() - 50)
+});
+
+function showTemplateDialog() {
+    $( "#openTemplateDialog" ).dialog( "open" );
 };
 </script>
 

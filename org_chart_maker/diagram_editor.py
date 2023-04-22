@@ -121,6 +121,9 @@ def new():
     # Pass flag to template.
     g.allow_register_new_users = register_new_users_allowed()
 
+    # Get templates.
+    g.templatesList = ["small-business.xml"];
+
     # Render web page.
     return render_template("diagram_editor/index.html", canvasContent=canvasContent)
 
