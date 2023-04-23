@@ -1,5 +1,8 @@
 <?xml version="1.0" ?>
 <org-chart>
-	<item id="lgnpnxcj1cu5wo81atu" name="New Person" title="Associate" fill_color="white" border_color="black" x="270" y="118"/>
-	<item id="lgnpofdeewe29nincf6" name="Joe Smith" title="Lawyer" fill_color="white" border_color="black" x="431.4285888671875" y="212.4285299069344"/>
+	<item id="lgnpnxcj1cu5wo81atu" name="John" title="Manager" fill_color="white" border_color="black" x="270" y="118"/>
+	<item id="lgnpofdeewe29nincf6" name="Ken Smith" title="Sales" fill_color="white" border_color="black" x="328" y="230.99999842756904"/>
+	<item id="lgtmupppddhr0hxyzi7" name="Bob" title="Development" fill_color="white" border_color="black" x="190.4285888671875" y="230.1428236629339"/>
+	<relationship from="lgnpnxcj1cu5wo81atu" to="lgtmupppddhr0hxyzi7" color="black"/>
+	<relationship from="lgnpnxcj1cu5wo81atu" to="lgnpofdeewe29nincf6" color="black"/>
 </org-chart>
