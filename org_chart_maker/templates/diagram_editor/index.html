@@ -641,12 +641,6 @@ function showUploadDialog() {
             fill: 'black',
         });
 
-        // Center title text.
-        // titleText.x(textX + text.width() / 2 - titleText.width() / 2);
-
-        // TODO: Make sure box always fits title, in case title is longer than
-        // name.
-
         // Create the rectangle.
         var rect = new Konva.Rect({
           x: 0,
@@ -758,7 +752,8 @@ function showUploadDialog() {
         var THUMBNAIL_MARGIN = 32;
 
         // Calculate margin.
-        var width = person.text.width() + (MARGIN * 2);
+        var textWidth = Math.max(person.titleText.width(), person.text.width());
+        var width = textWidth + (MARGIN * 2);
 
         if (person.photos.length > 0) {
           width += THUMBNAIL_MARGIN;
@@ -768,6 +763,7 @@ function showUploadDialog() {
         person.rect.width(width);
 
         // Center title text.
+        person.text.x(width / 2 - person.text.width() / 2);
         person.titleText.x(width / 2 - person.titleText.width() / 2);
       }
 
