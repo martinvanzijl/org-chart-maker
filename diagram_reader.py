@@ -193,6 +193,7 @@ def save(name, persons, relationships):
             element.setAttribute("id", person["personId"])
             element.setAttribute("name", person["name"])
             element.setAttribute("title", person["title"])
+            element.setAttribute("url", person["url"])
 
             rect = loads(person["rect"])
             attr = rect["attrs"]
@@ -305,12 +306,13 @@ def toJavaScriptProperty(name, value):
 
 class Person():
 
-    def __init__(self, personId, x, y, name, title):
+    def __init__(self, personId, x, y, name, title, url):
         self.personId = personId
         self.x = x
         self.y = y
         self.name = name
         self.title = title
+        self.url = url;
 
         # Photos list.
         self.photos = []
@@ -350,6 +352,7 @@ class Person():
             + toJavaScriptProperty("personId", self.personId) \
             + toJavaScriptProperty("name", self.name) \
             + toJavaScriptProperty("title", self.title) \
+            + toJavaScriptProperty("url", self.url) \
             + toJavaScriptList("photos", self.photos) \
             + toJavaScriptProperty("borderColor", self.borderColor) \
             + "}"
@@ -434,6 +437,7 @@ def parse_xml_doc(doc):
         x = stringToInt(element.getAttribute("x"))
         y = stringToInt(element.getAttribute("y"))
         title = element.getAttribute("title")
+        url = element.getAttribute("url")
 
         # Get text color.
         textColor = 'black' # Default.
@@ -446,7 +450,7 @@ def parse_xml_doc(doc):
             borderColor = element.getAttribute("border_color")
 
         # Store person.
-        person = Person(personId, x, y, name, title)
+        person = Person(personId, x, y, name, title, url)
         person.textColor = textColor
         person.borderColor = borderColor
         persons[personId] = person

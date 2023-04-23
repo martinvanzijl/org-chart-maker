@@ -254,6 +254,7 @@ $( document ).keydown(function() {
     <div id="tabs-1">
       <p><label for="name">Name: </label><input id="name"/></p>
       <p><label for="title">Title: </label><input id="title"/></p>
+      <p><label for="url">URL: </label><input id="url"/></p>
     </div>
     <div id="tabs-2">
       <p>Photos:</p>
@@ -329,6 +330,7 @@ function savePersonDetails() {
   // Update details.
   currentPerson.name = $( "#name" ).val();
   currentPerson.title = $( "#title" ).val();
+  currentPerson.url = $( "#url" ).val();
 
   // Update diagram.
   currentPerson.text.text( currentPerson.name );
@@ -365,6 +367,7 @@ function showPersonDetails(personId) {
   // Add person details.
   document.getElementById("name").value = person.name;
   document.getElementById("title").value = person.title;
+  document.getElementById("url").value = person.url;
 
   // Add photos.
   var photosTable = document.getElementById("photosTable");
