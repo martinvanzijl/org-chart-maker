@@ -1,0 +1,20 @@
+<?xml version="1.0" ?>
+<org-chart>
+	<item id="lgnpnxcj1cu5wo81atu" name="John" title="Manager" fill_color="white" border_color="black" x="270" y="118"/>
+	<item id="lgnpofdeewe29nincf6" name="Ken Smith" title="Sales" fill_color="white" border_color="black" x="308" y="336.99999114473064"/>
+	<item id="lgtmupppddhr0hxyzi7" name="Bob" title="Development" fill_color="white" border_color="black" x="190" y="230"/>
+	<item id="lgtndum0c2swqpix2pp" name="Sally" title="Lawyer" fill_color="white" border_color="black" x="628" y="217.00000124139297"/>
+	<item id="lgtnequ12iu5v98tl8l" name="Roger" title="Junior Salesperson" fill_color="white" border_color="black" x="217" y="447.9999904826544"/>
+	<item id="lgtnfcrxnrh90ysso8" name="Jane" title="Junior Salesperson" fill_color="white" border_color="black" x="437" y="445.99999081369253"/>
+	<item id="lgtpcxw4uh4x0n8r4c" name="Ben" title="Head of Sales" fill_color="white" border_color="black" x="318.4285888671875" y="230.1428236629339"/>
+	<item id="lgtpei38z4kmfky2bti" name="Gary" title="Head Administrator" fill_color="white" border_color="black" x="42.4285888671875" y="217.57139727133233"/>
+	<item id="lgtpfculkgl3cakxhrc" name="James" title="Head of Operations" fill_color="white" border_color="black" x="455.4285888671875" y="231.57139611269895"/>
+	<relationship from="lgnpnxcj1cu5wo81atu" to="lgtmupppddhr0hxyzi7" color="black"/>
+	<relationship from="lgnpnxcj1cu5wo81atu" to="lgtndum0c2swqpix2pp" color="black"/>
+	<relationship from="lgnpofdeewe29nincf6" to="lgtnequ12iu5v98tl8l" color="black"/>
+	<relationship from="lgnpofdeewe29nincf6" to="lgtnfcrxnrh90ysso8" color="black"/>
+	<relationship from="lgnpnxcj1cu5wo81atu" to="lgtpcxw4uh4x0n8r4c" color="black"/>
+	<relationship from="lgtpcxw4uh4x0n8r4c" to="lgnpofdeewe29nincf6" color="black"/>
+	<relationship from="lgnpnxcj1cu5wo81atu" to="lgtpei38z4kmfky2bti" color="black"/>
+	<relationship from="lgnpnxcj1cu5wo81atu" to="lgtpfculkgl3cakxhrc" color="black"/>
+</org-chart>
