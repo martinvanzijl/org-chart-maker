@@ -121,6 +121,17 @@ def new():
     # Pass flag to template.
     g.allow_register_new_users = register_new_users_allowed()
 
+    # Load template if specified.
+    template = request.args.get('template')
+    if template:
+        try:
+            canvasContent += diagram_reader.parse_template_file(template)
+        except ValueError as error:
+            # Message to user.
+            g.toastMessage = "Could not load template: (" + str(error) + ")"
+            # Message to developer.
+            logger.exception(error)
+
     # Get templates.
     g.templatesList = ["small-business.xml"];
 

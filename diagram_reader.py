@@ -36,6 +36,12 @@ def getUserName():
 
     return userName
 
+def getTemplatesDir():
+    """Get the folder for templates."""
+
+    # TODO: Perhaps move this to the "instance" dir.
+    return os.path.join(app.root_path, "..", "templates")
+
 def getDiagramsDir():
     """Get the folder for the diagrams of the current user."""
 
@@ -348,10 +354,21 @@ class Person():
             + toJavaScriptProperty("borderColor", self.borderColor) \
             + "}"
 
-def parse_diagram_file(fileName, defaultFileName = None):
+def parse_template_file(fileName):
+    """Parse a template file."""
 
-    # Make result.
-    result = ""
+    inputFileName = os.path.join(getTemplatesDir(), fileName)
+
+    try:
+        doc = xml.parse(inputFileName)
+    except IOError as e:
+        print("Could not load specified template:")
+        print(e)
+
+    return parse_xml_doc(doc)
+
+def parse_diagram_file(fileName, defaultFileName = None):
+    """Parse a saved diagram file."""
 
     # Get input file.
     inputFileName = os.path.join(getDiagramsDir(), fileName)
@@ -378,11 +395,20 @@ def parse_diagram_file(fileName, defaultFileName = None):
                 # Exit if not found.
                 g.toastMessage = "Diagram " + fileName + " not found."
                 print(error)
-                return result
+                return ""
         else:
             # No default file name, simply return.
             g.toastMessage = "Diagram " + fileName + " not found."
-            return result
+            return ""
+
+    # Parse the document.
+    return parse_xml_doc(doc)
+
+def parse_xml_doc(doc):
+    """Parse a diagram document object."""
+
+    # Make result.
+    result = ""
 
     # Read the persons.
     personElements = doc.getElementsByTagName("item")
