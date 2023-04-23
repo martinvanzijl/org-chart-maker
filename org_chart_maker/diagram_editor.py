@@ -133,7 +133,7 @@ def new():
             logger.exception(error)
 
     # Get templates.
-    g.templatesList = ["small-business.xml"];
+    g.templatesList = diagram_reader.getTemplateList();
 
     # Render web page.
     return render_template("diagram_editor/index.html", canvasContent=canvasContent)

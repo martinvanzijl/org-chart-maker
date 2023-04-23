@@ -354,6 +354,15 @@ class Person():
             + toJavaScriptProperty("borderColor", self.borderColor) \
             + "}"
 
+def getTemplateList():
+    try:
+        fileNames = os.listdir(getTemplatesDir())
+    except FileNotFoundError as error:
+        print(error)
+        fileNames = []
+
+    return fileNames
+
 def parse_template_file(fileName):
     """Parse a template file."""
 

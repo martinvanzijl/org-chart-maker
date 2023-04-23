@@ -1,0 +1,14 @@
+<?xml version="1.0" ?>
+<org-chart>
+	<item id="lgnpnxcj1cu5wo81atu" name="John" title="Manager" fill_color="white" border_color="black" x="270" y="118"/>
+	<item id="lgnpofdeewe29nincf6" name="Ken Smith" title="Sales" fill_color="white" border_color="black" x="328" y="230"/>
+	<item id="lgtmupppddhr0hxyzi7" name="Bob" title="Development" fill_color="white" border_color="black" x="190" y="230"/>
+	<item id="lgtndum0c2swqpix2pp" name="Sally" title="Lawyer" fill_color="white" border_color="black" x="518.4285888671875" y="232.14282349741484"/>
+	<item id="lgtnequ12iu5v98tl8l" name="Roger" title="Junior Salesperson" fill_color="white" border_color="black" x="246.4285888671875" y="333.14281513870253"/>
+	<item id="lgtnfcrxnrh90ysso8" name="Jane" title="Junior Salesperson" fill_color="white" border_color="black" x="444.4285888671875" y="335.1428149731835"/>
+	<relationship from="lgnpnxcj1cu5wo81atu" to="lgtmupppddhr0hxyzi7" color="black"/>
+	<relationship from="lgnpnxcj1cu5wo81atu" to="lgnpofdeewe29nincf6" color="black"/>
+	<relationship from="lgnpnxcj1cu5wo81atu" to="lgtndum0c2swqpix2pp" color="black"/>
+	<relationship from="lgnpofdeewe29nincf6" to="lgtnequ12iu5v98tl8l" color="black"/>
+	<relationship from="lgnpofdeewe29nincf6" to="lgtnfcrxnrh90ysso8" color="black"/>
+</org-chart>
