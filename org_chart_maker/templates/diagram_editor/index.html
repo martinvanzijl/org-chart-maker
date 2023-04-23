@@ -332,6 +332,7 @@ function savePersonDetails() {
 
   // Update diagram.
   currentPerson.text.text( currentPerson.name );
+  currentPerson.titleText.text( currentPerson.title );
   updateBoxToFitName( currentPerson );
 
   updateRelationshipEndPoints(currentPerson);
@@ -641,7 +642,7 @@ function showUploadDialog() {
         });
 
         // Center title text.
-        titleText.x(textX + text.width() / 2 - titleText.width() / 2)
+        // titleText.x(textX + text.width() / 2 - titleText.width() / 2);
 
         // TODO: Make sure box always fits title, in case title is longer than
         // name.
@@ -717,6 +718,7 @@ function showUploadDialog() {
         // Add pointers to shapes.
         person.rect = rect;
         person.text = text;
+        person.titleText = titleText;
         person.group = group;
 
         // Add relationship list.
@@ -764,6 +766,9 @@ function showUploadDialog() {
 
         // Set width.
         person.rect.width(width);
+
+        // Center title text.
+        person.titleText.x(width / 2 - person.titleText.width() / 2);
       }
 
       // Reset border color for the given person.
