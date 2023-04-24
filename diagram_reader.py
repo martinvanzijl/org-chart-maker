@@ -291,7 +291,7 @@ def export_to_csv(name, persons, relationships):
             for relationship in relationships:
                 managerId = relationship["fromPersonId"];
                 employeeId = relationship["toPersonId"];
-                reportsTo[employeeId] = managerId;
+                reportsTo[employeeId] = persons[managerId]["name"];
 
             # Write persons.
             for person in persons.values():
