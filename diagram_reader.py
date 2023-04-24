@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 
+import csv
 import datetime
 from flask import current_app as app
 from flask import g, url_for
@@ -265,6 +266,63 @@ def save(name, persons, relationships):
         }
 
     return returnData
+
+def export_to_csv(name, persons, relationships):
+    """Export the given diagram to a CSV file."""
+
+    # Make file name.
+    now = datetime.datetime.now()
+    timestamp = now.strftime("%Y%m%d-%H%M%S")
+    outputFileName = name + "-" + timestamp + ".csv";
+
+    # Export.
+    try:
+        # Get destination file name.
+        # dest = os.path.join(getDiagramsDir(), outputFileName);
+        dest = os.path.join("csv_exports", outputFileName);
+
+        # Create CSV document.
+        with open(dest, 'w', newline='') as csvfile:
+            writer = csv.writer(csvfile)
+            writer.writerow(['Name', 'Title', 'URL', 'Reports To']);
+
+            # Read relationships.
+            reportsTo = {};
+            for relationship in relationships:
+                managerId = relationship["fromPersonId"];
+                employeeId = relationship["toPersonId"];
+                reportsTo[employeeId] = managerId;
+
+            # Write persons.
+            for person in persons.values():
+                row = [person["name"], person["title"], person["url"]];
+
+                personId = person["personId"];
+                if personId in reportsTo:
+                    row.append(reportsTo[personId]);
+                else:
+                    row.append("");
+
+                writer.writerow(row);
+
+        # TODO: Store this in a secure location and delete it after it is
+        # downloaded.
+
+        # Return status.
+        returnData = {
+          # "dataURL": dest,
+          "dataURL": "downloadCSV?filename=" + outputFileName,
+          "downloadFileName": outputFileName,
+          "status": "OK"
+        };
+    except FileNotFoundError as error:
+        # Return status.
+        returnData = {
+          "status": "Failed",
+          "problem": str(error)
+        };
+
+    return returnData;
 
 def getDiagramList():
     try:

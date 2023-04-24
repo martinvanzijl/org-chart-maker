@@ -1,10 +1,12 @@
 from flask import Blueprint
+from flask import current_app as app
 from flask import flash
 from flask import g
 from flask import jsonify
 from flask import redirect
 from flask import render_template
 from flask import request
+from flask import send_from_directory
 from flask import session
 from flask import url_for
 from flask.json import loads
@@ -189,6 +191,31 @@ def save_diagram():
     # Do the save.
     content = diagram_reader.save(name, pd, rd)
     return jsonify(content)
+
+@bp.route("/exportToCSV", methods=("POST",))
+def export_to_csv():
+    """Export a diagram to a CSV file."""
+
+    # Read parameters.
+    name = request.form.get('name')
+    persons = request.form.get('persons')
+    relationships = request.form.get('relationships')
+
+    # Load from JSON.
+    pd = loads(persons)
+    rd = loads(relationships)
+
+    # Do the save.
+    content = diagram_reader.export_to_csv(name, pd, rd)
+    return jsonify(content)
+
+@bp.route("/downloadCSV", methods=("GET",))
+def download_csv():
+    """Download a CSV file."""
+
+    filename = request.args.get('filename')
+    directory = os.path.join(app.root_path, "..", "csv_exports")
+    return send_from_directory(directory=directory, filename=filename)
 
 @bp.route("/add_photo", methods=("POST",))
 def add_photo():
