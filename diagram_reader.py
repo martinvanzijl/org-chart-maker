@@ -194,7 +194,11 @@ def save(name, persons, relationships):
             element.setAttribute("id", person["personId"])
             element.setAttribute("name", person["name"])
             element.setAttribute("title", person["title"])
-            element.setAttribute("url", person["url"])
+
+            try:
+                element.setAttribute("url", person["url"])
+            except KeyError:
+                element.setAttribute("url", "")
 
             rect = loads(person["rect"])
             attr = rect["attrs"]
@@ -242,6 +246,7 @@ def save(name, persons, relationships):
             element.setAttribute("from", relationship["fromPersonId"])
             element.setAttribute("to", relationship["toPersonId"])
             element.setAttribute("color", relationship["color"])
+            element.setAttribute("type", relationship["type"])
 
             root.appendChild(element)
 
@@ -559,6 +564,11 @@ def parse_xml_doc(doc):
             if element.hasAttribute("color"):
                 color = element.getAttribute("color")
 
+            # Get type.
+            type = 'solid' # Default.
+            if element.hasAttribute("type"):
+                type = element.getAttribute("type")
+
             # Place arrow.
             fromPerson = persons[fromPersonId]
             toPerson = persons[toPersonId]
@@ -571,7 +581,7 @@ def parse_xml_doc(doc):
 
             # Add the relationship to the diagram.
             args =  ", ".join(str(val) for val in [x1, y1, x2, y2]);
-            args += ", " + quotedList([fromPersonId, toPersonId, color]);
+            args += ", " + quotedList([fromPersonId, toPersonId, color, type]);
             line = "addRelationshipToDiagram(" + args + ");\n";
             result += line;
 

@@ -84,6 +84,8 @@
   <button id="buttonAddPerson" onclick="addPersonClicked()" draggable="true" ondragstart="addPersonStartDrag(event)">Person</button>
   <br />
   <button id="buttonAddRelationship" onclick="addRelationshipClicked()">Relationship</button>
+  <br />
+  <button id="buttonAddDottedRelationship" onclick="addDottedRelationshipClicked()">Dotted Rel.</button>
   <span>Selected Item</span>
   <button id="buttonDeletePerson" onclick="deletePersonClicked()">Delete</button>
   <span>Tree View</span>
@@ -100,6 +102,7 @@ var personsTableRows = {};
 // Style the UI widgets.
 $( "#buttonAddPerson" ).button();
 $( "#buttonAddRelationship" ).button();
+$( "#buttonAddDottedRelationship" ).button();
 $( "#buttonDeletePerson" ).button();
 
 // Diagram mode.
@@ -107,6 +110,10 @@ var DEFAULT = 0;
 var ADD_PERSON = 1;
 var ADD_RELATIONSHIP = 2;
 var diagramMode = DEFAULT;
+
+// Relationship type.
+var SOLID = "solid";
+var DOTTED = "dotted";
 
 // Set diagram mode.
 function setDiagramMode(mode) {
@@ -120,18 +127,22 @@ function setDiagramMode(mode) {
   // Highlight the correct button.
   var buttonAddPerson = document.getElementById("buttonAddPerson");
   var buttonAddRelationship = document.getElementById("buttonAddRelationship");
+  var buttonAddDottedRelationship = document.getElementById("buttonAddDottedRelationship");
+
+  unHighlightButton(buttonAddPerson);
+  unHighlightButton(buttonAddRelationship);
+  unHighlightButton(buttonAddDottedRelationship);
 
   if (mode == ADD_PERSON) {
     highlightButton(buttonAddPerson);
-    unHighlightButton(buttonAddRelationship);
   }
   else if (mode == ADD_RELATIONSHIP) {
-    highlightButton(buttonAddRelationship);
-    unHighlightButton(buttonAddPerson);
-  }
-  else {
-    unHighlightButton(buttonAddPerson);
-    unHighlightButton(buttonAddRelationship);
+    if (newRelationshipType == SOLID) {
+      highlightButton(buttonAddRelationship);
+    }
+    else {
+      highlightButton(buttonAddDottedRelationship);
+    }
   }
 }
 
@@ -162,9 +173,25 @@ function addPersonStartDrag(ev)
   ev.dataTransfer.setData("text", ev.target.id);
 }
 
+// Set relationship type to draw.
+newRelationshipType = SOLID;
+
+function setNewRelationshipType (type)
+{
+    newRelationshipType = type;
+}
+
 // Callback for clicking the "Add Relationship" button.
 function addRelationshipClicked()
 {
+  setNewRelationshipType (SOLID);
+  setDiagramMode (ADD_RELATIONSHIP);
+}
+
+// Callback for clicking the "Add Dotted Relationship" button.
+function addDottedRelationshipClicked()
+{
+  setNewRelationshipType (DOTTED);
   setDiagramMode (ADD_RELATIONSHIP);
 }
 
@@ -909,7 +936,7 @@ function showUploadDialog() {
       }
 
       // Add relationship to diagram.
-      function addRelationshipToDiagram(x1, y1, x2, y2, parentId, childId, color) {
+      function addRelationshipToDiagram(x1, y1, x2, y2, parentId, childId, color, type) {
 
         // Check that relationship does not already exist.
         var parent = persons[parentId];
@@ -931,6 +958,11 @@ function showUploadDialog() {
           fill: color,
         });
 
+        // Apply style.
+        if (type == DOTTED) {
+          arrow.dash([10, 5]);
+        }
+
         // Add the arrow to the layer.
         layer.add(arrow);
 
@@ -940,6 +972,7 @@ function showUploadDialog() {
           toPersonId: childId,
           color: color,
           arrow: arrow,
+          type: type
         };
 
         // Add to dictionary.
@@ -1116,7 +1149,7 @@ stage.on('mouseup', function (e) {
       else {
         // Add the relationship.
         var relationship = addRelationshipToDiagram(0, 0, 0, 0, newRelationshipParent.personId,
-          newRelationshipChild.personId, 'black');
+          newRelationshipChild.personId, 'black', newRelationshipType);
 
         // Select it immediately.
         if (relationship) {
@@ -1313,6 +1346,7 @@ function createNewPerson(pos) {
       personId: personId,
       name: "New Person",
       title: "Associate",
+      url: "",
       photos: [],
       borderColor: "black",
   };
