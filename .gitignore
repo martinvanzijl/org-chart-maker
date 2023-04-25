@@ -16,6 +16,7 @@ build/
 run-app.bat
 genealogy_maker_web/static/archive
 genealogy_maker_web/static/photos/
+query-database.bat
 
 # Ignore folders in the "save files" directory, except for "example" and "test".
 save-files/*/

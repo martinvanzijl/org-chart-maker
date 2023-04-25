@@ -151,6 +151,13 @@ def manage():
     diagramList = diagram_reader.getDiagramListAsJavaScript()
     return render_template("diagram_editor/manage.html", diagramList=diagramList)
 
+@bp.route("/preferences", methods=("GET",))
+@login_required
+def preferences():
+    """Show the screen to manage preferences."""
+
+    return render_template("diagram_editor/preferences.html")
+
 @bp.route("/rename", methods=("POST",))
 def rename_diagram():
     """Rename a diagram."""
@@ -210,6 +217,30 @@ def export_to_csv():
 
     # Do the save.
     content = diagram_reader.export_to_csv(name, pd, rd)
+    return jsonify(content)
+
+@bp.route("/savePreferences", methods=("POST",))
+def save_preferences():
+    """Save preferences."""
+
+    # Read parameters.
+    top_menu_type = request.form.get('top_menu_type')
+
+    type_id = 0;
+    if top_menu_type == "images":
+        type_id = 1;
+
+    # Update database.
+    db = get_db()
+
+    db.execute(
+        "UPDATE user SET top_menu_type = ? WHERE id = ?",
+        (type_id, g.user["id"])
+    )
+    db.commit()
+
+    # Return.
+    content = {"status": "OK"};
     return jsonify(content)
 
 @bp.route("/downloadCSV", methods=("GET",))

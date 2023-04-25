@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="static/general.css">
+<link rel="stylesheet" href="static/menu-bar.css">
+<link rel="stylesheet" href="static/table.css">
+<link rel="stylesheet" href="static/toast-message.css">
+
+<!-- JQuery. -->
+<script src="static/jquery-3.6.0.min.js"></script>
+<script src="static/toast-message.js"></script>
+
+<title>Org Chart Maker - Preferences</title>
+</head>
+<body>
+
+<ul class="menu">
+  <li class="menu"><a class="menu" href="/">Home</a></li>
+  <li class="menu" style="float:right"><a class="menu" href="/static/help.html">Help</a></li>
+</ul>
+
+<!-- The toast message. -->
+<div id="snackbar">Preferences saved.</div>
+
+<h2>Preferences</h2>
+
+<p><b>Top Menu</b></p>
+
+<form id="preferencesForm" action="javascript:savePreferences();">
+  <p>Select what to display in the top menu:</p>
+  <input type="radio" id="text" name="top_menu_type" value="text" checked>
+  <label for="text">Text</label><br>
+  <input type="radio" id="images" name="top_menu_type" value="images">
+  <label for="images">Images</label><br>
+  <br>
+  <input type="submit" value="Save Preferences" />
+</form>
+
+<script>
+// Read settings from database.
+{% if g.user and g.user.top_menu_type == 1 %}
+  document.getElementById("images").checked = true;
+{% endif %}
+
+function savePreferences() {
+  // Use AJAX to ask the server to save the diagram.
+  var url = "/savePreferences";
+
+  var params = {};
+  if (document.getElementById("text").checked) {
+    params["top_menu_type"] = "text";
+  }
+  else {
+    params["top_menu_type"] = "images";
+  }
+
+  $.post( url, params, function(data, status) {
+    // Get AJAX response.
+    var jsonReply = data;
+
+    // Check result.
+    var replyStatus = jsonReply.status;
+
+    if (replyStatus == "OK") {
+      showToastMessage("Preferences saved.");
+    }
+    else {
+      // An error happened.
+      alert("Could not save preferences. Details:\n" + jsonReply.problem);
+    }
+  });
+}
+</script>
+
+</body>
+</html>

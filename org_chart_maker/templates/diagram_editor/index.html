@@ -5,7 +5,11 @@
 <script src="static/geometry.js"></script>
 
 <!-- Menu. -->
-<link rel="stylesheet" href="{{ url_for('static', filename='navbar.css') }}">
+{% if g.user and g.user.top_menu_type == 1 %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='navbar-image-menu.css') }}">
+{% else %}
+  <link rel="stylesheet" href="{{ url_for('static', filename='navbar.css') }}">
+{% endif %}
 
 <!-- Context menu. -->
 <link rel="stylesheet" href="{{ url_for('static', filename='context-menu.css') }}">
@@ -40,25 +44,57 @@
   {% if not g.user %}
     <a href="/">Home</a>
   {% endif %}
-  <a href="/new">New</a>
-  <a href="javascript:showTemplateDialog();">Template...</a>
-  <a href="javascript:showOpenDialog();">Open...</a>
-  <a href="javascript:saveDiagram();">Save</a>
-  <a href="javascript:saveDiagramAs();">Save As...</a>
-  <a href="javascript:showUploadDialog();">Upload...</a>
-  <a href="javascript:exportImage();">Export...</a>
-  <a href="javascript:exportToCSV();">CSV...</a>
-  <a href="/manage">Manage</a>
 
-  <a style="float:right" href="/static/help.html">Help</a>
-  {% if g.user %}
-    <a style="float:right" href="{{ url_for('auth.logout') }}">Log Out</a>
-    <span style="float:right">Logged in as {{ g.user['username'] }}</span>
-  {% else %}
-    <a style="float:right" href="{{ url_for('auth.login') }}">Log In</a>
-    {% if g.allow_register_new_users %}
-      <a style="float:right" href="{{ url_for('auth.register') }}">Register</a>
+  {% if g.user and g.user.top_menu_type == 1 %}
+    <!-- Use icons for the top menu. -->
+
+    <a href="/new"><img src="/static/menu-icons/new.png" title="New" /></a>
+    <a href="javascript:showTemplateDialog();"><img src="/static/menu-icons/template.png" title="New from Template..." /></a>
+    <a href="javascript:showOpenDialog();"><img src="/static/menu-icons/open.png" title="Open..." /></a>
+    <a href="javascript:saveDiagram();"><img src="/static/menu-icons/save.png" title="Save..." /></a>
+    <a href="javascript:saveDiagramAs();"><img src="/static/menu-icons/save-as.png" title="Save As..." /></a>
+    <a href="javascript:showUploadDialog();"><img src="/static/menu-icons/upload.png" title="Upload..." /></a>
+    <a href="javascript:exportImage();"><img src="/static/menu-icons/export-image.png" title="Export as Image..." /></a>
+    <a href="javascript:exportToCSV();"><img src="/static/menu-icons/export-csv.png" title="Export as CSV..." /></a>
+    <a href="/manage"><img src="/static/menu-icons/manage.png" title="Manage Diagrams" /></a>
+    <a href="/preferences"><img src="/static/menu-icons/preferences.png" title="Preferences" /></a>
+
+    <a style="float:right" href="/static/help.html"><img src="/static/menu-icons/help.png" title="Help" /></a>
+    {% if g.user %}
+      <a style="float:right" href="{{ url_for('auth.logout') }}"><img src="/static/menu-icons/logout.png" title="Log Out" /></a>
+      <span style="float:right">Logged in as {{ g.user['username'] }}</span>
+    {% else %}
+      <a style="float:right" href="{{ url_for('auth.login') }}">Log In</a>
+      {% if g.allow_register_new_users %}
+        <a style="float:right" href="{{ url_for('auth.register') }}">Register</a>
+      {% endif %}
     {% endif %}
+
+  {% else %}
+  <!-- Use text for the top menu. -->
+
+    <a href="/new">New</a>
+    <a href="javascript:showTemplateDialog();">Template...</a>
+    <a href="javascript:showOpenDialog();">Open...</a>
+    <a href="javascript:saveDiagram();">Save</a>
+    <a href="javascript:saveDiagramAs();">Save As...</a>
+    <a href="javascript:showUploadDialog();">Upload...</a>
+    <a href="javascript:exportImage();">Export...</a>
+    <a href="javascript:exportToCSV();">CSV...</a>
+    <a href="/manage">Manage</a>
+    <a href="/preferences">Preferences</a>
+
+    <a style="float:right" href="/static/help.html">Help</a>
+    {% if g.user %}
+      <a style="float:right" href="{{ url_for('auth.logout') }}">Log Out</a>
+      <span style="float:right">Logged in as {{ g.user['username'] }}</span>
+    {% else %}
+      <a style="float:right" href="{{ url_for('auth.login') }}">Log In</a>
+      {% if g.allow_register_new_users %}
+        <a style="float:right" href="{{ url_for('auth.register') }}">Register</a>
+      {% endif %}
+    {% endif %}
+
   {% endif %}
 </div>
 
