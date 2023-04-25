@@ -108,6 +108,9 @@ def index():
     else:
         g.showSavedMessageOnLoad = False
 
+    # Get templates.
+    g.templatesList = diagram_reader.getTemplateList();
+
     # Render web page.
     return render_template("diagram_editor/index.html", canvasContent=canvasContent)
 
