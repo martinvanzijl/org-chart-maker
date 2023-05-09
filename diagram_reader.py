@@ -7,6 +7,7 @@ from flask import g, url_for
 from flask.json import loads
 import os
 import shutil
+import tempfile
 from org_chart_maker.utils import removeSuffix
 from werkzeug.utils import secure_filename
 import xml.dom.minidom as xml
@@ -171,6 +172,79 @@ def rename(diagram, newName):
     # Convert into JSON:
     # return json.dumps(returnData)
 
+def createXmlDoc(persons, relationships):
+    """Create an XML document object from the given persons and relationships."""
+
+    doc = xml.Document()
+    root = doc.createElement("org-chart")
+    doc.appendChild(root)
+
+    # Write persons.
+    for person in persons.values():
+        element = doc.createElement("item")
+
+        element.setAttribute("id", person["personId"])
+        element.setAttribute("name", person["name"])
+        element.setAttribute("title", person["title"])
+
+        try:
+            element.setAttribute("url", person["url"])
+        except KeyError:
+            element.setAttribute("url", "")
+
+        rect = loads(person["rect"])
+        attr = rect["attrs"]
+
+        element.setAttribute("fill_color", attr["fill"])
+        element.setAttribute("border_color", person["borderColor"])
+
+        group = loads(person["group"])
+        attr = group["attrs"]
+
+        element.setAttribute("x", str(attr["x"]))
+        element.setAttribute("y", str(attr["y"]))
+
+        # Save photos.
+        for photo in person["photos"]:
+            # Copy the photo if required, i.e. if saving the diagram for
+            # the first time.
+            baseName = os.path.basename(photo)
+
+            destPhotoFilePath = os.path.join(getPhotosDir(name), baseName)
+            sourcePhotoFilePath = os.path.join(getPhotosDir(), baseName)
+
+            if destPhotoFilePath != sourcePhotoFilePath:
+                shutil.copy(sourcePhotoFilePath, destPhotoFilePath)
+
+                # Replace the path in the XML file, too.
+                photo = getPhotosUrlPath(baseName, name)
+
+            # Create element.
+            photoElement = doc.createElement("photo")
+
+            # Set attributes.
+            photoElement.setAttribute("path", photo)
+
+            # Add photo element to person.
+            element.appendChild(photoElement)
+
+        # Add person element to document.
+        root.appendChild(element)
+
+    # Write relationships.
+    for relationship in relationships:
+        element = doc.createElement("relationship")
+
+        element.setAttribute("from", relationship["fromPersonId"])
+        element.setAttribute("to", relationship["toPersonId"])
+        element.setAttribute("color", relationship["color"])
+        element.setAttribute("type", relationship["type"])
+
+        root.appendChild(element)
+
+    # Return.
+    return doc
+
 def save(name, persons, relationships):
     """Save the given diagram."""
 
@@ -183,72 +257,7 @@ def save(name, persons, relationships):
         dest = os.path.join(getDiagramsDir(), name)
 
         # Create XML document.
-        doc = xml.Document()
-        root = doc.createElement("org-chart")
-        doc.appendChild(root)
-
-        # Write persons.
-        for person in persons.values():
-            element = doc.createElement("item")
-
-            element.setAttribute("id", person["personId"])
-            element.setAttribute("name", person["name"])
-            element.setAttribute("title", person["title"])
-
-            try:
-                element.setAttribute("url", person["url"])
-            except KeyError:
-                element.setAttribute("url", "")
-
-            rect = loads(person["rect"])
-            attr = rect["attrs"]
-
-            element.setAttribute("fill_color", attr["fill"])
-            element.setAttribute("border_color", person["borderColor"])
-
-            group = loads(person["group"])
-            attr = group["attrs"]
-
-            element.setAttribute("x", str(attr["x"]))
-            element.setAttribute("y", str(attr["y"]))
-
-            # Save photos.
-            for photo in person["photos"]:
-                # Copy the photo if required, i.e. if saving the diagram for
-                # the first time.
-                baseName = os.path.basename(photo)
-
-                destPhotoFilePath = os.path.join(getPhotosDir(name), baseName)
-                sourcePhotoFilePath = os.path.join(getPhotosDir(), baseName)
-
-                if destPhotoFilePath != sourcePhotoFilePath:
-                    shutil.copy(sourcePhotoFilePath, destPhotoFilePath)
-
-                    # Replace the path in the XML file, too.
-                    photo = getPhotosUrlPath(baseName, name)
-
-                # Create element.
-                photoElement = doc.createElement("photo")
-
-                # Set attributes.
-                photoElement.setAttribute("path", photo)
-
-                # Add photo element to person.
-                element.appendChild(photoElement)
-
-            # Add person element to document.
-            root.appendChild(element)
-
-        # Write relationships.
-        for relationship in relationships:
-            element = doc.createElement("relationship")
-
-            element.setAttribute("from", relationship["fromPersonId"])
-            element.setAttribute("to", relationship["toPersonId"])
-            element.setAttribute("color", relationship["color"])
-            element.setAttribute("type", relationship["type"])
-
-            root.appendChild(element)
+        doc = createXmlDoc(persons, relationships)
 
         # Write the XML file.
         outputFile = open(dest, "w")
@@ -328,6 +337,32 @@ def export_to_csv(name, persons, relationships):
         };
 
     return returnData;
+
+def export_to_xml(name, persons, relationships):
+    """Export the given diagram to a XML file."""
+
+    # Create XML document.
+    doc = createXmlDoc(persons, relationships)
+
+    # Make file name.
+    now = datetime.datetime.now()
+    timestamp = now.strftime("%Y%m%d-%H%M%S")
+    outputFileName = name + "-" + timestamp + ".xml"
+
+    # Write the XML file.
+    dest = os.path.join("csv_exports", outputFileName);
+    outputFile = open(dest, "w")
+    outputFile.write(doc.toprettyxml())
+    outputFile.close()
+
+    # Return.
+    returnData = {
+      "dataURL": "downloadCSV?filename=" + outputFileName,
+      "downloadFileName": outputFileName,
+      "status": "OK"
+    }
+
+    return returnData
 
 def getDiagramList():
     try:

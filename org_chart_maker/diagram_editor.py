@@ -17,6 +17,7 @@ from org_chart_maker.db import get_db
 
 import diagram_reader
 import os
+import tempfile
 
 # Set up logging.
 import logging
@@ -217,6 +218,24 @@ def export_to_csv():
 
     # Do the save.
     content = diagram_reader.export_to_csv(name, pd, rd)
+    return jsonify(content)
+
+@bp.route("/exportToXML", methods=("POST",))
+def export_to_xml():
+    """Export a diagram to an XML file."""
+
+    # Read parameters.
+    name = request.form.get('name')
+    persons = request.form.get('persons')
+    relationships = request.form.get('relationships')
+
+    # Load from JSON.
+    pd = loads(persons)
+    rd = loads(relationships)
+
+    # Do the export.
+    content = diagram_reader.export_to_xml(name, pd, rd)
+    print ("Content:", content)
     return jsonify(content)
 
 @bp.route("/savePreferences", methods=("POST",))
