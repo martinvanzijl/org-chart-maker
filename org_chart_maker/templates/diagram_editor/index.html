@@ -56,6 +56,7 @@
     <a href="javascript:showUploadDialog();"><img src="/static/menu-icons/upload.png" title="Upload..." /></a>
     <a href="javascript:exportImage();"><img src="/static/menu-icons/export-image.png" title="Export as Image..." /></a>
     <a href="javascript:exportToCSV();"><img src="/static/menu-icons/export-csv.png" title="Export as CSV..." /></a>
+    <a href="javascript:exportToXML();"><img src="/static/menu-icons/export-xml.png" title="Export as XML..." /></a>
     <a href="/manage"><img src="/static/menu-icons/manage.png" title="Manage Diagrams" /></a>
     <a href="/preferences"><img src="/static/menu-icons/preferences.png" title="Preferences" /></a>
 
@@ -81,6 +82,7 @@
     <a href="javascript:showUploadDialog();">Upload...</a>
     <a href="javascript:exportImage();">Export...</a>
     <a href="javascript:exportToCSV();">CSV...</a>
+    <a href="javascript:exportToXML();">XML...</a>
     <a href="/manage">Manage</a>
     <a href="/preferences">Preferences</a>
 
@@ -1113,6 +1115,36 @@ function exportToCSV() {
 
     if (replyStatus == "OK") {
       showToastMessage("Diagram exported to CSV file.");
+
+      var dataURL = jsonReply.dataURL;
+      downloadURI(dataURL, jsonReply.downloadFileName);
+    }
+    else {
+      // An error happened.
+      alert("Could not export diagram. Details:\n" + jsonReply.problem);
+    }
+  });
+}
+
+function exportToXML() {
+  // Use AJAX to ask the server to export the diagram.
+  var url = "/exportToXML";
+
+  // Create data.
+  var pd = JSON.stringify(persons);
+  var rd = JSON.stringify(relationships);
+
+  var params = { name: diagramName, persons: pd, relationships: rd };
+
+  $.post( url, params, function(data, status) {
+    // Get AJAX response.
+    var jsonReply = data;
+
+    // Check result.
+    var replyStatus = jsonReply.status;
+
+    if (replyStatus == "OK") {
+      showToastMessage("Diagram exported to XML file.");
 
       var dataURL = jsonReply.dataURL;
       downloadURI(dataURL, jsonReply.downloadFileName);
