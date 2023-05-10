@@ -206,6 +206,7 @@ def save_diagram():
     return jsonify(content)
 
 @bp.route("/exportToCSV", methods=("POST",))
+@login_required
 def export_to_csv():
     """Export a diagram to a CSV file."""
 
@@ -223,6 +224,7 @@ def export_to_csv():
     return jsonify(content)
 
 @bp.route("/exportToXML", methods=("POST",))
+@login_required
 def export_to_xml():
     """Export a diagram to an XML file."""
 
@@ -265,6 +267,7 @@ def save_preferences():
     return jsonify(content)
 
 @bp.route("/downloadCSV", methods=("GET",))
+@login_required
 def download_csv():
     """Download a CSV file."""
 
