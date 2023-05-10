@@ -6,6 +6,7 @@ from flask import jsonify
 from flask import redirect
 from flask import render_template
 from flask import request
+from flask import send_file
 from flask import send_from_directory
 from flask import session
 from flask import url_for
@@ -16,6 +17,7 @@ from org_chart_maker.auth import login_required
 from org_chart_maker.db import get_db
 
 import diagram_reader
+import io
 import os
 import tempfile
 
@@ -204,6 +206,7 @@ def save_diagram():
     return jsonify(content)
 
 @bp.route("/exportToCSV", methods=("POST",))
+@login_required
 def export_to_csv():
     """Export a diagram to a CSV file."""
 
@@ -221,6 +224,7 @@ def export_to_csv():
     return jsonify(content)
 
 @bp.route("/exportToXML", methods=("POST",))
+@login_required
 def export_to_xml():
     """Export a diagram to an XML file."""
 
@@ -263,12 +267,30 @@ def save_preferences():
     return jsonify(content)
 
 @bp.route("/downloadCSV", methods=("GET",))
+@login_required
 def download_csv():
     """Download a CSV file."""
 
+    # Get file details.
     filename = request.args.get('filename')
     directory = os.path.join(app.root_path, "..", "csv_exports")
-    return send_from_directory(directory=directory, filename=filename)
+    # return send_from_directory(directory=directory, filename=filename)
+
+    # Read file contents.
+    file_path = os.path.join(directory, filename)
+
+    return_data = io.BytesIO()
+    with open(file_path, 'rb') as fo:
+        return_data.write(fo.read())
+    # (after writing, cursor will be at last byte, so move it to start)
+    return_data.seek(0)
+
+    # Remove the file.
+    os.remove(file_path)
+
+    # Send the file contents.
+    return send_file(return_data, mimetype='text/plain',
+                     attachment_filename=filename)
 
 @bp.route("/add_photo", methods=("POST",))
 def add_photo():
