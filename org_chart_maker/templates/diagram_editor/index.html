@@ -126,6 +126,8 @@
   <br />
   <button id="buttonAddDottedRelationship" onclick="addDottedRelationshipClicked()">Dotted Rel.</button>
   <span>Selected Item</span>
+  <button id="buttonEditPerson" onclick="editPersonClicked()">Edit</button>
+  <br />
   <button id="buttonDeletePerson" onclick="deletePersonClicked()">Delete</button>
   <span>Tree View</span>
   <table id="personsTable">
@@ -142,6 +144,7 @@ var personsTableRows = {};
 $( "#buttonAddPerson" ).button();
 $( "#buttonAddRelationship" ).button();
 $( "#buttonAddDottedRelationship" ).button();
+$( "#buttonEditPerson" ).button();
 $( "#buttonDeletePerson" ).button();
 
 // Diagram mode.
@@ -232,6 +235,15 @@ function addDottedRelationshipClicked()
 {
   setNewRelationshipType (DOTTED);
   setDiagramMode (ADD_RELATIONSHIP);
+}
+
+// Callback for clicking the "Edit Person" button.
+function editPersonClicked()
+{
+    if (selectedPerson)
+    {
+      showPersonDetails(selectedPerson.personId);
+    }
 }
 
 // Remove item from array.
