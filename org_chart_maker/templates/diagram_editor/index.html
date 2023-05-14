@@ -1372,7 +1372,7 @@ function postDiagramToServer() {
       }
       else {
         // Show message.
-        alert("Diagram saved.");
+        showToastMessage("Diagram saved.");
 
         // Update undo stack.
         markSaved();
@@ -1387,7 +1387,7 @@ function postDiagramToServer() {
 
 {% if g.showSavedMessageOnLoad %}
   window.onload = function () {
-    alert("Diagram saved.");
+    showToastMessage("Diagram saved.");
   }
 {% endif %}
 
