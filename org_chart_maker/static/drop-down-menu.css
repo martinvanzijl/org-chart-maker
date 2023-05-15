@@ -4,7 +4,10 @@
  */
 
 .dropbtn {
-  background-color: #04AA6D;
+  /* background-color: #04AA6D; */
+  /* background-color: darkgreen; */
+  background-color: inherit;
+  min-width: 80px;  /* Ensure consistent width. */
   color: white;
   padding: 16px;
   font-size: 16px;
