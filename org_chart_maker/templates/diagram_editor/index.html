@@ -15,6 +15,9 @@
 <!-- Context menu. -->
 <link rel="stylesheet" href="{{ url_for('static', filename='context-menu.css') }}">
 
+<!-- Drop-down menu. -->
+<link rel="stylesheet" href="{{ url_for('static', filename='drop-down-menu.css') }}">
+
 <!-- Side bar. -->
 <link rel="stylesheet" href="{{ url_for('static', filename='sidebar.css') }}">
 
@@ -75,26 +78,43 @@
   {% else %}
   <!-- Use text for the top menu. -->
 
-    <a href="/new">New</a>
-    <a href="javascript:showTemplateDialog();">Template...</a>
-    <a href="javascript:showOpenDialog();">Open...</a>
-    <a href="javascript:saveDiagram();">Save</a>
-    <a href="javascript:saveDiagramAs();">Save As...</a>
-    <a href="javascript:showUploadDialog();">Upload...</a>
-    <a href="javascript:exportImage();">Export...</a>
-    <a href="javascript:exportToCSV();">CSV...</a>
-    <a href="javascript:exportToXML();">XML...</a>
-    <a href="/manage">Manage</a>
-    <a href="/preferences">Preferences</a>
+    <div class="dropdown">
+      <button class="dropbtn">File</button>
+      <div class="dropdown-content">
+        <a href="/new">New</a>
+        <a href="javascript:showTemplateDialog();">Template...</a>
+        <a href="javascript:showOpenDialog();">Open...</a>
+        <a href="javascript:saveDiagram();">Save</a>
+        <a href="javascript:saveDiagramAs();">Save As...</a>
+        <a href="javascript:showUploadDialog();">Upload...</a>
+      </div>
+    </div>
 
-    <a style="float:right" href="/static/help.html">Help</a>
+    <div class="dropdown">
+      <button class="dropbtn">Export</button>
+      <div class="dropdown-content">
+        <a href="javascript:exportImage();">Export...</a>
+        <a href="javascript:exportToCSV();">CSV...</a>
+        <a href="javascript:exportToXML();">XML...</a>
+      </div>
+    </div>
+
+    <div class="dropdown">
+      <button class="dropbtn">Options</button>
+      <div class="dropdown-content">
+        <a href="/manage">Manage</a>
+        <a href="/preferences">Preferences</a>
+      </div>
+    </div>
+
+    <a class="navbar-right" href="/static/help.html">Help</a>
     {% if g.user %}
-      <a style="float:right" href="{{ url_for('auth.logout') }}">Log Out</a>
+      <a class="navbar-right" href="{{ url_for('auth.logout') }}">Log Out</a>
       <span style="float:right">Logged in as {{ g.user['username'] }}</span>
     {% else %}
-      <a style="float:right" href="{{ url_for('auth.login') }}">Log In</a>
+      <a class="navbar-right" href="{{ url_for('auth.login') }}">Log In</a>
       {% if g.allow_register_new_users %}
-        <a style="float:right" href="{{ url_for('auth.register') }}">Register</a>
+        <a class="navbar-right" href="{{ url_for('auth.register') }}">Register</a>
       {% endif %}
     {% endif %}
 
@@ -529,6 +549,7 @@ function showPhoto(photoPath) {
 <script>
 $( "#openOrgChartDialog" ).dialog({
   autoOpen: false,
+  modal: true, // Hack to hide menu when shown if required.
   maxHeight: ($(window).height() - 50)
 });
 
@@ -547,6 +568,7 @@ function showOpenDialog() {
 <script>
 $( "#openTemplateDialog" ).dialog({
   autoOpen: false,
+  modal: true, // Hack to hide menu when shown if required.
   maxHeight: ($(window).height() - 50)
 });
 
