@@ -225,6 +225,21 @@ def test_manage_page():
     login(driver)
 
     # Go to the "Manage" page.
+
+    # Hover over the "Options" menu, then click the link.
+    buttons = driver.find_elements_by_class_name("dropbtn")
+
+    for button in buttons:
+        if button.text == "Options":
+            optionsMenu = button
+            break
+
+    action = webdriver.common.action_chains.ActionChains(driver)
+    action.move_to_element(optionsMenu)
+    action.perform()
+
+    waitForSeconds(driver, 0.1)
+
     link = driver.find_element_by_link_text("Manage")
     link.click()
 
