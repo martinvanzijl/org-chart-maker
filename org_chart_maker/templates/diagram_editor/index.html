@@ -64,7 +64,7 @@
     <a href="/manage"><img src="/static/menu-icons/manage.png" title="Manage Diagrams" /></a>
     <a href="/preferences"><img src="/static/menu-icons/preferences.png" title="Preferences" /></a>
 
-    <a style="float:right" href="/static/help.html"><img src="/static/menu-icons/help.png" title="Help" /></a>
+    <a style="float:right" href="/static/help.html"><img src="/static/menu-icons/help.png" title="Help" target="_blank" /></a>
     {% if g.user %}
       <a style="float:right" href="{{ url_for('auth.logout') }}"><img src="/static/menu-icons/logout.png" title="Log Out" /></a>
       <span style="float:right">Logged in as {{ g.user['username'] }}</span>
@@ -107,7 +107,7 @@
       </div>
     </div>
 
-    <a class="navbar-right" href="/static/help.html">Help</a>
+    <a class="navbar-right" href="/static/help.html" target="_blank">Help</a>
     {% if g.user %}
       <a class="navbar-right" href="{{ url_for('auth.logout') }}">Log Out</a>
       <span style="float:right">Logged in as {{ g.user['username'] }}</span>
