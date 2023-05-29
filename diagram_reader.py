@@ -192,6 +192,11 @@ def createXmlDoc(persons, relationships):
         except KeyError:
             element.setAttribute("url", "")
 
+        try:
+            element.setAttribute("department", person["department"])
+        except KeyError:
+            element.setAttribute("department", "")
+
         rect = loads(person["rect"])
         attr = rect["attrs"]
 
@@ -298,7 +303,7 @@ def export_to_csv(name, persons, relationships):
         # Create CSV document.
         with open(dest, 'w', newline='') as csvfile:
             writer = csv.writer(csvfile)
-            writer.writerow(['Name', 'Title', 'URL', 'Reports To']);
+            writer.writerow(['Name', 'Title', 'URL', 'Department', 'Reports To']);
 
             # Read relationships.
             reportsTo = {};
@@ -309,7 +314,7 @@ def export_to_csv(name, persons, relationships):
 
             # Write persons.
             for person in persons.values():
-                row = [person["name"], person["title"], person["url"]];
+                row = [person["name"], person["title"], person["url"], person["department"]];
 
                 personId = person["personId"];
                 if personId in reportsTo:
@@ -404,13 +409,14 @@ def toJavaScriptProperty(name, value):
 
 class Person():
 
-    def __init__(self, personId, x, y, name, title, url):
+    def __init__(self, personId, x, y, name, title, url, department):
         self.personId = personId
         self.x = x
         self.y = y
         self.name = name
         self.title = title
-        self.url = url;
+        self.url = url
+        self.department = department
 
         # Photos list.
         self.photos = []
@@ -451,6 +457,7 @@ class Person():
             + toJavaScriptProperty("name", self.name) \
             + toJavaScriptProperty("title", self.title) \
             + toJavaScriptProperty("url", self.url) \
+            + toJavaScriptProperty("department", self.department) \
             + toJavaScriptList("photos", self.photos) \
             + toJavaScriptProperty("borderColor", self.borderColor) \
             + "}"
@@ -536,6 +543,7 @@ def parse_xml_doc(doc):
         y = stringToInt(element.getAttribute("y"))
         title = element.getAttribute("title")
         url = element.getAttribute("url")
+        department = element.getAttribute("department")
 
         # Get text color.
         textColor = 'black' # Default.
@@ -548,7 +556,7 @@ def parse_xml_doc(doc):
             borderColor = element.getAttribute("border_color")
 
         # Store person.
-        person = Person(personId, x, y, name, title, url)
+        person = Person(personId, x, y, name, title, url, department)
         person.textColor = textColor
         person.borderColor = borderColor
         persons[personId] = person

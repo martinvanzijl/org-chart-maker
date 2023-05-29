@@ -357,6 +357,7 @@ $( document ).keydown(function() {
       <p><label for="name">Name: </label><input id="name"/></p>
       <p><label for="title">Title: </label><input id="title"/></p>
       <p><label for="url">URL: </label><input id="url"/></p>
+      <p><label for="department">Department: </label><input id="department"/></p>
     </div>
     <div id="tabs-2">
       <p>Photos:</p>
@@ -433,6 +434,7 @@ function savePersonDetails() {
   currentPerson.name = $( "#name" ).val();
   currentPerson.title = $( "#title" ).val();
   currentPerson.url = $( "#url" ).val();
+  currentPerson.department = $( "#department" ).val();
 
   // Update diagram.
   currentPerson.text.text( currentPerson.name );
@@ -473,6 +475,7 @@ function showPersonDetails(personId) {
   document.getElementById("name").value = person.name;
   document.getElementById("title").value = person.title;
   document.getElementById("url").value = person.url;
+  document.getElementById("department").value = person.department;
 
   // Add photos.
   var photosTable = document.getElementById("photosTable");
@@ -1468,6 +1471,7 @@ function createNewPerson(pos) {
       name: "New Person",
       title: "Associate",
       url: "",
+      department: "",
       photos: [],
       borderColor: "black",
   };
