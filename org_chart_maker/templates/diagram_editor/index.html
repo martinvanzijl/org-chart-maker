@@ -434,6 +434,7 @@ function savePersonDetails() {
   currentPerson.name = $( "#name" ).val();
   currentPerson.title = $( "#title" ).val();
   currentPerson.url = $( "#url" ).val();
+  currentPerson.department = $( "#department" ).val();
 
   // Update diagram.
   currentPerson.text.text( currentPerson.name );
@@ -474,6 +475,7 @@ function showPersonDetails(personId) {
   document.getElementById("name").value = person.name;
   document.getElementById("title").value = person.title;
   document.getElementById("url").value = person.url;
+  document.getElementById("department").value = person.department;
 
   // Add photos.
   var photosTable = document.getElementById("photosTable");
@@ -1469,6 +1471,7 @@ function createNewPerson(pos) {
       name: "New Person",
       title: "Associate",
       url: "",
+      department: "",
       photos: [],
       borderColor: "black",
   };
