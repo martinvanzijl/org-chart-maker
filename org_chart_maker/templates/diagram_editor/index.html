@@ -667,11 +667,12 @@ function showUploadDialog() {
   <p>Show only people from the following departments:</p>
 
   <!-- TODO: Use actual departments from the people list. -->
-  <input type="checkbox" id="checkBoxAccounting" name="checkBoxAccounting" value="Accounting" checked />
+  <!-- <input type="checkbox" id="checkBoxAccounting" name="checkBoxAccounting" value="Accounting" checked />
   <label for="checkBoxAccounting">Accounting</label>
   <br />
   <input type="checkbox" id="checkBoxSales" name="checkBoxSales" value="Sales" checked />
-  <label for="checkBoxSales">Sales</label>
+  <label for="checkBoxSales">Sales</label> -->
+  <form id="departmentsForm" />
 </div>
 
 <script>
@@ -685,8 +686,35 @@ var filterByDepartmentDialog = $( "#filterByDepartmentDialog" ).dialog({
   },
 });
 
+var departmentsForm = document.getElementById("departmentsForm");
+
 // Show the "filter by department" dialog.
 function showFilterByDepartmentDialog() {
+  // Get the list of departments.
+  departmentsList = [];
+
+  for (var index in persons) {
+    var department = persons[index].department;
+    departmentsList.push(department);
+  }
+
+  // TODO: Filter out duplicates.
+  // TODO: Sort in alphabetical order.
+
+  // Actually set the check-boxes.
+  var html = "";
+
+  for (var index in departmentsList) {
+    var department = departmentsList[index];
+    var checkBoxName = "checkBox" + department;
+    html += '<input type="checkbox" id="' + checkBoxName + '" name="' + checkBoxName + '" value="' + department + '" checked />';
+    html += '<label for="' + checkBoxName + '">' + department + '</label>';
+    html += '<br />';
+  }
+
+  departmentsForm.innerHTML = html;
+
+  // Show the dialog.
   $( "#filterByDepartmentDialog" ).dialog( "open" );
 };
 
