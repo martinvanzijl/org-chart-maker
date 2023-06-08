@@ -693,7 +693,9 @@ function showFilterByDepartmentDialog() {
     departmentsList.push(department);
   }
 
-  // TODO: Filter out duplicates.
+  // Filter out duplicates.
+  departmentsList = [...new Set(departmentsList)];
+
   // Sort in alphabetical order.
   departmentsList.sort();
 
