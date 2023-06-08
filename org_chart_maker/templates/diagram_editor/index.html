@@ -719,6 +719,13 @@ function showFilterByDepartmentDialog() {
 // Handler for when the "apply" button is clicked.
 function filterByDepartmentDialogApplyClicked() {
   // TODO: Show/hide people based on selected departments.
+  var checkBoxes = departmentsForm.getElementsByTagName("input");
+  for (var index in checkBoxes) {
+    var checkBox = checkBoxes[index];
+    if (checkBox.type == "checkbox")  {
+      console.log (checkBox.value + ": " + checkBox.checked);
+    }
+  }
 }
 </script>
 
