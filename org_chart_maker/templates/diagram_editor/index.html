@@ -666,12 +666,7 @@ function showUploadDialog() {
 <div id="filterByDepartmentDialog" title="Filter by Department">
   <p>Show only people from the following departments:</p>
 
-  <!-- TODO: Use actual departments from the people list. -->
-  <!-- <input type="checkbox" id="checkBoxAccounting" name="checkBoxAccounting" value="Accounting" checked />
-  <label for="checkBoxAccounting">Accounting</label>
-  <br />
-  <input type="checkbox" id="checkBoxSales" name="checkBoxSales" value="Sales" checked />
-  <label for="checkBoxSales">Sales</label> -->
+  <!-- The check-boxes will go into this form. -->
   <form id="departmentsForm" />
 </div>
 
@@ -699,7 +694,8 @@ function showFilterByDepartmentDialog() {
   }
 
   // TODO: Filter out duplicates.
-  // TODO: Sort in alphabetical order.
+  // Sort in alphabetical order.
+  departmentsList.sort();
 
   // Actually set the check-boxes.
   var html = "";
