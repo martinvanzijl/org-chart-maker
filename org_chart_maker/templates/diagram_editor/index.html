@@ -716,14 +716,34 @@ function showFilterByDepartmentDialog() {
   $( "#filterByDepartmentDialog" ).dialog( "open" );
 };
 
+
+
 // Handler for when the "apply" button is clicked.
 function filterByDepartmentDialogApplyClicked() {
-  // TODO: Show/hide people based on selected departments.
+  // Show/hide people based on selected departments.
+
+  // The list of visible departments.
+  var visibleDepartments = [];
+
+  // Go through check-boxes.
   var checkBoxes = departmentsForm.getElementsByTagName("input");
   for (var index in checkBoxes) {
     var checkBox = checkBoxes[index];
     if (checkBox.type == "checkbox")  {
-      console.log (checkBox.value + ": " + checkBox.checked);
+      if (checkBox.checked) {
+        visibleDepartments.push(checkBox.value);
+      }
+    }
+  }
+
+  // Set person visibility.
+  for (var index in persons) {
+    var person = persons[index];
+    if (visibleDepartments.includes (person.department)) {
+      person.group.visible (true);
+    }
+    else {
+      person.group.visible (false);
     }
   }
 }
