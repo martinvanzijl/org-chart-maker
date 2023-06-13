@@ -1245,12 +1245,29 @@ function filterByDepartmentDialogApplyClicked() {
         downloadURI(dataURL, 'diagram-export.png');
       }
 
+// Return a dictionary of persons who are visible (i.e. not hidden).
+function getVisiblePersons() {
+  var personsFiltered = {};
+
+  for (var index in persons) {
+    person = persons[index];
+    if (person.group.visible()) {
+      personsFiltered[index] = person;
+    }
+  }
+
+  return personsFiltered;
+}
+
 function exportToCSV() {
   // Use AJAX to ask the server to save the diagram.
   var url = "/exportToCSV";
 
+  // Filter to exclude invisible items.
+  var personsFiltered = getVisiblePersons();
+
   // Create data.
-  var pd = JSON.stringify(persons);
+  var pd = JSON.stringify(personsFiltered);
   var rd = JSON.stringify(relationships);
 
   var params = { name: diagramName, persons: pd, relationships: rd };
@@ -1279,8 +1296,11 @@ function exportToXML() {
   // Use AJAX to ask the server to export the diagram.
   var url = "/exportToXML";
 
+  // Filter to exclude invisible items.
+  var personsFiltered = getVisiblePersons();
+
   // Create data.
-  var pd = JSON.stringify(persons);
+  var pd = JSON.stringify(personsFiltered);
   var rd = JSON.stringify(relationships);
 
   var params = { name: diagramName, persons: pd, relationships: rd };
