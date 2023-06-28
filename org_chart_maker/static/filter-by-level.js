@@ -41,6 +41,44 @@ function getDepth(person) {
     return personDepth;
 }
 
+// Automatically lay out the given row of persons at the given Y coordinate.
+// int DiagramScene::autoLayoutRow(const QList<DiagramItem *> &items, int startY) { // C++
+function autoLayoutRow(items, startY) {
+    var startX = 128;
+
+    var x = startX;
+    var y = startY;
+
+    var horizontalSpacing = 16;
+    var verticalSpacing = 16;
+
+    // Lay out each item in the row.
+    // for (auto item: items) { // C++
+    for (var index in items) {
+        // Get the person.
+        var person = items[index];
+        // DiagramItem *person = qgraphicsitem_cast<DiagramItem*> (item); // C++
+
+        // Place the person.
+        // person->setPos(x, y); // C++
+        person.setPos(x, y);
+
+        // Prepare the next position.
+        // x += person->getWidthIncludingSpouse() + horizontalSpacing; // C++
+        x += person.getWidth() + horizontalSpacing;
+
+        // Wrap to next line if required.
+        // if (x > sceneRect().right()) {
+        if (x > scene.right()) {
+            // y += person->boundingRect().height() + verticalSpacing;
+            y += person.getHeight() + verticalSpacing;
+            x = startX;
+        }
+    }
+
+    return y;
+}
+
 // Automatically layout the diagram.
 function autoLayout()
 {
@@ -68,16 +106,27 @@ function autoLayout()
         // } // C++
     }
 
-    // *** UP TO HERE WITH CONVERTING TO JAVASCRIPT FROM C++ ***
-
     // Get maximum depth.
-    auto maxDepth = depthMultiMap.lastKey();
+    // auto maxDepth = depthMultiMap.lastKey(); // C++
+    var maxDepth = getLastKey(depthMultiMap);
 
     // Place the persons.
-    double y = 64;
+    var y = 64;
 
-    for (int depth = maxDepth; depth >= 0; --depth) {
-        y = autoLayoutRow(depthMultiMap.values(depth), y);
+    for (var depth = maxDepth; depth >= 0; --depth) {
+        // y = autoLayoutRow(depthMultiMap.values(depth), y); // C++
+        y = autoLayoutRow(depthMultiMap[depth], y);
         y += 256;
     }
+}
+
+// Get the last key in the given dictionary.
+function getLastKey(dict) {
+  var lastKey = null;
+
+  for (var key in dict) {
+      lastKey = key;
+  }
+
+  return lastKey;
 }
