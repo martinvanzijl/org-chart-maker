@@ -13,7 +13,7 @@ var m_depthMap = {};
 function getDepth(person) {
     // Check if depth already calculated.
     // if (m_depthMap.contains(person)) { // C++
-    if (person in m_depthMap)
+    if (person in m_depthMap) {
         return m_depthMap[person];
     }
 
