@@ -2,6 +2,39 @@
 // JavaScript for filtering people by level.
 // -----------------------------------------------------------------------------
 
+// Get the diagram width.
+function getDiagramWidth() {
+  // Hack!
+  return 5000;
+}
+
+// Move the given person to the given position.
+function setPersonPos(person, x, y) {
+  person.group.x(x);
+  person.group.y(y);
+}
+
+// Get the width of a person.
+function getPersonWidth(person) {
+  return person.rect.width();
+}
+
+// Return the "children" of the given person.
+function getChildren(person) {
+  var children = [];
+
+  for (var index in person.relationships) {
+    var relationship = person.relationships[index];
+
+    if (relationship.fromPersonId == person.personId) {
+      var child = persons[relationship.toPersonId];
+      children.push(child);
+    }
+  }
+
+  return children;
+}
+
 // A temporary map to store the depth of each person.
 // static QMap<DiagramItem *, int> m_depthMap; // C++
 var m_depthMap = {};
@@ -14,12 +47,15 @@ function getDepth(person) {
     // Check if depth already calculated.
     // if (m_depthMap.contains(person)) { // C++
     if (person in m_depthMap) {
+        console.log("Already in map.");
+        console.log("Depth is:", m_depthMap[person]);
         return m_depthMap[person];
     }
 
     // Get maximum depth of parents.
     // QList<DiagramItem *> children = person->getChildren(); // C++
-    var children = person.getChildren();
+    var children = getChildren(person);
+    console.log("Children: ", children);
 
     var maxChildDepth = -1;
     // for (DiagramItem *child: children) { // C++
@@ -38,6 +74,7 @@ function getDepth(person) {
     m_depthMap[person] = personDepth;
 
     // Return.
+    console.log("Depth is:", personDepth);
     return personDepth;
 }
 
@@ -61,15 +98,16 @@ function autoLayoutRow(items, startY) {
 
         // Place the person.
         // person->setPos(x, y); // C++
-        person.setPos(x, y);
+        console.log("Setting person pos to: ", x, " ", y);
+        setPersonPos(person, x, y);
 
         // Prepare the next position.
         // x += person->getWidthIncludingSpouse() + horizontalSpacing; // C++
-        x += person.getWidth() + horizontalSpacing;
+        x += getPersonWidth(person) + horizontalSpacing;
 
         // Wrap to next line if required.
         // if (x > sceneRect().right()) {
-        if (x > scene.right()) {
+        if (x > getDiagramWidth()) {
             // y += person->boundingRect().height() + verticalSpacing;
             y += person.getHeight() + verticalSpacing;
             x = startX;
@@ -103,6 +141,7 @@ function autoLayout()
             }
             // depthMultiMap.insert(depth, person); // C++
             depthMultiMap[depth].push(person);
+            console.log("Adding person", person.name, " to depth ", depth);
         // } // C++
     }
 
@@ -115,6 +154,8 @@ function autoLayout()
 
     for (var depth = maxDepth; depth >= 0; --depth) {
         // y = autoLayoutRow(depthMultiMap.values(depth), y); // C++
+        console.log("Laying out row with depth:", depth);
+        console.log("Y is", y);
         y = autoLayoutRow(depthMultiMap[depth], y);
         y += 256;
     }
