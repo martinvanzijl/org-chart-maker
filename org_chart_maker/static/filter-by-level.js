@@ -12,6 +12,8 @@ function getDiagramWidth() {
 function setPersonPos(person, x, y) {
   person.group.x(x);
   person.group.y(y);
+
+  updateRelationshipEndPoints(person);
 }
 
 // Get the width of a person.
