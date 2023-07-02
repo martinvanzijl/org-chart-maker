@@ -151,7 +151,9 @@ function autoLayout()
     for (var depth = maxDepth; depth >= 0; --depth) {
         // y = autoLayoutRow(depthMultiMap.values(depth), y); // C++
         y = autoLayoutRow(depthMultiMap[depth], y);
-        y += 256;
+        // y += 256; // Too much.
+        // y += 128; // Too little.
+        y += 160;
     }
 }
 
