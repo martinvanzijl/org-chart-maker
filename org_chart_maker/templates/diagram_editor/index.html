@@ -1494,6 +1494,17 @@ function createNewPerson(pos) {
   setDiagramMode (DEFAULT);
 }
 
+// Hide the active menu item from the top menu.
+function hideActiveMenu() {
+  var menus = document.getElementsByClassName("dropdown-content");
+  for (var index = 0; index < menus.length; ++index) {
+    var menu = menus.item(index);
+    menu.style.display = 'none'; // Hide menu item.
+    // Make menu item visible again after a short delay.
+    setTimeout(function() { menu.style.display = ''; }, 500);
+  }
+}
+
 // Show toast message if new diagram started.
 {% if not g.diagramName and not g.toastMessage %}
   showToastMessage("Started new diagram");

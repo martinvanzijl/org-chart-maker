@@ -155,6 +155,9 @@ function autoLayout()
         // y += 128; // Too little.
         y += 160;
     }
+
+    // Hide the menu.
+    hideActiveMenu();
 }
 
 // Get the last key in the given dictionary.
