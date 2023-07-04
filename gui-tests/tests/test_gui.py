@@ -277,3 +277,32 @@ def test_new_diagram_toast_message():
 
     # Close the driver.
     driver.quit()
+
+# Test the "Auto-Layout" feature.
+def test_auto_layout():
+    # Create the driver.
+    driver = webdriver.Chrome("./chromedriver")
+
+    # Log in.
+    login(driver)
+
+    # Select the auto-layout menu item.
+
+    # Hover over the "Diagram" menu, then click the menu item.
+    buttons = driver.find_elements_by_class_name("dropbtn")
+
+    for button in buttons:
+        if button.text == "Diagram":
+            diagramMenu = button
+            break
+
+    action = webdriver.common.action_chains.ActionChains(driver)
+    action.move_to_element(diagramMenu)
+    action.perform()
+
+    waitForSeconds(driver, 0.1)
+
+    link = driver.find_element_by_link_text("Auto-Layout")
+    link.click()
+
+    # TODO: Check that the diagram is successfully laid out.
