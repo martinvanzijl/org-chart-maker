@@ -735,7 +735,8 @@ function filterByDepartmentDialogApplyClicked() {
   for (var index in persons) {
     var person = persons[index];
     var personVisible = visibleDepartments.includes (person.department);
-    person.group.visible (personVisible);
+    // person.group.visible (personVisible);
+    filterPerson (person, personVisible);
   }
 
   // Set relationship visibility.
@@ -743,7 +744,46 @@ function filterByDepartmentDialogApplyClicked() {
     var relationship = relationships[index];
     var fromPerson = persons[relationship.fromPersonId];
     var toPerson = persons[relationship.toPersonId];
-    relationship.arrow.visible (fromPerson.group.visible() && toPerson.group.visible());
+    var relationshipVisible = isVisible(fromPerson) && isVisible(toPerson);
+    // relationship.arrow.visible (relationshipVisible);
+    filterRelationship (relationship, relationshipVisible);
+  }
+}
+
+// Check if the given person is visible (i.e. not filtered out).
+function isVisible(person) {
+  // Hack!
+  return !(person.rect.stroke () == "lightgray");
+}
+
+// Show or hide the given person.
+function filterPerson (person, visible) {
+  if (visible) {
+    person.rect.stroke (person.borderColor);
+    person.rect.dashEnabled (false);
+    person.text.fill ("black");
+    person.titleText.fill ("black");
+  }
+  else {
+    person.rect.stroke ("lightgray");
+    person.rect.dashEnabled (true);
+    person.rect.dash ([5, 5]);
+    person.text.fill ("lightgray");
+    person.titleText.fill ("lightgray");
+  }
+}
+
+// Show or hide the given relationship.
+function filterRelationship (relationship, visible) {
+  if (visible) {
+    relationship.arrow.stroke ("black");
+    relationship.arrow.fill ("black");
+    // relationship.arrow.fillEnabled (true);
+  }
+  else {
+    relationship.arrow.stroke ("lightgray");
+    relationship.arrow.fill ("lightgray");
+    // relationship.arrow.fillEnabled (false);
   }
 }
 </script>
