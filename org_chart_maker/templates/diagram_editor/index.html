@@ -781,8 +781,9 @@ function filterRelationship (relationship, visible) {
     // relationship.arrow.fillEnabled (true);
   }
   else {
-    relationship.arrow.stroke ("lightgray");
-    relationship.arrow.fill ("lightgray");
+    var arrowGrayColor = "#f0f0f0";
+    relationship.arrow.stroke (arrowGrayColor);
+    relationship.arrow.fill (arrowGrayColor);
     // relationship.arrow.fillEnabled (false);
   }
 }
