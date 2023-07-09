@@ -711,22 +711,23 @@ function showFilterByDepartmentDialog() {
   $( "#filterByDepartmentDialog" ).dialog( "open" );
 };
 
-
+// The list of hidden (filtered) departments.
+var filteredOutDepartments = [];
 
 // Handler for when the "apply" button is clicked.
 function filterByDepartmentDialogApplyClicked() {
   // Show/hide people based on selected departments.
 
   // The list of visible departments.
-  var visibleDepartments = [];
+  filteredOutDepartments = [];
 
   // Go through check-boxes.
   var checkBoxes = departmentsForm.getElementsByTagName("input");
   for (var index in checkBoxes) {
     var checkBox = checkBoxes[index];
     if (checkBox.type == "checkbox")  {
-      if (checkBox.checked) {
-        visibleDepartments.push(checkBox.value);
+      if (!checkBox.checked) {
+        filteredOutDepartments.push(checkBox.value);
       }
     }
   }
@@ -734,7 +735,7 @@ function filterByDepartmentDialogApplyClicked() {
   // Set person visibility.
   for (var index in persons) {
     var person = persons[index];
-    var personVisible = visibleDepartments.includes (person.department);
+    var personVisible = !isFilteredOut(person);
     // person.group.visible (personVisible);
     filterPerson (person, personVisible);
   }
@@ -750,10 +751,18 @@ function filterByDepartmentDialogApplyClicked() {
   }
 }
 
+// Check if a person is filtered out from view.
+function isFilteredOut(person) {
+    return filteredOutDepartments.includes (person.department);
+}
+
+// The color for persons who are filtered out.
+var filteredOutPersonBorderColor = "lightgray";
+
 // Check if the given person is visible (i.e. not filtered out).
 function isVisible(person) {
   // Hack!
-  return !(person.rect.stroke () == "lightgray");
+  return !(person.rect.stroke () == filteredOutPersonBorderColor);
 }
 
 // Show or hide the given person.
@@ -765,7 +774,7 @@ function filterPerson (person, visible) {
     person.titleText.fill ("black");
   }
   else {
-    person.rect.stroke ("lightgray");
+    person.rect.stroke (filteredOutPersonBorderColor);
     person.rect.dashEnabled (true);
     person.rect.dash ([5, 5]);
     person.text.fill ("lightgray");
@@ -1027,7 +1036,12 @@ function filterRelationship (relationship, visible) {
 
       // Reset border color for the given person.
       function restoreBorderColor(person) {
-        person.rect.stroke(person.borderColor);
+        if (isFilteredOut(person)) {
+          person.rect.stroke(filteredOutPersonBorderColor);
+        }
+        else {
+          person.rect.stroke(person.borderColor);
+        }
       }
 
       // Update thumbnail for person.
