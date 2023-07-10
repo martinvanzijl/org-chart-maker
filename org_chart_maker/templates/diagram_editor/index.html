@@ -743,9 +743,7 @@ function filterByDepartmentDialogApplyClicked() {
   // Set relationship visibility.
   for (var index in relationships) {
     var relationship = relationships[index];
-    var fromPerson = persons[relationship.fromPersonId];
-    var toPerson = persons[relationship.toPersonId];
-    var relationshipVisible = isVisible(fromPerson) && isVisible(toPerson);
+    var relationshipVisible = !isRelationshipFilteredOut(relationship);
     // relationship.arrow.visible (relationshipVisible);
     filterRelationship (relationship, relationshipVisible);
   }
@@ -754,6 +752,14 @@ function filterByDepartmentDialogApplyClicked() {
 // Check if a person is filtered out from view.
 function isFilteredOut(person) {
     return filteredOutDepartments.includes (person.department);
+}
+
+// Check if relationship is filtered out from view.
+function isRelationshipFilteredOut(relationship) {
+  var fromPerson = persons[relationship.fromPersonId];
+  var toPerson = persons[relationship.toPersonId];
+  var relationshipVisible = isVisible(fromPerson) && isVisible(toPerson);
+  return !relationshipVisible;
 }
 
 // The color for persons who are filtered out.
@@ -782,6 +788,9 @@ function filterPerson (person, visible) {
   }
 }
 
+// Color for relationships which are filtered out.
+var arrowGrayColor = "#f0f0f0";
+
 // Show or hide the given relationship.
 function filterRelationship (relationship, visible) {
   if (visible) {
@@ -790,7 +799,6 @@ function filterRelationship (relationship, visible) {
     // relationship.arrow.fillEnabled (true);
   }
   else {
-    var arrowGrayColor = "#f0f0f0";
     relationship.arrow.stroke (arrowGrayColor);
     relationship.arrow.fill (arrowGrayColor);
     // relationship.arrow.fillEnabled (false);
@@ -1044,6 +1052,16 @@ function filterRelationship (relationship, visible) {
         }
       }
 
+      // Reset arrow color for the given relationship.
+      function restoreArrowColor(relationship) {
+        if (isRelationshipFilteredOut(relationship)) {
+          relationship.arrow.stroke(arrowGrayColor);
+        }
+        else {
+          relationship.arrow.stroke(relationship.color);
+        }
+      }
+
       // Update thumbnail for person.
       function updateThumbnail(person) {
 
@@ -1129,7 +1147,7 @@ function filterRelationship (relationship, visible) {
       function selectNone() {
         // Deselect relationships.
         if (selectedRelationship) {
-          selectedRelationship.arrow.stroke(selectedRelationship.color);
+          restoreArrowColor(selectedRelationship);
           // selectedRelationship.arrow.strokeWidth(2);
         }
         selectedRelationship = null;
