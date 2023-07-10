@@ -700,7 +700,13 @@ function showFilterByDepartmentDialog() {
   for (var index in departmentsList) {
     var department = departmentsList[index];
     var checkBoxName = "checkBox" + department;
-    html += '<input type="checkbox" id="' + checkBoxName + '" name="' + checkBoxName + '" value="' + department + '" checked />';
+    var shouldBeChecked = !(filteredOutDepartments.includes(department));
+    html += '<input type="checkbox" id="' + checkBoxName + '" name="' + checkBoxName + '" value="' +
+    department;
+    if (shouldBeChecked) {
+      html += '" checked';
+    }
+    html += '/>';
     html += '<label for="' + checkBoxName + '">' + department + '</label>';
     html += '<br />';
   }
