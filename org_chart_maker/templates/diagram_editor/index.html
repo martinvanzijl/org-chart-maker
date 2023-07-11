@@ -450,6 +450,7 @@ function savePersonDetails() {
   currentPerson.text.text( currentPerson.name );
   currentPerson.titleText.text( currentPerson.title );
   updateBoxToFitName( currentPerson );
+  updateFilterStatus( currentPerson );
 
   updateRelationshipEndPoints(currentPerson);
 
@@ -741,9 +742,7 @@ function filterByDepartmentDialogApplyClicked() {
   // Set person visibility.
   for (var index in persons) {
     var person = persons[index];
-    var personVisible = !isFilteredOut(person);
-    // person.group.visible (personVisible);
-    filterPerson (person, personVisible);
+    updateFilterStatus(person);
   }
 
   // Set relationship visibility.
@@ -775,6 +774,13 @@ var filteredOutPersonBorderColor = "lightgray";
 function isVisible(person) {
   // Hack!
   return !(person.rect.stroke () == filteredOutPersonBorderColor);
+}
+
+// Show or hide the given person based on active filters.
+function updateFilterStatus (person) {
+  var personVisible = !isFilteredOut(person);
+  // person.group.visible (personVisible);
+  filterPerson (person, personVisible);
 }
 
 // Show or hide the given person.
