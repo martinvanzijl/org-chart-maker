@@ -781,6 +781,18 @@ function updateFilterStatus (person) {
   var personVisible = !isFilteredOut(person);
   // person.group.visible (personVisible);
   filterPerson (person, personVisible);
+
+  // Update relationships, too.
+  for (var index in person.relationships) {
+    var relationship = person.relationships[index];
+    updateRelationshipFilterStatus(relationship);
+  }
+}
+
+// Show or hide the given relationship based on active filters.
+function updateRelationshipFilterStatus (relationship) {
+  var relationshipVisible = !isRelationshipFilteredOut(relationship);
+  filterRelationship (relationship, relationshipVisible);
 }
 
 // Show or hide the given person.
