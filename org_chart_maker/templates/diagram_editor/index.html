@@ -110,8 +110,10 @@
 
     <div class="dropdown">
       <button class="dropbtn">Diagram</button>
-      <div class="dropdown-content">
+      <!-- Set fixed width to avoid "Filter by Department..." item wrapping. -->
+      <div class="dropdown-content" style="width:190px">
         <a href="javascript:autoLayout();">Auto-Layout</a>
+        <a href="javascript:showFilterByDepartmentDialog();">Filter by Department...</a>
       </div>
     </div>
 
@@ -448,6 +450,7 @@ function savePersonDetails() {
   currentPerson.text.text( currentPerson.name );
   currentPerson.titleText.text( currentPerson.title );
   updateBoxToFitName( currentPerson );
+  updateFilterStatus( currentPerson );
 
   updateRelationshipEndPoints(currentPerson);
 
@@ -653,6 +656,178 @@ uploadFileInput.onchange = e => {
 function showUploadDialog() {
     $('#upload_file_input').trigger('click');
 };
+</script>
+
+<!-- The "filter by department" dialog. -->
+<div id="filterByDepartmentDialog" title="Filter by Department">
+  <p>Show only people from the following departments:</p>
+
+  <!-- The check-boxes will go into this form. -->
+  <form id="departmentsForm" />
+</div>
+
+<script>
+var filterByDepartmentDialog = $( "#filterByDepartmentDialog" ).dialog({
+  autoOpen: false,
+  modal: true, // Hack to hide menu when shown if required.
+  maxHeight: ($(window).height() - 50),
+  buttons: {
+    "Apply": filterByDepartmentDialogApplyClicked,
+    "Close": function() { filterByDepartmentDialog.dialog( "close" ); }
+  },
+});
+
+var departmentsForm = document.getElementById("departmentsForm");
+
+// Show the "filter by department" dialog.
+function showFilterByDepartmentDialog() {
+  // Get the list of departments.
+  departmentsList = [];
+
+  for (var index in persons) {
+    var department = persons[index].department;
+    departmentsList.push(department);
+  }
+
+  // Filter out duplicates.
+  departmentsList = [...new Set(departmentsList)];
+
+  // Sort in alphabetical order.
+  departmentsList.sort();
+
+  // Actually set the check-boxes.
+  var html = "";
+
+  for (var index in departmentsList) {
+    var department = departmentsList[index];
+    var checkBoxName = "checkBox" + department;
+    var shouldBeChecked = !(filteredOutDepartments.includes(department));
+    html += '<input type="checkbox" id="' + checkBoxName + '" name="' + checkBoxName + '" value="' +
+    department;
+    if (shouldBeChecked) {
+      html += '" checked';
+    }
+    html += '/>';
+    html += '<label for="' + checkBoxName + '">' + department + '</label>';
+    html += '<br />';
+  }
+
+  departmentsForm.innerHTML = html;
+
+  // Show the dialog.
+  $( "#filterByDepartmentDialog" ).dialog( "open" );
+};
+
+// The list of hidden (filtered) departments.
+var filteredOutDepartments = [];
+
+// Handler for when the "apply" button is clicked.
+function filterByDepartmentDialogApplyClicked() {
+  // Show/hide people based on selected departments.
+
+  // The list of visible departments.
+  filteredOutDepartments = [];
+
+  // Go through check-boxes.
+  var checkBoxes = departmentsForm.getElementsByTagName("input");
+  for (var index in checkBoxes) {
+    var checkBox = checkBoxes[index];
+    if (checkBox.type == "checkbox")  {
+      if (!checkBox.checked) {
+        filteredOutDepartments.push(checkBox.value);
+      }
+    }
+  }
+
+  // Set person visibility.
+  for (var index in persons) {
+    var person = persons[index];
+    updateFilterStatus(person);
+  }
+
+  // Set relationship visibility.
+  for (var index in relationships) {
+    var relationship = relationships[index];
+    var relationshipVisible = !isRelationshipFilteredOut(relationship);
+    // relationship.arrow.visible (relationshipVisible);
+    filterRelationship (relationship, relationshipVisible);
+  }
+}
+
+// Check if a person is filtered out from view.
+function isFilteredOut(person) {
+    return filteredOutDepartments.includes (person.department);
+}
+
+// Check if relationship is filtered out from view.
+function isRelationshipFilteredOut(relationship) {
+  var fromPerson = persons[relationship.fromPersonId];
+  var toPerson = persons[relationship.toPersonId];
+  var relationshipVisible = isVisible(fromPerson) && isVisible(toPerson);
+  return !relationshipVisible;
+}
+
+// The color for persons who are filtered out.
+var filteredOutPersonBorderColor = "lightgray";
+
+// Check if the given person is visible (i.e. not filtered out).
+function isVisible(person) {
+  // Hack!
+  return !(person.rect.stroke () == filteredOutPersonBorderColor);
+}
+
+// Show or hide the given person based on active filters.
+function updateFilterStatus (person) {
+  var personVisible = !isFilteredOut(person);
+  // person.group.visible (personVisible);
+  filterPerson (person, personVisible);
+
+  // Update relationships, too.
+  for (var index in person.relationships) {
+    var relationship = person.relationships[index];
+    updateRelationshipFilterStatus(relationship);
+  }
+}
+
+// Show or hide the given relationship based on active filters.
+function updateRelationshipFilterStatus (relationship) {
+  var relationshipVisible = !isRelationshipFilteredOut(relationship);
+  filterRelationship (relationship, relationshipVisible);
+}
+
+// Show or hide the given person.
+function filterPerson (person, visible) {
+  if (visible) {
+    person.rect.stroke (person.borderColor);
+    person.rect.dashEnabled (false);
+    person.text.fill ("black");
+    person.titleText.fill ("black");
+  }
+  else {
+    person.rect.stroke (filteredOutPersonBorderColor);
+    person.rect.dashEnabled (true);
+    person.rect.dash ([5, 5]);
+    person.text.fill ("lightgray");
+    person.titleText.fill ("lightgray");
+  }
+}
+
+// Color for relationships which are filtered out.
+var arrowGrayColor = "#f0f0f0";
+
+// Show or hide the given relationship.
+function filterRelationship (relationship, visible) {
+  if (visible) {
+    relationship.arrow.stroke ("black");
+    relationship.arrow.fill ("black");
+    // relationship.arrow.fillEnabled (true);
+  }
+  else {
+    relationship.arrow.stroke (arrowGrayColor);
+    relationship.arrow.fill (arrowGrayColor);
+    // relationship.arrow.fillEnabled (false);
+  }
+}
 </script>
 
 <!-- The diagram. -->
@@ -893,7 +1068,22 @@ function showUploadDialog() {
 
       // Reset border color for the given person.
       function restoreBorderColor(person) {
-        person.rect.stroke(person.borderColor);
+        if (isFilteredOut(person)) {
+          person.rect.stroke(filteredOutPersonBorderColor);
+        }
+        else {
+          person.rect.stroke(person.borderColor);
+        }
+      }
+
+      // Reset arrow color for the given relationship.
+      function restoreArrowColor(relationship) {
+        if (isRelationshipFilteredOut(relationship)) {
+          relationship.arrow.stroke(arrowGrayColor);
+        }
+        else {
+          relationship.arrow.stroke(relationship.color);
+        }
       }
 
       // Update thumbnail for person.
@@ -981,7 +1171,7 @@ function showUploadDialog() {
       function selectNone() {
         // Deselect relationships.
         if (selectedRelationship) {
-          selectedRelationship.arrow.stroke(selectedRelationship.color);
+          restoreArrowColor(selectedRelationship);
           // selectedRelationship.arrow.strokeWidth(2);
         }
         selectedRelationship = null;
@@ -1151,12 +1341,29 @@ function showUploadDialog() {
         downloadURI(dataURL, 'diagram-export.png');
       }
 
+// Return a dictionary of persons who are visible (i.e. not hidden).
+function getVisiblePersons() {
+  var personsFiltered = {};
+
+  for (var index in persons) {
+    person = persons[index];
+    if (person.group.visible()) {
+      personsFiltered[index] = person;
+    }
+  }
+
+  return personsFiltered;
+}
+
 function exportToCSV() {
   // Use AJAX to ask the server to save the diagram.
   var url = "/exportToCSV";
 
+  // Filter to exclude invisible items.
+  var personsFiltered = getVisiblePersons();
+
   // Create data.
-  var pd = JSON.stringify(persons);
+  var pd = JSON.stringify(personsFiltered);
   var rd = JSON.stringify(relationships);
 
   var params = { name: diagramName, persons: pd, relationships: rd };
@@ -1185,8 +1392,11 @@ function exportToXML() {
   // Use AJAX to ask the server to export the diagram.
   var url = "/exportToXML";
 
+  // Filter to exclude invisible items.
+  var personsFiltered = getVisiblePersons();
+
   // Create data.
-  var pd = JSON.stringify(persons);
+  var pd = JSON.stringify(personsFiltered);
   var rd = JSON.stringify(relationships);
 
   var params = { name: diagramName, persons: pd, relationships: rd };
