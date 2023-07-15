@@ -178,7 +178,7 @@ def rename(diagram, newName):
     # Convert into JSON:
     # return json.dumps(returnData)
 
-def createXmlDoc(persons, relationships):
+def createXmlDoc(persons, relationships, name):
     """Create an XML document object from the given persons and relationships."""
 
     doc = xml.Document()
@@ -268,7 +268,7 @@ def save(name, persons, relationships):
         dest = os.path.join(getDiagramsDir(), name)
 
         # Create XML document.
-        doc = createXmlDoc(persons, relationships)
+        doc = createXmlDoc(persons, relationships, name)
 
         # Write the XML file.
         outputFile = open(dest, "w")
@@ -352,7 +352,7 @@ def export_to_xml(name, persons, relationships):
     """Export the given diagram to a XML file."""
 
     # Create XML document.
-    doc = createXmlDoc(persons, relationships)
+    doc = createXmlDoc(persons, relationships, name)
 
     # Make file name.
     now = datetime.datetime.now()
