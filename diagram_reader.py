@@ -44,6 +44,12 @@ def getTemplatesDir():
     # TODO: Perhaps move this to the "instance" dir.
     return os.path.join(app.root_path, "..", "templates")
 
+def getExportedFilesDir():
+    """Get the folder for exported files."""
+
+    # TODO: Perhaps move this to the "instance" dir.
+    return os.path.join(app.root_path, "..", "csv_exports")
+
 def getDiagramsDir():
     """Get the folder for the diagrams of the current user."""
 
@@ -297,8 +303,7 @@ def export_to_csv(name, persons, relationships):
     # Export.
     try:
         # Get destination file name.
-        # dest = os.path.join(getDiagramsDir(), outputFileName);
-        dest = os.path.join("csv_exports", outputFileName);
+        dest = os.path.join(getExportedFilesDir(), outputFileName);
 
         # Create CSV document.
         with open(dest, 'w', newline='') as csvfile:
@@ -355,7 +360,7 @@ def export_to_xml(name, persons, relationships):
     outputFileName = name + "-" + timestamp + ".xml"
 
     # Write the XML file.
-    dest = os.path.join("csv_exports", outputFileName);
+    dest = os.path.join(getExportedFilesDir(), outputFileName);
     outputFile = open(dest, "w")
     outputFile.write(doc.toprettyxml())
     outputFile.close()
