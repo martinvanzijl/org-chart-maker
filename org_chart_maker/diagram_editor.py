@@ -273,7 +273,7 @@ def download_csv():
 
     # Get file details.
     filename = request.args.get('filename')
-    directory = os.path.join(app.root_path, "..", "csv_exports")
+    directory = diagram_reader.getExportedFilesDir()
     # return send_from_directory(directory=directory, filename=filename)
 
     # Read file contents.
