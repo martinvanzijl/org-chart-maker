@@ -1061,6 +1061,11 @@ function filterRelationship (relationship, visible) {
         // Set width.
         person.rect.width(width);
 
+        // Update thumbnail position.
+        if (person.thumbnailBox) {
+          person.thumbnailBox.x(person.rect.width() - 42);
+        }
+
         // Center title text.
         person.text.x(width / 2 - person.text.width() / 2);
         person.titleText.x(width / 2 - person.titleText.width() / 2);
