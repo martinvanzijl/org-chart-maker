@@ -1223,6 +1223,9 @@ function filterRelationship (relationship, visible) {
         return false;
       }
 
+      // Read arrow head preference.
+      var showArrowHeads = {{ g.user.show_arrow_heads }};
+
       // Add relationship to diagram.
       function addRelationshipToDiagram(x1, y1, x2, y2, parentId, childId, color, type) {
 
@@ -1245,6 +1248,12 @@ function filterRelationship (relationship, visible) {
           pointerWidth : 20,
           fill: color,
         });
+
+        // Apply preference.
+        if (!showArrowHeads) {
+          arrow.pointerLength(0);
+          arrow.pointerWidth(0);
+        }
 
         // Apply style.
         if (type == DOTTED) {
