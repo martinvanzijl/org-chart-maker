@@ -242,23 +242,32 @@ def export_to_xml():
     print ("Content:", content)
     return jsonify(content)
 
+def bool_string_to_int(bool_string):
+    """Convert boolean string to integer."""
+
+    return bool_string == "true"
+
 @bp.route("/savePreferences", methods=("POST",))
 def save_preferences():
     """Save preferences."""
 
     # Read parameters.
     top_menu_type = request.form.get('top_menu_type')
+    show_arrow_heads = request.form.get('show_arrow_heads');
 
+    # Convert to database format.
     type_id = 0;
     if top_menu_type == "images":
         type_id = 1;
+
+    show_arrow_heads = bool_string_to_int(show_arrow_heads);
 
     # Update database.
     db = get_db()
 
     db.execute(
-        "UPDATE user SET top_menu_type = ? WHERE id = ?",
-        (type_id, g.user["id"])
+        "UPDATE user SET top_menu_type = ?, show_arrow_heads = ? WHERE id = ?",
+        (type_id, show_arrow_heads, g.user["id"])
     )
     db.commit()
 

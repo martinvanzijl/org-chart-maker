@@ -36,10 +36,24 @@
   <input type="submit" value="Save Preferences" />
 </form>
 
+<p><b>Display</b></p>
+
+<form id="preferencesFormDisplay" action="javascript:savePreferences();">
+  <p>Select what to display in the diagram:</p>
+  <input type="checkbox" id="show_arrow_heads" name="show_arrow_heads" checked>
+  <label for="text">Show arrow heads</label><br>
+  <br>
+  <input type="submit" value="Save Preferences" />
+</form>
+
 <script>
 // Read settings from database.
 {% if g.user and g.user.top_menu_type == 1 %}
   document.getElementById("images").checked = true;
+{% endif %}
+
+{% if g.user %}
+  document.getElementById("show_arrow_heads").checked = {{ g.user.show_arrow_heads }};
 {% endif %}
 
 function savePreferences() {
@@ -53,6 +67,8 @@ function savePreferences() {
   else {
     params["top_menu_type"] = "images";
   }
+
+  params["show_arrow_heads"] = document.getElementById("show_arrow_heads").checked;
 
   $.post( url, params, function(data, status) {
     // Get AJAX response.
