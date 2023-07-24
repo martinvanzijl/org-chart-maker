@@ -389,6 +389,12 @@ $( document ).keydown(function() {
 <script>
 // Callback for when a photo "activate" radio button is clicked.
 function photoActivateButtonClicked(selectedRadioButton) {
+  // Do nothing if already checked (does not work).
+  // if (selectedRadioButton.checked) {
+  //   console.log("Already checked. Exiting...");
+  //   return;
+  // }
+
   // De-select other buttons.
   var radioButtons = photosTable.getElementsByTagName("input");
   for (var index = 0; index < radioButtons.length; ++index) {
@@ -401,6 +407,9 @@ function photoActivateButtonClicked(selectedRadioButton) {
   // Store value.
   currentPerson.activePhotoIndex = selectedRadioButton.value;
   console.log("Setting index to:", currentPerson.activePhotoIndex);
+
+  // Update diagram.
+  updateThumbnail(currentPerson);
 }
 
 // Get the photo radio buttons.
@@ -567,11 +576,11 @@ function highlightActiveThumbnail() {
 
 // Add a photo to the list.
 function addPhotoToList(photoPath, photoName) {
-  // Create an empty <tr> element and add it to the 1st position of the table:
-  var row = photosTable.insertRow(1);
+  // Create an empty <tr> element and add it to the last position of the table:
+  var row = photosTable.insertRow(photosTable.rows.length);
 
   // Create ID for row.
-  var rowNumber = photosTable.rows.length - 1; // Minus header row.
+  var rowNumber = photosTable.rows.length - 2; // Minus header row.
   var rowId = "photosRow" + rowNumber;
   row.id = rowId;
 
@@ -1157,8 +1166,14 @@ function filterRelationship (relationship, visible) {
       function updateThumbnail(person) {
 
         if (person.photos.length > 0) {
+          // Determine which photo to use.
+          var index = 0;
+          if (person.activePhotoIndex) {
+            index = person.activePhotoIndex;
+          }
+
           // Get image.
-          var thumbnailPhoto = person.photos[0];
+          var thumbnailPhoto = person.photos[index];
 
           // Check if box already exists.
           if (person.thumbnailBox) {
