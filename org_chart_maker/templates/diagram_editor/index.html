@@ -373,7 +373,6 @@ $( document ).keydown(function() {
       <!-- <p>Photos:</p> -->
       <table id="photosTable">
         <tr><th>Active</th><th>Photo</th><th>Name</th><th>Remove</th></tr>
-        <tr><td><input type="radio" checked></td><td>ICON</td><td>Name</td><td><!-- Remove --></td></tr>
       </table>
       <button id="buttonAddPhoto" onclick="addPhotoClicked()">Add...</button>
     </div>
@@ -388,6 +387,18 @@ $( document ).keydown(function() {
 </form>
 
 <script>
+// Callback for when a photo "activate" radio button is clicked.
+function photoActivateButtonClicked(selectedRadioButton) {
+  // De-select other buttons.
+  var radioButtons = photosTable.getElementsByTagName("input");
+  for (var index = 0; index < radioButtons.length; ++index) {
+    var radioButton = radioButtons.item(index);
+    if (radioButton.type == "radio" && radioButton !== selectedRadioButton) {
+      radioButton.checked = false;
+    }
+  }
+}
+
 // Submit form when photo chosen.
 $('#photoToAdd').on('change',function ()
 {
@@ -523,6 +534,9 @@ function addPhotoToList(photoPath, photoName) {
   var rowId = "photosRow" + photosTable.rows.length;
   row.id = rowId;
 
+  // Create ID for activate button.
+  var activateButtonId = rowId + "ActivateButton";
+
   // Create ID for delete button.
   var deleteButtonId = rowId + "DeleteButton";
 
@@ -533,7 +547,7 @@ function addPhotoToList(photoPath, photoName) {
   var cell3 = row.insertCell(3);
 
   // Add some text to the new cells:
-  cell0.innerHTML = '<input type="radio" checked />';
+  cell0.innerHTML = '<input id="' + activateButtonId + '" type="radio" onclick="photoActivateButtonClicked(this)" />';
   cell1.innerHTML = '<img src="' + photoPath + '" border="0" width="32" height="32" ondblclick="showPhoto(\'' + photoPath + '\')">';
   cell2.innerHTML = photoName;
   // cell3.innerHTML = '<button id="' + deleteButtonId + '" class="remove">Remove</button>';
