@@ -397,6 +397,25 @@ function photoActivateButtonClicked(selectedRadioButton) {
       radioButton.checked = false;
     }
   }
+
+  // Store value.
+  currentPerson.activePhotoIndex = selectedRadioButton.value;
+  console.log("Setting index to:", currentPerson.activePhotoIndex);
+}
+
+// Get the photo radio buttons.
+function getThumbnailRadioButtons() {
+  var buttons = [];
+
+  var inputs = photosTable.getElementsByTagName("input");
+  for (var index = 0; index < inputs.length; ++index) {
+    var input = inputs.item(index);
+    if (input.type == "radio") {
+      buttons.push(input);
+    }
+  }
+
+  return buttons;
 }
 
 // Submit form when photo chosen.
@@ -518,11 +537,32 @@ function showPersonDetails(personId) {
     addPhotoToList(path, name);
   }
 
+  // Highlight active photo.
+  highlightActiveThumbnail();
+
   // Show dialog.
   $( "#personDetailsDialog" ).dialog( "open" );
 
   // Set the dialog to a constant height.
   $( "#tabs" ).tabs( "option", "heightStyle", "auto" );
+}
+
+// Highlight the active thumbnail in the dialog.
+function highlightActiveThumbnail() {
+  var buttons = getThumbnailRadioButtons();
+
+  var index = 0; // Default index.
+  if (currentPerson.activePhotoIndex) {
+    index = currentPerson.activePhotoIndex;
+  }
+
+  if (index < buttons.length) {
+    console.log("Highlighting:", index);
+    buttons[index].checked = true;
+  }
+  else {
+    console.log("Cannot highlight photo:", index);
+  }
 }
 
 // Add a photo to the list.
@@ -531,7 +571,8 @@ function addPhotoToList(photoPath, photoName) {
   var row = photosTable.insertRow(1);
 
   // Create ID for row.
-  var rowId = "photosRow" + photosTable.rows.length;
+  var rowNumber = photosTable.rows.length - 1; // Minus header row.
+  var rowId = "photosRow" + rowNumber;
   row.id = rowId;
 
   // Create ID for activate button.
@@ -547,7 +588,7 @@ function addPhotoToList(photoPath, photoName) {
   var cell3 = row.insertCell(3);
 
   // Add some text to the new cells:
-  cell0.innerHTML = '<input id="' + activateButtonId + '" type="radio" onclick="photoActivateButtonClicked(this)" />';
+  cell0.innerHTML = '<input id="' + activateButtonId + '" type="radio" value="' + rowNumber + '" onclick="photoActivateButtonClicked(this)" />';
   cell1.innerHTML = '<img src="' + photoPath + '" border="0" width="32" height="32" ondblclick="showPhoto(\'' + photoPath + '\')">';
   cell2.innerHTML = photoName;
   // cell3.innerHTML = '<button id="' + deleteButtonId + '" class="remove">Remove</button>';
@@ -564,6 +605,10 @@ function addPhotoToList(photoPath, photoName) {
     row.remove();
     removeItemOnce(currentPerson.photos, photoPath);
     updateThumbnail(currentPerson);
+    if (currentPerson.activePhotoIndex == rowNumber) {
+      currentPerson.activePhotoIndex = 0;
+      highlightActiveThumbnail();
+    }
   });
 }
 
@@ -1722,6 +1767,7 @@ function createNewPerson(pos) {
       url: "",
       department: "",
       photos: [],
+      activePhotoIndex: 0,
       borderColor: "black",
   };
 
