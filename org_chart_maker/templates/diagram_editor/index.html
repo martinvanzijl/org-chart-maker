@@ -613,11 +613,11 @@ function addPhotoToList(photoPath, photoName) {
   $( "#" + deleteButtonId ).click( function(event) {
     row.remove();
     removeItemOnce(currentPerson.photos, photoPath);
-    updateThumbnail(currentPerson);
     if (currentPerson.activePhotoIndex == rowNumber) {
       currentPerson.activePhotoIndex = 0;
       highlightActiveThumbnail();
     }
+    updateThumbnail(currentPerson);
   });
 }
 
@@ -1169,7 +1169,12 @@ function filterRelationship (relationship, visible) {
           // Determine which photo to use.
           var index = 0;
           if (person.activePhotoIndex) {
-            index = person.activePhotoIndex;
+            if (person.activePhotoIndex < person.photos.length) {
+              index = person.activePhotoIndex;
+            }
+            else {
+              console.log("Cannot read photo number:", person.activePhotoIndex);
+            }
           }
 
           // Get image.
