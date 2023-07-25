@@ -203,6 +203,11 @@ def createXmlDoc(persons, relationships, name):
         except KeyError:
             element.setAttribute("department", "")
 
+        try:
+            element.setAttribute("active_photo_index", person["activePhotoIndex"])
+        except KeyError:
+            element.setAttribute("active_photo_index", 0)
+
         rect = loads(person["rect"])
         attr = rect["attrs"]
 
@@ -410,7 +415,7 @@ def toJavaScriptList(name, lst):
     return name + ": [" + ', '.join('"' + item + '"' for item in lst) + "],\n"
 
 def toJavaScriptProperty(name, value):
-    return name + ": '" + value + "',\n";
+    return name + ": '" + str(value) + "',\n";
 
 class Person():
 
@@ -464,6 +469,7 @@ class Person():
             + toJavaScriptProperty("url", self.url) \
             + toJavaScriptProperty("department", self.department) \
             + toJavaScriptList("photos", self.photos) \
+            + toJavaScriptProperty("activePhotoIndex", self.activePhotoIndex) \
             + toJavaScriptProperty("borderColor", self.borderColor) \
             + "}"
 
@@ -550,6 +556,11 @@ def parse_xml_doc(doc):
         url = element.getAttribute("url")
         department = element.getAttribute("department")
 
+        # Get active photo index.
+        activePhotoIndex = 0 # Default.
+        if element.hasAttribute("active_photo_index"):
+            activePhotoIndex = stringToInt(element.getAttribute("active_photo_index"))
+
         # Get text color.
         textColor = 'black' # Default.
         if element.hasAttribute("text_color"):
@@ -562,6 +573,7 @@ def parse_xml_doc(doc):
 
         # Store person.
         person = Person(personId, x, y, name, title, url, department)
+        person.activePhotoIndex = activePhotoIndex
         person.textColor = textColor
         person.borderColor = borderColor
         persons[personId] = person
