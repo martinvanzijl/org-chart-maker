@@ -372,7 +372,10 @@ $( document ).keydown(function() {
     <div id="tabs-2">
       <!-- <p>Photos:</p> -->
       <table id="photosTable">
-        <tr><th>Active</th><th>Photo</th><th>Name</th><th>Remove</th></tr>
+        <!-- Looks awkward. -->
+        <!-- <tr style="visibility:collapse;"><th>Active</th><th>Photo</th><th>Name</th><th>Remove</th></tr> -->
+        <!-- Use a dummy header row (hidden) for now. -->
+        <tr style="visibility:collapse;"><th></th><th></th><th></th><th></th></tr>
       </table>
       <button id="buttonAddPhoto" onclick="addPhotoClicked()">Add...</button>
     </div>

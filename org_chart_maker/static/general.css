@@ -32,3 +32,8 @@ span.trash-icon {
   margin-bottom: 10px;
   border: 1px solid grey;
 }
+
+#photosTable td
+{
+    padding: 0 7px 0 0; /* Only right padding*/
+}
