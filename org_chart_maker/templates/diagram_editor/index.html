@@ -370,9 +370,12 @@ $( document ).keydown(function() {
       <p><label for="department">Department: </label><input id="department"/></p>
     </div>
     <div id="tabs-2">
-      <p>Photos:</p>
+      <!-- <p>Photos:</p> -->
       <table id="photosTable">
-          <tr><td>ICON</td><td>Name</td><td><!-- Remove --></td></tr>
+        <!-- Looks awkward. -->
+        <!-- <tr style="visibility:collapse;"><th>Active</th><th>Photo</th><th>Name</th><th>Remove</th></tr> -->
+        <!-- Use a dummy header row (hidden) for now. -->
+        <tr style="visibility:collapse;"><th></th><th></th><th></th><th></th></tr>
       </table>
       <button id="buttonAddPhoto" onclick="addPhotoClicked()">Add...</button>
     </div>
@@ -387,6 +390,46 @@ $( document ).keydown(function() {
 </form>
 
 <script>
+// Callback for when a photo "activate" radio button is clicked.
+function photoActivateButtonClicked(selectedRadioButton) {
+  // Do nothing if already checked (does not work).
+  // if (selectedRadioButton.checked) {
+  //   console.log("Already checked. Exiting...");
+  //   return;
+  // }
+
+  // De-select other buttons.
+  var radioButtons = photosTable.getElementsByTagName("input");
+  for (var index = 0; index < radioButtons.length; ++index) {
+    var radioButton = radioButtons.item(index);
+    if (radioButton.type == "radio" && radioButton !== selectedRadioButton) {
+      radioButton.checked = false;
+    }
+  }
+
+  // Store value.
+  currentPerson.activePhotoIndex = selectedRadioButton.value;
+  console.log("Setting index to:", currentPerson.activePhotoIndex);
+
+  // Update diagram.
+  updateThumbnail(currentPerson);
+}
+
+// Get the photo radio buttons.
+function getThumbnailRadioButtons() {
+  var buttons = [];
+
+  var inputs = photosTable.getElementsByTagName("input");
+  for (var index = 0; index < inputs.length; ++index) {
+    var input = inputs.item(index);
+    if (input.type == "radio") {
+      buttons.push(input);
+    }
+  }
+
+  return buttons;
+}
+
 // Submit form when photo chosen.
 $('#photoToAdd').on('change',function ()
 {
@@ -491,10 +534,10 @@ function showPersonDetails(personId) {
   // Add photos.
   var photosTable = document.getElementById("photosTable");
 
-  // Clear existing rows.
+  // Clear existing rows. Keep the header row intact.
   var rowCount = photosTable.rows.length;
-  for (var i = 0; i < rowCount; i++) {
-    photosTable.deleteRow(0);
+  for (var i = 1; i < rowCount; i++) {
+    photosTable.deleteRow(1);
   }
 
   for (var index in person.photos) {
@@ -506,6 +549,9 @@ function showPersonDetails(personId) {
     addPhotoToList(path, name);
   }
 
+  // Highlight active photo.
+  highlightActiveThumbnail();
+
   // Show dialog.
   $( "#personDetailsDialog" ).dialog( "open" );
 
@@ -513,24 +559,48 @@ function showPersonDetails(personId) {
   $( "#tabs" ).tabs( "option", "heightStyle", "auto" );
 }
 
+// Highlight the active thumbnail in the dialog.
+function highlightActiveThumbnail() {
+  var buttons = getThumbnailRadioButtons();
+
+  var index = 0; // Default index.
+  if (currentPerson.activePhotoIndex) {
+    index = currentPerson.activePhotoIndex;
+  }
+
+  if (index < buttons.length) {
+    console.log("Highlighting:", index);
+    buttons[index].checked = true;
+  }
+  else {
+    console.log("Cannot highlight photo:", index);
+  }
+}
+
 // Add a photo to the list.
 function addPhotoToList(photoPath, photoName) {
-  // Create an empty <tr> element and add it to the 1st position of the table:
-  var row = photosTable.insertRow(0);
+  // Create an empty <tr> element and add it to the last position of the table:
+  var row = photosTable.insertRow(photosTable.rows.length);
 
   // Create ID for row.
-  var rowId = "photosRow" + photosTable.rows.length;
+  var rowNumber = photosTable.rows.length - 2; // Minus header row.
+  var rowId = "photosRow" + rowNumber;
   row.id = rowId;
+
+  // Create ID for activate button.
+  var activateButtonId = rowId + "ActivateButton";
 
   // Create ID for delete button.
   var deleteButtonId = rowId + "DeleteButton";
 
   // Insert new cells (<td> elements) at the 1st and 2nd position of the "new" <tr> element:
-  var cell1 = row.insertCell(0);
-  var cell2 = row.insertCell(1);
-  var cell3 = row.insertCell(2);
+  var cell0 = row.insertCell(0);
+  var cell1 = row.insertCell(1);
+  var cell2 = row.insertCell(2);
+  var cell3 = row.insertCell(3);
 
   // Add some text to the new cells:
+  cell0.innerHTML = '<input id="' + activateButtonId + '" type="radio" value="' + rowNumber + '" onclick="photoActivateButtonClicked(this)" />';
   cell1.innerHTML = '<img src="' + photoPath + '" border="0" width="32" height="32" ondblclick="showPhoto(\'' + photoPath + '\')">';
   cell2.innerHTML = photoName;
   // cell3.innerHTML = '<button id="' + deleteButtonId + '" class="remove">Remove</button>';
@@ -546,6 +616,10 @@ function addPhotoToList(photoPath, photoName) {
   $( "#" + deleteButtonId ).click( function(event) {
     row.remove();
     removeItemOnce(currentPerson.photos, photoPath);
+    if (currentPerson.activePhotoIndex == rowNumber) {
+      currentPerson.activePhotoIndex = 0;
+      highlightActiveThumbnail();
+    }
     updateThumbnail(currentPerson);
   });
 }
@@ -1095,8 +1169,19 @@ function filterRelationship (relationship, visible) {
       function updateThumbnail(person) {
 
         if (person.photos.length > 0) {
+          // Determine which photo to use.
+          var index = 0;
+          if (person.activePhotoIndex) {
+            if (person.activePhotoIndex < person.photos.length) {
+              index = person.activePhotoIndex;
+            }
+            else {
+              console.log("Cannot read photo number:", person.activePhotoIndex);
+            }
+          }
+
           // Get image.
-          var thumbnailPhoto = person.photos[0];
+          var thumbnailPhoto = person.photos[index];
 
           // Check if box already exists.
           if (person.thumbnailBox) {
@@ -1705,6 +1790,7 @@ function createNewPerson(pos) {
       url: "",
       department: "",
       photos: [],
+      activePhotoIndex: 0,
       borderColor: "black",
   };
 

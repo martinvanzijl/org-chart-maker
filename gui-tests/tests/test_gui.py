@@ -74,11 +74,11 @@ def test_multiple_photos_with_same_name():
     fileInput.send_keys(photoPath2);
 
     # Check the photo paths.
-    photosRow1 = driver.find_element_by_id("photosRow1")
+    photosRow1 = driver.find_element_by_id("photosRow0")
     image1 = photosRow1.find_element_by_tag_name("img")
     imageSource1 = image1.get_attribute("src")
 
-    photosRow2 = driver.find_element_by_id("photosRow2")
+    photosRow2 = driver.find_element_by_id("photosRow1")
     image2 = photosRow2.find_element_by_tag_name("img")
     imageSource2 = image2.get_attribute("src")
 
