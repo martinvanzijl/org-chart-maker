@@ -9,6 +9,7 @@ from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from webdriver_manager.chrome import ChromeDriverManager
 
 # Test case.
@@ -240,8 +241,24 @@ def test_manage_page():
 
     waitForSeconds(driver, 0.1)
 
+    # Store the ID of the original window
+    original_window = driver.current_window_handle
+
+    # Click the menu item.
     link = driver.find_element_by_link_text("Manage")
     link.click()
+
+    # Setup wait for later.
+    wait = WebDriverWait(driver, 10)
+
+    # Wait for the new window or tab.
+    wait.until(EC.number_of_windows_to_be(2))
+
+    # Loop through until we find a new window handle.
+    for window_handle in driver.window_handles:
+        if window_handle != original_window:
+            driver.switch_to.window(window_handle)
+            break
 
     # Check that the "Delete Selected" button is initially disabled.
     button = driver.find_element(by=By.ID, value="buttonDeleteSelected")
