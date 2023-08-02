@@ -743,8 +743,8 @@ function showUploadDialog() {
 
 <!-- The "diagram properties" dialog. -->
 <div id="diagramPropertiesDialog" title="Diagram Properties">
-  <p><label for="name">Organisation: </label><input id="name"/></p>
-  <p><label for="location">Location: </label><input id="location"/></p>
+  <p><label for="diagramPropertiesName">Organisation: </label><input id="diagramPropertiesName"/></p>
+  <p><label for="diagramPropertiesLocation">Location: </label><input id="diagramPropertiesLocation"/></p>
 </div>
 
 <script>
@@ -910,6 +910,12 @@ function filterRelationship (relationship, visible) {
   }
 }
 
+// Diagram properties dictionary.
+var diagramProperties = {
+  name: "",
+  location: "",
+};
+
 var diagramPropertiesDialog = $( "#diagramPropertiesDialog" ).dialog({
   autoOpen: false,
   modal: true, // Hack to hide menu when shown if required.
@@ -921,11 +927,17 @@ var diagramPropertiesDialog = $( "#diagramPropertiesDialog" ).dialog({
 });
 
 function showDiagramPropertiesDialog() {
-    $( "#diagramPropertiesDialog" ).dialog( "open" );
+  document.getElementById("diagramPropertiesName").value = diagramProperties.name;
+  document.getElementById("diagramPropertiesLocation").value = diagramProperties.location;
+
+  $( "#diagramPropertiesDialog" ).dialog( "open" );
 };
 
 function diagramPropertiesDialogOKClicked() {
-  console.log("Saving the diagram properties...");
+  diagramProperties.name = $( "#diagramPropertiesName" ).val();
+  diagramProperties.location = $( "#diagramPropertiesLocation" ).val();
+
+  $( "#diagramPropertiesDialog" ).dialog( "close" );
 }
 </script>
 
