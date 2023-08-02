@@ -743,6 +743,8 @@ function showUploadDialog() {
 
 <!-- The "diagram properties" dialog. -->
 <div id="diagramPropertiesDialog" title="Diagram Properties">
+  <p><label for="name">Organisation: </label><input id="name"/></p>
+  <p><label for="location">Location: </label><input id="location"/></p>
 </div>
 
 <script>
@@ -912,6 +914,7 @@ var diagramPropertiesDialog = $( "#diagramPropertiesDialog" ).dialog({
   autoOpen: false,
   modal: true, // Hack to hide menu when shown if required.
   maxHeight: ($(window).height() - 50),
+  width: 400,
   buttons: {
     "Save and Close": diagramPropertiesDialogOKClicked,
   },
