@@ -114,6 +114,7 @@
       <div class="dropdown-content" style="width:190px">
         <a href="javascript:autoLayout();">Auto-Layout</a>
         <a href="javascript:showFilterByDepartmentDialog();">Filter by Department...</a>
+        <a href="javascript:showDiagramPropertiesDialog();">Properties...</a>
       </div>
     </div>
 
@@ -740,6 +741,10 @@ function showUploadDialog() {
   <form id="departmentsForm" />
 </div>
 
+<!-- The "diagram properties" dialog. -->
+<div id="diagramPropertiesDialog" title="Diagram Properties">
+</div>
+
 <script>
 var filterByDepartmentDialog = $( "#filterByDepartmentDialog" ).dialog({
   autoOpen: false,
@@ -901,6 +906,23 @@ function filterRelationship (relationship, visible) {
     relationship.arrow.fill (arrowGrayColor);
     // relationship.arrow.fillEnabled (false);
   }
+}
+
+var diagramPropertiesDialog = $( "#diagramPropertiesDialog" ).dialog({
+  autoOpen: false,
+  modal: true, // Hack to hide menu when shown if required.
+  maxHeight: ($(window).height() - 50),
+  buttons: {
+    "Save and Close": diagramPropertiesDialogOKClicked,
+  },
+});
+
+function showDiagramPropertiesDialog() {
+    $( "#diagramPropertiesDialog" ).dialog( "open" );
+};
+
+function diagramPropertiesDialogOKClicked() {
+  console.log("Saving the diagram properties...");
 }
 </script>
 
