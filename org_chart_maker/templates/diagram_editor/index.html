@@ -1534,8 +1534,11 @@ function exportToXML() {
   // Create data.
   var pd = JSON.stringify(personsFiltered);
   var rd = JSON.stringify(relationships);
+  var propd = JSON.stringify(diagramProperties);
 
-  var params = { name: diagramName, persons: pd, relationships: rd };
+  var params = { name: diagramName, persons: pd, relationships: rd,
+                 diagramProperties: propd,
+  };
 
   $.post( url, params, function(data, status) {
     // Get AJAX response.
@@ -1730,8 +1733,10 @@ function postDiagramToServer() {
   // Create data.
   var pd = JSON.stringify(persons);
   var rd = JSON.stringify(relationships);
+  var propd = JSON.stringify(diagramProperties);
 
   var params = { name: diagramName, persons: pd, relationships: rd,
+    diagramProperties: propd,
     showSavedMessageOnLoad: savingAsNewFilename};
 
   $.post( url, params, function(data, status) {

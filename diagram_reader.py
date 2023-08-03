@@ -178,12 +178,17 @@ def rename(diagram, newName):
     # Convert into JSON:
     # return json.dumps(returnData)
 
-def createXmlDoc(persons, relationships, name):
+def createXmlDoc(persons, relationships, name, diagramProperties):
     """Create an XML document object from the given persons and relationships."""
 
     doc = xml.Document()
     root = doc.createElement("org-chart")
     doc.appendChild(root)
+
+    # Write properties.
+    for key in diagramProperties:
+        value = diagramProperties[key]
+        root.setAttribute(key, value)
 
     # Write persons.
     for person in persons.values():
@@ -261,7 +266,7 @@ def createXmlDoc(persons, relationships, name):
     # Return.
     return doc
 
-def save(name, persons, relationships):
+def save(name, persons, relationships, diagramProperties):
     """Save the given diagram."""
 
     # Ensure ending exists.
@@ -273,7 +278,7 @@ def save(name, persons, relationships):
         dest = os.path.join(getDiagramsDir(), name)
 
         # Create XML document.
-        doc = createXmlDoc(persons, relationships, name)
+        doc = createXmlDoc(persons, relationships, name, diagramProperties)
 
         # Write the XML file.
         outputFile = open(dest, "w")
@@ -353,11 +358,11 @@ def export_to_csv(name, persons, relationships):
 
     return returnData;
 
-def export_to_xml(name, persons, relationships):
+def export_to_xml(name, persons, relationships, diagramProperties):
     """Export the given diagram to a XML file."""
 
     # Create XML document.
-    doc = createXmlDoc(persons, relationships, name)
+    doc = createXmlDoc(persons, relationships, name, diagramProperties)
 
     # Make file name.
     now = datetime.datetime.now()
