@@ -663,6 +663,13 @@ def parse_xml_doc(doc):
         line = "contentsTopLeft = {x:" + str(stagePositionX) + ",y:" + str(stagePositionY) + "};"
         result += line
 
+    # Read diagram properties.
+    root = doc.documentElement
+    organization = root.getAttribute("name")
+    location = root.getAttribute("location")
+    result += 'diagramProperties.name = "' + organization + '";'
+    result += 'diagramProperties.location = "' + location + '";'
+
     # Return.
     return result
 
