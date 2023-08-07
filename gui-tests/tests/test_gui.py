@@ -361,3 +361,41 @@ def test_filter_by_department():
 
     # Close the driver.
     driver.quit()
+
+# Test the "Diagram properties" feature.
+def test_diagram_properties_window():
+    # Create the driver.
+    driver = webdriver.Chrome("./chromedriver")
+
+    # Log in.
+    login(driver)
+
+    # Select the menu item.
+
+    # Hover over the "Diagram" menu, then click the menu item.
+    buttons = driver.find_elements_by_class_name("dropbtn")
+
+    for button in buttons:
+        if button.text == "Diagram":
+            diagramMenu = button
+            break
+
+    action = webdriver.common.action_chains.ActionChains(driver)
+    action.move_to_element(diagramMenu)
+    action.perform()
+
+    waitForSeconds(driver, 0.1)
+
+    link = driver.find_element_by_link_text("Properties...")
+    link.click()
+
+    waitForSeconds(driver, 0.1)
+
+    # Check that the dialog is shown.
+    dialog = driver.find_element(by=By.ID, value="diagramPropertiesDialog")
+    assert dialog.is_displayed()
+
+    # TODO: Test using the dialog.
+
+    # Close the driver.
+    driver.quit()

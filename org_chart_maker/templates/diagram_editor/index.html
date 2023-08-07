@@ -114,6 +114,7 @@
       <div class="dropdown-content" style="width:190px">
         <a href="javascript:autoLayout();">Auto-Layout</a>
         <a href="javascript:showFilterByDepartmentDialog();">Filter by Department...</a>
+        <a href="javascript:showDiagramPropertiesDialog();">Properties...</a>
       </div>
     </div>
 
@@ -740,6 +741,12 @@ function showUploadDialog() {
   <form id="departmentsForm" />
 </div>
 
+<!-- The "diagram properties" dialog. -->
+<div id="diagramPropertiesDialog" title="Diagram Properties">
+  <p><label for="diagramPropertiesName">Organization: </label><input id="diagramPropertiesName"/></p>
+  <p><label for="diagramPropertiesLocation">Location: </label><input id="diagramPropertiesLocation"/></p>
+</div>
+
 <script>
 var filterByDepartmentDialog = $( "#filterByDepartmentDialog" ).dialog({
   autoOpen: false,
@@ -901,6 +908,36 @@ function filterRelationship (relationship, visible) {
     relationship.arrow.fill (arrowGrayColor);
     // relationship.arrow.fillEnabled (false);
   }
+}
+
+// Diagram properties dictionary.
+var diagramProperties = {
+  name: "",
+  location: "",
+};
+
+var diagramPropertiesDialog = $( "#diagramPropertiesDialog" ).dialog({
+  autoOpen: false,
+  modal: true, // Hack to hide menu when shown if required.
+  maxHeight: ($(window).height() - 50),
+  width: 400,
+  buttons: {
+    "Save and Close": diagramPropertiesDialogOKClicked,
+  },
+});
+
+function showDiagramPropertiesDialog() {
+  document.getElementById("diagramPropertiesName").value = diagramProperties.name;
+  document.getElementById("diagramPropertiesLocation").value = diagramProperties.location;
+
+  $( "#diagramPropertiesDialog" ).dialog( "open" );
+};
+
+function diagramPropertiesDialogOKClicked() {
+  diagramProperties.name = $( "#diagramPropertiesName" ).val();
+  diagramProperties.location = $( "#diagramPropertiesLocation" ).val();
+
+  $( "#diagramPropertiesDialog" ).dialog( "close" );
 }
 </script>
 
@@ -1497,8 +1534,11 @@ function exportToXML() {
   // Create data.
   var pd = JSON.stringify(personsFiltered);
   var rd = JSON.stringify(relationships);
+  var propd = JSON.stringify(diagramProperties);
 
-  var params = { name: diagramName, persons: pd, relationships: rd };
+  var params = { name: diagramName, persons: pd, relationships: rd,
+                 diagramProperties: propd,
+  };
 
   $.post( url, params, function(data, status) {
     // Get AJAX response.
@@ -1693,8 +1733,10 @@ function postDiagramToServer() {
   // Create data.
   var pd = JSON.stringify(persons);
   var rd = JSON.stringify(relationships);
+  var propd = JSON.stringify(diagramProperties);
 
   var params = { name: diagramName, persons: pd, relationships: rd,
+    diagramProperties: propd,
     showSavedMessageOnLoad: savingAsNewFilename};
 
   $.post( url, params, function(data, status) {
