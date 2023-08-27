@@ -37,3 +37,9 @@ span.trash-icon {
 {
     padding: 0 7px 0 0; /* Only right padding*/
 }
+
+p.open-diagram-link {
+  background-color: #eeeeee;
+  border: dotted;
+  border-color: #dddddd;
+}

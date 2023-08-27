@@ -41,7 +41,7 @@ def get_diagram_list():
     # Push onto dialog.
     for fileName in fileNames:
         diagramId = os.path.splitext(fileName)[0]
-        html = '<a href="/?diagram=' + diagramId + '"><p>' + diagramId + '</p></a>'
+        html = '<a href="/?diagram=' + diagramId + '"><p class="open-diagram-link">' + diagramId + '</p></a>'
         result += """$( "#openOrgChartDialog" ).append('""" + html + """');\n"""
 
     # Return.
