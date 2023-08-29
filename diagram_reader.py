@@ -317,7 +317,8 @@ def export_to_csv(name, persons, relationships):
     # Make file name.
     now = datetime.datetime.now()
     timestamp = now.strftime("%Y%m%d-%H%M%S")
-    outputFileName = name + "-" + timestamp + ".csv";
+    basename = removeExtension(name, ".xml")
+    outputFileName = basename + "-" + timestamp + ".csv";
 
     # Export.
     try:
