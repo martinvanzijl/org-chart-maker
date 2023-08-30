@@ -18,6 +18,15 @@ PERSON_HEIGHT = 50
 DIAGRAMS_DIR = "save-files";
 PHOTOS_DIR_NAME = "photos";
 
+def removeExtension(fileName, extension):
+    """Remove the extension from the given file name."""
+
+    if fileName.endswith(extension):
+        return fileName[:-len(extension)]
+
+    # Default case.
+    return fileName
+
 def getDiagramName():
     """Get the diagram name."""
 
@@ -308,7 +317,8 @@ def export_to_csv(name, persons, relationships):
     # Make file name.
     now = datetime.datetime.now()
     timestamp = now.strftime("%Y%m%d-%H%M%S")
-    outputFileName = name + "-" + timestamp + ".csv";
+    basename = removeExtension(name, ".xml")
+    outputFileName = basename + "-" + timestamp + ".csv";
 
     # Export.
     try:
@@ -367,7 +377,8 @@ def export_to_xml(name, persons, relationships, diagramProperties):
     # Make file name.
     now = datetime.datetime.now()
     timestamp = now.strftime("%Y%m%d-%H%M%S")
-    outputFileName = name + "-" + timestamp + ".xml"
+    basename = removeExtension(name, ".xml")
+    outputFileName = basename + "-" + timestamp + ".xml"
 
     # Write the XML file.
     dest = os.path.join(getExportedFilesDir(), outputFileName);
