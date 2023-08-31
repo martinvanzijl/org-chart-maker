@@ -1470,17 +1470,42 @@ function diagramPropertiesDialogOKClicked() {
         var clientRect = layer.getClientRect();
 
         // Limit image to contents.
-        var MARGIN = 16
+        var MARGIN = 16;
+
+        var exportAreaLeft = clientRect.x - MARGIN;
+        var exportAreaTop = clientRect.y - MARGIN;
+        var exportAreaWidth = clientRect.width + (MARGIN * 2);
+        var exportAreaHeight = clientRect.height + (MARGIN * 2);
+
         var config = {
-          x: clientRect.x,
-          y: clientRect.y,
-          width: clientRect.width + (MARGIN * 2),
-          height: clientRect.height + (MARGIN * 2)
+          x: exportAreaLeft,
+          y: exportAreaTop,
+          width: exportAreaWidth,
+          height: exportAreaHeight
         }
+
+        // Add white background.
+        // TODO: Limit size to client rectangle, same as above.
+        var background = new Konva.Rect({
+          x: 0,
+          y: 0,
+          width: stage.width(),
+          height: stage.height(),
+          fill: 'lightgray',
+          stroke: 'white',
+          // remove background from hit graph for better perf
+          // because we don't need any events on the background
+          listening: false,
+        });
+        layer.add(background);
+        background.moveToBottom(); // Place background behind other shapes.
 
         // Export.
         var dataURL = stage.toDataURL(config);
         downloadURI(dataURL, 'diagram-export.png');
+
+        // Remove the background.
+        background.remove();
       }
 
 // Return a dictionary of persons who are visible (i.e. not hidden).
