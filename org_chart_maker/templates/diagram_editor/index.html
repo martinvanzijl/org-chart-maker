@@ -1465,6 +1465,19 @@ function diagramPropertiesDialogOKClicked() {
         delete link;
       }
 
+      // The background object for exporting images.
+      var background = new Konva.Rect({
+        x: 0,
+        y: 0,
+        width: stage.width(),
+        height: stage.height(),
+        fill: 'lightgray',
+        stroke: 'white',
+        // remove background from hit graph for better perf
+        // because we don't need any events on the background
+        listening: false,
+      });
+
       function exportImage() {
         // Find diagram content size.
         var clientRect = layer.getClientRect();
@@ -1484,19 +1497,8 @@ function diagramPropertiesDialogOKClicked() {
           height: exportAreaHeight
         }
 
-        // Add white background.
+        // Add background.
         // TODO: Limit size to client rectangle, same as above.
-        var background = new Konva.Rect({
-          x: 0,
-          y: 0,
-          width: stage.width(),
-          height: stage.height(),
-          fill: 'lightgray',
-          stroke: 'white',
-          // remove background from hit graph for better perf
-          // because we don't need any events on the background
-          listening: false,
-        });
         layer.add(background);
         background.moveToBottom(); // Place background behind other shapes.
 
