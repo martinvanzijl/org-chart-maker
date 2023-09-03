@@ -750,6 +750,7 @@ function showUploadDialog() {
   <table>
     <tr><td><label for="diagramPropertiesName">Organization: </label></td><td><input id="diagramPropertiesName"/></td></tr>
     <tr><td><label for="diagramPropertiesLocation">Location: </label></td><td><input id="diagramPropertiesLocation"/></td></tr>
+    <tr><td><label for="diagramPropertiesArrowSize">Arrow Size: </label></td><td><input id="diagramPropertiesArrowSize"/></td></tr>
   </table>
 </div>
 
@@ -916,10 +917,14 @@ function filterRelationship (relationship, visible) {
   }
 }
 
+// Default arrow size.
+var DEFAULT_ARROW_SIZE = 20;
+
 // Diagram properties dictionary.
 var diagramProperties = {
   name: "",
   location: "",
+  arrowSize: DEFAULT_ARROW_SIZE,
 };
 
 var diagramPropertiesDialog = $( "#diagramPropertiesDialog" ).dialog({
@@ -935,6 +940,7 @@ var diagramPropertiesDialog = $( "#diagramPropertiesDialog" ).dialog({
 function showDiagramPropertiesDialog() {
   document.getElementById("diagramPropertiesName").value = diagramProperties.name;
   document.getElementById("diagramPropertiesLocation").value = diagramProperties.location;
+  document.getElementById("diagramPropertiesArrowSize").value = diagramProperties.arrowSize;
 
   $( "#diagramPropertiesDialog" ).dialog( "open" );
 };
@@ -942,6 +948,7 @@ function showDiagramPropertiesDialog() {
 function diagramPropertiesDialogOKClicked() {
   diagramProperties.name = $( "#diagramPropertiesName" ).val();
   diagramProperties.location = $( "#diagramPropertiesLocation" ).val();
+  diagramProperties.arrowSize = $( "#diagramPropertiesArrowSize" ).val();
 
   $( "#diagramPropertiesDialog" ).dialog( "close" );
 }
