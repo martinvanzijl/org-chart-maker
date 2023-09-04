@@ -942,27 +942,49 @@ function showDiagramPropertiesDialog() {
   document.getElementById("diagramPropertiesLocation").value = diagramProperties.location;
   document.getElementById("diagramPropertiesArrowSize").value = diagramProperties.arrowSize;
 
+  if (!isValidArrowSize(diagramProperties.arrowSize)) {
+    document.getElementById("diagramPropertiesArrowSize").value = DEFAULT_ARROW_SIZE;
+  }
+
   $( "#diagramPropertiesDialog" ).dialog( "open" );
 };
 
+// Check whether the given value is a valid arrow size.
+// The value can be either a number or string.
+function isValidArrowSize(size) {
+  // Convert to number.
+  var sizeAsNumber = Number(size);
+
+  // Check.
+  if (isNaN(sizeAsNumber) || sizeAsNumber <= 0) {
+    return false;
+  }
+
+  // OK.
+  return true;
+}
+
+// Callback for when "Save and Close" is clicked on the Diagram Properties
+// window.
 function diagramPropertiesDialogOKClicked() {
   diagramProperties.name = $( "#diagramPropertiesName" ).val();
   diagramProperties.location = $( "#diagramPropertiesLocation" ).val();
-  diagramProperties.arrowSize = $( "#diagramPropertiesArrowSize" ).val();
 
-  // Actually apply the arrow size change.
-  setArrowSizes(diagramProperties.arrowSize);
+  var arrowSizeInput = $( "#diagramPropertiesArrowSize" ).val();
+
+  if (isValidArrowSize(arrowSizeInput)) {
+    diagramProperties.arrowSize = arrowSizeInput;
+    setArrowSizes(Number(arrowSizeInput));
+  }
 
   $( "#diagramPropertiesDialog" ).dialog( "close" );
 }
 
 // Set all arrow sizes.
+// The parameter must be a number.
 function setArrowSizes(size) {
-  // Convert to number.
-  sizeAsNumber = Number(size);
-
   // Sanity check.
-  if (sizeAsNumber == NaN || sizeAsNumber <= 0) {
+  if (!isValidArrowSize(size)) {
     console.log("Could not set arrow size:", size);
     return;
   }
@@ -971,8 +993,8 @@ function setArrowSizes(size) {
   for (var index in relationships) {
     var relationship = relationships[index];
 
-    relationship.arrow.pointerLength(sizeAsNumber);
-    relationship.arrow.pointerWidth(sizeAsNumber);
+    relationship.arrow.pointerLength(size);
+    relationship.arrow.pointerWidth(size);
   }
 }
 </script>
