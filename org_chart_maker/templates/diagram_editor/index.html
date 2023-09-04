@@ -950,7 +950,30 @@ function diagramPropertiesDialogOKClicked() {
   diagramProperties.location = $( "#diagramPropertiesLocation" ).val();
   diagramProperties.arrowSize = $( "#diagramPropertiesArrowSize" ).val();
 
+  // Actually apply the arrow size change.
+  setArrowSizes(diagramProperties.arrowSize);
+
   $( "#diagramPropertiesDialog" ).dialog( "close" );
+}
+
+// Set all arrow sizes.
+function setArrowSizes(size) {
+  // Convert to number.
+  sizeAsNumber = Number(size);
+
+  // Sanity check.
+  if (sizeAsNumber == NaN || sizeAsNumber <= 0) {
+    console.log("Could not set arrow size:", size);
+    return;
+  }
+
+  // Set all sizes.
+  for (var index in relationships) {
+    var relationship = relationships[index];
+
+    relationship.arrow.pointerLength(sizeAsNumber);
+    relationship.arrow.pointerWidth(sizeAsNumber);
+  }
 }
 </script>
 
