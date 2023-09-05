@@ -997,6 +997,11 @@ function setArrowSizes(size) {
     relationship.arrow.pointerWidth(size);
   }
 }
+
+// Update the diagram based on properties.
+function updateDiagramBasedOnProperties() {
+  setArrowSizes(diagramProperties.arrowSize);
+}
 </script>
 
 <!-- The diagram. -->
@@ -1419,13 +1424,19 @@ function setArrowSizes(size) {
           return null;
         }
 
+        // Determine arrow size.
+        var arrowSize = DEFAULT_ARROW_SIZE;
+        if (isValidArrowSize(diagramProperties.arrowSize)) {
+          arrowSize = Number(diagramProperties.arrowSize);
+        }
+
         // Create arrow.
         var arrow = new Konva.Arrow({
           points: [x1, y1, x2, y2],
           stroke: color,
           tension: 1,
-          pointerLength : 20,
-          pointerWidth : 20,
+          pointerLength : arrowSize,
+          pointerWidth : arrowSize,
           fill: color,
         });
 

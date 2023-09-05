@@ -678,10 +678,11 @@ def parse_xml_doc(doc):
     root = doc.documentElement
     organization = root.getAttribute("name")
     location = root.getAttribute("location")
-    arrowSize = root.getAttribute("arrow_size")
+    arrowSize = root.getAttribute("arrowSize")
     result += 'diagramProperties.name = "' + organization + '";'
     result += 'diagramProperties.location = "' + location + '";'
     result += 'diagramProperties.arrowSize = "' + arrowSize + '";'
+    result += "updateDiagramBasedOnProperties();"
 
     # Return.
     return result
