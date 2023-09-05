@@ -750,6 +750,7 @@ function showUploadDialog() {
   <table>
     <tr><td><label for="diagramPropertiesName">Organization: </label></td><td><input id="diagramPropertiesName"/></td></tr>
     <tr><td><label for="diagramPropertiesLocation">Location: </label></td><td><input id="diagramPropertiesLocation"/></td></tr>
+    <tr><td><label for="diagramPropertiesArrowSize">Arrow Size: </label></td><td><input id="diagramPropertiesArrowSize"/></td></tr>
   </table>
 </div>
 
@@ -916,10 +917,14 @@ function filterRelationship (relationship, visible) {
   }
 }
 
+// Default arrow size.
+var DEFAULT_ARROW_SIZE = 20;
+
 // Diagram properties dictionary.
 var diagramProperties = {
   name: "",
   location: "",
+  arrowSize: DEFAULT_ARROW_SIZE,
 };
 
 var diagramPropertiesDialog = $( "#diagramPropertiesDialog" ).dialog({
@@ -935,15 +940,67 @@ var diagramPropertiesDialog = $( "#diagramPropertiesDialog" ).dialog({
 function showDiagramPropertiesDialog() {
   document.getElementById("diagramPropertiesName").value = diagramProperties.name;
   document.getElementById("diagramPropertiesLocation").value = diagramProperties.location;
+  document.getElementById("diagramPropertiesArrowSize").value = diagramProperties.arrowSize;
+
+  if (!isValidArrowSize(diagramProperties.arrowSize)) {
+    document.getElementById("diagramPropertiesArrowSize").value = DEFAULT_ARROW_SIZE;
+  }
 
   $( "#diagramPropertiesDialog" ).dialog( "open" );
 };
 
+// Check whether the given value is a valid arrow size.
+// The value can be either a number or string.
+function isValidArrowSize(size) {
+  // Convert to number.
+  var sizeAsNumber = Number(size);
+
+  // Check.
+  if (isNaN(sizeAsNumber) || sizeAsNumber <= 0) {
+    return false;
+  }
+
+  // OK.
+  return true;
+}
+
+// Callback for when "Save and Close" is clicked on the Diagram Properties
+// window.
 function diagramPropertiesDialogOKClicked() {
   diagramProperties.name = $( "#diagramPropertiesName" ).val();
   diagramProperties.location = $( "#diagramPropertiesLocation" ).val();
 
+  var arrowSizeInput = $( "#diagramPropertiesArrowSize" ).val();
+
+  if (isValidArrowSize(arrowSizeInput)) {
+    diagramProperties.arrowSize = arrowSizeInput;
+    setArrowSizes(Number(arrowSizeInput));
+  }
+
   $( "#diagramPropertiesDialog" ).dialog( "close" );
+}
+
+// Set all arrow sizes.
+// The parameter must be a number.
+function setArrowSizes(size) {
+  // Sanity check.
+  if (!isValidArrowSize(size)) {
+    console.log("Could not set arrow size:", size);
+    return;
+  }
+
+  // Set all sizes.
+  for (var index in relationships) {
+    var relationship = relationships[index];
+
+    relationship.arrow.pointerLength(size);
+    relationship.arrow.pointerWidth(size);
+  }
+}
+
+// Update the diagram based on properties.
+function updateDiagramBasedOnProperties() {
+  setArrowSizes(diagramProperties.arrowSize);
 }
 </script>
 
@@ -1367,13 +1424,19 @@ function diagramPropertiesDialogOKClicked() {
           return null;
         }
 
+        // Determine arrow size.
+        var arrowSize = DEFAULT_ARROW_SIZE;
+        if (isValidArrowSize(diagramProperties.arrowSize)) {
+          arrowSize = Number(diagramProperties.arrowSize);
+        }
+
         // Create arrow.
         var arrow = new Konva.Arrow({
           points: [x1, y1, x2, y2],
           stroke: color,
           tension: 1,
-          pointerLength : 20,
-          pointerWidth : 20,
+          pointerLength : arrowSize,
+          pointerWidth : arrowSize,
           fill: color,
         });
 

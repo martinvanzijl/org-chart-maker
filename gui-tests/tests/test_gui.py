@@ -395,6 +395,10 @@ def test_diagram_properties_window():
     dialog = driver.find_element(by=By.ID, value="diagramPropertiesDialog")
     assert dialog.is_displayed()
 
+    # Check that the default value is applied.
+    arrowSizeInput = driver.find_element(by=By.ID, value="diagramPropertiesArrowSize")
+    assert arrowSizeInput.get_attribute("value") == "20";
+
     # TODO: Test using the dialog.
 
     # Close the driver.
