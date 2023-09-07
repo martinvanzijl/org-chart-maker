@@ -156,6 +156,8 @@
   <button id="buttonAddRelationship" onclick="addRelationshipClicked()">Relationship</button>
   <br />
   <button id="buttonAddDottedRelationship" onclick="addDottedRelationshipClicked()">Dotted Rel.</button>
+  <br />
+  <button id="buttonAddSubOrg" onclick="addSubOrgClicked()" draggable="true" ondragstart="addPersonStartDrag(event)">Sub-Org.</button>
   <span>Selected Item</span>
   <button id="buttonEditPerson" onclick="editPersonClicked()">Edit</button>
   <br />
@@ -175,6 +177,7 @@ var personsTableRows = {};
 $( "#buttonAddPerson" ).button();
 $( "#buttonAddRelationship" ).button();
 $( "#buttonAddDottedRelationship" ).button();
+$( "#buttonAddSubOrg" ).button();
 $( "#buttonEditPerson" ).button();
 $( "#buttonDeletePerson" ).button();
 
@@ -182,6 +185,7 @@ $( "#buttonDeletePerson" ).button();
 var DEFAULT = 0;
 var ADD_PERSON = 1;
 var ADD_RELATIONSHIP = 2;
+var ADD_SUB_ORG = 3;
 var diagramMode = DEFAULT;
 
 // Relationship type.
@@ -201,10 +205,12 @@ function setDiagramMode(mode) {
   var buttonAddPerson = document.getElementById("buttonAddPerson");
   var buttonAddRelationship = document.getElementById("buttonAddRelationship");
   var buttonAddDottedRelationship = document.getElementById("buttonAddDottedRelationship");
+  var buttonAddDottedRelationship = document.getElementById("buttonAddSubOrg");
 
   unHighlightButton(buttonAddPerson);
   unHighlightButton(buttonAddRelationship);
   unHighlightButton(buttonAddDottedRelationship);
+  unHighlightButton(buttonAddSubOrg);
 
   if (mode == ADD_PERSON) {
     highlightButton(buttonAddPerson);
@@ -216,6 +222,9 @@ function setDiagramMode(mode) {
     else {
       highlightButton(buttonAddDottedRelationship);
     }
+  }
+  else if (mode == ADD_SUB_ORG) {
+    highlightButton(buttonAddSubOrg);
   }
 }
 
@@ -244,6 +253,12 @@ function addPersonClicked()
 function addPersonStartDrag(ev)
 {
   ev.dataTransfer.setData("text", ev.target.id);
+}
+
+// Callback for clicking the "Add Sub-Org." button.
+function addSubOrgClicked()
+{
+  setDiagramMode (ADD_SUB_ORG);
 }
 
 // Set relationship type to draw.
@@ -1052,6 +1067,10 @@ function updateDiagramBasedOnProperties() {
           createNewPerson(stage.getRelativePointerPosition());
 
           // Update undo stack.
+          addUndo();
+        }
+        else if (diagramMode == ADD_SUB_ORG) {
+          createNewSubOrg(stage.getRelativePointerPosition());
           addUndo();
         }
         else {
@@ -1912,6 +1931,11 @@ con.addEventListener('drop', function (e) {
     // Update undo stack.
     addUndo();
   }
+  else if (data == "buttonAddSubOrg") {
+    stage.setPointersPositions(e);
+    createNewSubOrg(stage.getRelativePointerPosition());
+    // addUndo();
+  }
 });
 
 // Create a new person and add it to the diagram at the given position.
@@ -1937,6 +1961,37 @@ function createNewPerson(pos) {
 
   // Select it immediately.
   selectPerson(person);
+
+  // Reset the mode.
+  setDiagramMode (DEFAULT);
+}
+
+// Create a new sub-organization.
+function createNewSubOrg(pos) {
+  // Create ID.
+  // From https://stackoverflow.com/questions/105034/how-to-create-a-guid-uuid
+  // var personId = Date.now().toString(36) + Math.random().toString(36).substring(2);
+
+  // Create person.
+  // person = {
+  //     personId: personId,
+  //     name: "New Person",
+  //     title: "Associate",
+  //     url: "",
+  //     department: "",
+  //     photos: [],
+  //     activePhotoIndex: 0,
+  //     borderColor: "black",
+  // };
+
+  // Add to diagram.
+  // addPersonToDiagram(person, pos.x, pos.y);
+
+  // Select it immediately.
+  // selectPerson(person);
+
+  // Debug.
+  console.log("Would create new sub-org...");
 
   // Reset the mode.
   setDiagramMode (DEFAULT);
