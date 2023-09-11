@@ -2,6 +2,9 @@
 // Routines for sub-organizations.
 // -----------------------------------------------------------------------------
 
+// Space for icon.
+var ICON_SPACE = 42;
+
 // Sub-organizations dictionary.
 var subOrgs = {};
 
@@ -50,6 +53,26 @@ function addSubOrgToDiagram(org, x, y) {
     fill: 'white',
     stroke: 'black',
     strokeWidth: 1,
+  });
+
+  // Create icon.
+  Konva.Image.fromURL("/static/images/sub-org-icon.png", function (imageNode) {
+    // Set image attributes.
+    imageNode.setAttrs({
+      x: width - ICON_SPACE,
+      y: 8,
+      width: 32,
+      height: 32,
+    });
+
+    // Add to group.
+    group.add(imageNode);
+
+    // Place.
+    imageNode.x(org.rect.width() - ICON_SPACE);
+
+    // Set field.
+    org.icon = imageNode;
   });
 
   // Add the shapes to the group.
@@ -161,11 +184,18 @@ function updateSubOrgBoxToFitName(org) {
 
   // Calculate margin.
   var textWidth = org.text.width();
-  var rectWidth = textWidth + (MARGIN * 2);
+  var textBoxWidth = textWidth + (MARGIN * 2)
+  var rectWidth = textBoxWidth + ICON_SPACE;
 
   // Set width.
   org.rect.width(rectWidth);
 
   // Center text.
-  org.text.x(rectWidth / 2 - textWidth / 2);
+  org.text.x(textBoxWidth / 2 - textWidth / 2);
+
+  // Place icon.
+  if (org.icon)
+  {
+    org.icon.x(rectWidth - ICON_SPACE);
+  }
 }
