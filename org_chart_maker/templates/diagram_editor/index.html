@@ -375,13 +375,22 @@ $( document ).keydown(function() {
 <div id="subOrgDetailsDialog" title="Sub-org. Details" style="display: none;">
   <table>
     <tr><td><label for="subOrgName">Name: </label></td><td><input id="subOrgName"/></td></tr>
-    <tr><td><label for="subOrgDiagramId">Diagram ID: </label></td><td><input id="subOrgDiagramId"/></td></tr>
+    <tr>
+      <td><label for="subOrgDiagramId">Diagram ID: </label></td>
+      <td>
+        <input id="subOrgDiagramId"/>
+        <span> </span>
+        <button id="buttonSubOrgSelectDiagram" onclick="subOrgSelectDiagramClicked()">Select...</button>
+        <span> </span>
+        <button id="buttonSubOrgOpenDiagram" onclick="subOrgOpenDiagramClicked()">Open</button>
+      </td>
+    </tr>
   </table>
 </div>
 
 <script>
 // Create the dialog.
-var subOrgDetailsDialog = $( "#subOrgDetailsDialog" ).dialog({ autoOpen: false, closeOnEscape: true, modal: true, width: 420,
+var subOrgDetailsDialog = $( "#subOrgDetailsDialog" ).dialog({ autoOpen: false, closeOnEscape: true, modal: true, width: 445,
   buttons: {
     "Save": saveSubOrgDetails,
     "Cancel": function() { subOrgDetailsDialog.dialog( "close" ); }

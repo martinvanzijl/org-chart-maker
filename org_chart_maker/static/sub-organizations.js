@@ -273,3 +273,13 @@ function saveSubOrgDetails() {
   // Update undo stack.
   addUndo();
 }
+
+// Callback for when the sub-org dialog "select diagram" button is clicked.
+function subOrgSelectDiagramClicked() {
+  console.log("Would show 'Select Sub-Org.' dialog...");
+}
+
+// Callback for when the sub-org dialog "open diagram" button is clicked.
+function subOrgOpenDiagramClicked() {
+  console.log("Would open sub-org diagram...");
+}
