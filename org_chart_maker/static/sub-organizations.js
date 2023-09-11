@@ -199,3 +199,77 @@ function updateSubOrgBoxToFitName(org) {
     org.icon.x(rectWidth - ICON_SPACE);
   }
 }
+
+// The currently shown sub-org.
+var currentSubOrg = null;
+
+// Function to sub-org details.
+function showSubOrgDetails(id) {
+  // Get person.
+  var org = subOrgs[id];
+
+  // Store.
+  currentSubOrg = org;
+
+  // Set title.
+  $( "#subOrgDetailsDialog" ).dialog( "option", "title", "Sub-Org. details - " + org.name );
+
+  // Add person details.
+  document.getElementById("subOrgName").value = org.name;
+  document.getElementById("subOrgDiagramId").value = org.diagramId;
+
+  // Show dialog.
+  $( "#subOrgDetailsDialog" ).dialog( "open" );
+
+  // Set the dialog to a constant height.
+  // $( "#"tabs" ).tabs( "option", "heightStyle", "auto" );
+}
+
+// Create a new sub-organization.
+function createNewSubOrg(pos) {
+  // Create ID.
+  var id = Date.now().toString(36) + Math.random().toString(36).substring(2);
+
+  // Create sub-org.
+  org = {
+      id: id,
+      name: "New Sub-Org",
+      diagramId: "",
+      borderColor: "black",
+  };
+
+  // Add to diagram.
+  addSubOrgToDiagram(org, pos.x, pos.y);
+
+  // Select it immediately.
+  selectSubOrg(org);
+
+  // Debug.
+  // console.log("Would create new sub-org...");
+
+  // Reset the mode.
+  setDiagramMode (DEFAULT);
+}
+
+// Function to save sub-org details.
+function saveSubOrgDetails() {
+  // Update details.
+  currentSubOrg.name = $( "#subOrgName" ).val();
+  currentSubOrg.diagramId = $( "#subOrgDiagramId" ).val();
+
+  // Update diagram.
+  currentSubOrg.text.text( currentSubOrg.name );
+  updateSubOrgBoxToFitName( currentSubOrg );
+  // updateFilterStatus( currentSubOrg );
+
+  // updateRelationshipEndPoints(currentSubOrg);
+
+  // Update tree view.
+  // personsTableRows[currentPerson.personId].cells[0].innerHTML = currentPerson.name;
+
+  // Close the dialog.
+  subOrgDetailsDialog.dialog( "close" );
+
+  // Update undo stack.
+  addUndo();
+}
