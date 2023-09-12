@@ -677,6 +677,18 @@ function showPhoto(photoPath) {
 }
 </script>
 
+<!-- The "select sub-org diagram" dialog. -->
+<div id="selectSubOrgDiagramDialog" title="Select Sub-Org Diagram">
+</div>
+
+<script>
+$( "#selectSubOrgDiagramDialog" ).dialog({
+  autoOpen: false,
+  modal: true, // Hack to hide menu when shown if required.
+  maxHeight: ($(window).height() - 50)
+});
+</script>
+
 <!-- The "open" dialog. -->
 <div id="openOrgChartDialog" title="Open Org Chart">
   <!-- Does not work! -->

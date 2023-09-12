@@ -276,10 +276,23 @@ function saveSubOrgDetails() {
 
 // Callback for when the sub-org dialog "select diagram" button is clicked.
 function subOrgSelectDiagramClicked() {
-  console.log("Would show 'Select Sub-Org.' dialog...");
+  // console.log("Would show 'Select Sub-Org.' dialog...");
+
+  $( "#selectSubOrgDiagramDialog" ).dialog( "open" );
 }
 
 // Callback for when the sub-org dialog "open diagram" button is clicked.
 function subOrgOpenDiagramClicked() {
   console.log("Would open sub-org diagram...");
+}
+
+// Add a diagram ID to the sub-org diagram selector dialog.
+function addToSubOrgDiagramDialog(diagramId) {
+  var html = '<a href="javascript:selectDiagramId(\'' + diagramId + '\')"><p class="open-diagram-link">' + diagramId + '</p></a>'
+  $( "#selectSubOrgDiagramDialog" ).append( html );
+}
+
+// Select a diagram ID.
+function selectDiagramId(diagramId) {
+  console.log("Selecting diagram ID:", diagramId);
 }
