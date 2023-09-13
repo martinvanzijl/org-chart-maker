@@ -283,13 +283,36 @@ function subOrgSelectDiagramClicked() {
 
 // Callback for when the sub-org dialog "open diagram" button is clicked.
 function subOrgOpenDiagramClicked() {
-  console.log("Would open sub-org diagram...");
+  // console.log("Would open sub-org diagram...");
+
+  // Show a diagram in a new tab or window.
+  var diagramId = $( "#subOrgDiagramId" ).val();
+
+  if (isValidDiagramId(diagramId)) {
+    var url = "/?diagram=" + diagramId;
+    window.open(url, "_blank");
+  }
+  else {
+    alert("Not a valid diagram ID.");
+  }
 }
+
+// Check whether the diagram ID is valid or not.
+function isValidDiagramId(diagramId) {
+  return validDiagramIds.includes(diagramId);
+}
+
+// The list of valid diagram IDs.
+var validDiagramIds = [];
 
 // Add a diagram ID to the sub-org diagram selector dialog.
 function addToSubOrgDiagramDialog(diagramId) {
+  // Add to dialog.
   var html = '<a href="javascript:selectDiagramId(\'' + diagramId + '\')"><p class="open-diagram-link">' + diagramId + '</p></a>'
   $( "#selectSubOrgDiagramDialog" ).append( html );
+
+  // Add to list.
+  validDiagramIds.push(diagramId);
 }
 
 // Select a diagram ID.
