@@ -294,5 +294,11 @@ function addToSubOrgDiagramDialog(diagramId) {
 
 // Select a diagram ID.
 function selectDiagramId(diagramId) {
-  console.log("Selecting diagram ID:", diagramId);
+  // console.log("Selecting diagram ID:", diagramId);
+
+  // Update GUI.
+  document.getElementById("subOrgDiagramId").value =diagramId;
+
+  // Close the dialog.
+  selectSubOrgDiagramDialog.dialog( "close" );
 }
