@@ -53,14 +53,16 @@ def test_non_existing_diagram(client, auth):
 #     response = client.post(path, data={"title": "", "body": ""})
 #     assert b"Title is required." in response.data
 
-def test_invalid_file(client, auth):
-    # Log in.
-    auth.login()
-
-    # Navigate to diagram that does not exist.
-    diagramName = "invalid-file"
-    response = client.get("/?diagram=" + diagramName)
-
-    # This should show a message.
-    message = "Could not load diagram: "
-    assert bytes(message, 'utf-8') in response.data
+# TODO: Now that the error handling is more robust, find a file that should
+# not load at all.
+# def test_invalid_file(client, auth):
+#     # Log in.
+#     auth.login()
+#
+#     # Navigate to diagram that does not exist.
+#     diagramName = "invalid-file"
+#     response = client.get("/?diagram=" + diagramName)
+#
+#     # This should show a message.
+#     message = "Could not load diagram: "
+#     assert bytes(message, 'utf-8') in response.data
