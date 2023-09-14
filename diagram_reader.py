@@ -197,7 +197,7 @@ def createXmlDoc(persons, relationships, name, diagramProperties):
     # Write properties.
     for key in diagramProperties:
         value = diagramProperties[key]
-        root.setAttribute(key, value)
+        root.setAttribute(key, str(value))
 
     # Write persons.
     for person in persons.values():
