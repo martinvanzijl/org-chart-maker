@@ -1889,9 +1889,10 @@ function postDiagramToServer() {
   // Create data.
   var pd = JSON.stringify(persons);
   var rd = JSON.stringify(relationships);
+  var sd = JSON.stringify(subOrgs);
   var propd = JSON.stringify(diagramProperties);
 
-  var params = { name: diagramName, persons: pd, relationships: rd,
+  var params = { name: diagramName, persons: pd, relationships: rd, subOrgs: sd,
     diagramProperties: propd,
     showSavedMessageOnLoad: savingAsNewFilename};
 

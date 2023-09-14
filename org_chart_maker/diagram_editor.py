@@ -196,16 +196,18 @@ def save_diagram():
     name = request.form.get('name')
     persons = request.form.get('persons')
     relationships = request.form.get('relationships')
+    subOrgs = request.form.get('subOrgs')
     diagramProperties = request.form.get('diagramProperties')
     session['showSavedMessageOnLoad'] = request.form.get('showSavedMessageOnLoad')
 
     # Load from JSON.
     pd = loads(persons)
     rd = loads(relationships)
+    sd = loads(subOrgs)
     propertiesData = loads(diagramProperties)
 
     # Do the save.
-    content = diagram_reader.save(name, pd, rd, propertiesData)
+    content = diagram_reader.save(name, pd, rd, sd, propertiesData)
     return jsonify(content)
 
 @bp.route("/exportToCSV", methods=("POST",))
@@ -217,11 +219,12 @@ def export_to_csv():
     name = request.form.get('name')
     persons = request.form.get('persons')
     relationships = request.form.get('relationships')
-
+    # subOrgs = request.form.get('subOrgs')
 
     # Load from JSON.
     pd = loads(persons)
     rd = loads(relationships)
+    # sd = loads(relationships)
 
     # Do the save.
     content = diagram_reader.export_to_csv(name, pd, rd)
@@ -236,15 +239,17 @@ def export_to_xml():
     name = request.form.get('name')
     persons = request.form.get('persons')
     relationships = request.form.get('relationships')
+    subOrgs = request.form.get('subOrgs')
     diagramProperties = request.form.get('diagramProperties')
 
     # Load from JSON.
     pd = loads(persons)
     rd = loads(relationships)
+    sd = loads(subOrgs)
     propertiesData = loads(diagramProperties)
 
     # Do the export.
-    content = diagram_reader.export_to_xml(name, pd, rd, propertiesData)
+    content = diagram_reader.export_to_xml(name, pd, rd, sd, propertiesData)
     return jsonify(content)
 
 def bool_string_to_int(bool_string):

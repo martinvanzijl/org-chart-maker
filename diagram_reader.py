@@ -187,7 +187,7 @@ def rename(diagram, newName):
     # Convert into JSON:
     # return json.dumps(returnData)
 
-def createXmlDoc(persons, relationships, name, diagramProperties):
+def createXmlDoc(persons, relationships, subOrgs, name, diagramProperties):
     """Create an XML document object from the given persons and relationships."""
 
     doc = xml.Document()
@@ -272,10 +272,26 @@ def createXmlDoc(persons, relationships, name, diagramProperties):
 
         root.appendChild(element)
 
+    # Write sub-organizations.
+    for subOrg in subOrgs.values():
+        element = doc.createElement("subOrg")
+
+        # element.setAttribute("id", subOrg["id"])
+        # element.setAttribute("name", subOrg["name"])
+        # element.setAttribute("diagramId", subOrg["diagramId"])
+
+        # group = loads(subOrg["group"])
+        # attr = group["attrs"]
+        #
+        # element.setAttribute("x", str(attr["x"]))
+        # element.setAttribute("y", str(attr["y"]))
+
+        root.appendChild(element)
+
     # Return.
     return doc
 
-def save(name, persons, relationships, diagramProperties):
+def save(name, persons, relationships, subOrgs, diagramProperties):
     """Save the given diagram."""
 
     # Ensure ending exists.
@@ -287,7 +303,7 @@ def save(name, persons, relationships, diagramProperties):
         dest = os.path.join(getDiagramsDir(), name)
 
         # Create XML document.
-        doc = createXmlDoc(persons, relationships, name, diagramProperties)
+        doc = createXmlDoc(persons, relationships, subOrgs, name, diagramProperties)
 
         # Write the XML file.
         outputFile = open(dest, "w")
@@ -368,11 +384,11 @@ def export_to_csv(name, persons, relationships):
 
     return returnData;
 
-def export_to_xml(name, persons, relationships, diagramProperties):
+def export_to_xml(name, persons, relationships, subOrgs, diagramProperties):
     """Export the given diagram to a XML file."""
 
     # Create XML document.
-    doc = createXmlDoc(persons, relationships, name, diagramProperties)
+    doc = createXmlDoc(persons, relationships, subOrgs, name, diagramProperties)
 
     # Make file name.
     now = datetime.datetime.now()
