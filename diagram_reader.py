@@ -276,15 +276,16 @@ def createXmlDoc(persons, relationships, subOrgs, name, diagramProperties):
     for subOrg in subOrgs.values():
         element = doc.createElement("subOrg")
 
-        # element.setAttribute("id", subOrg["id"])
-        # element.setAttribute("name", subOrg["name"])
-        # element.setAttribute("diagramId", subOrg["diagramId"])
+        element.setAttribute("id", subOrg["id"])
+        element.setAttribute("name", subOrg["name"])
+        element.setAttribute("diagramId", subOrg["diagramId"])
 
-        # group = loads(subOrg["group"])
-        # attr = group["attrs"]
-        #
-        # element.setAttribute("x", str(attr["x"]))
-        # element.setAttribute("y", str(attr["y"]))
+        group = loads(subOrg["group"])
+        attr = group["attrs"]
+
+        # TODO: Convert to integers first.
+        element.setAttribute("x", str(attr["x"]))
+        element.setAttribute("y", str(attr["y"]))
 
         root.appendChild(element)
 
@@ -509,6 +510,23 @@ class Person():
             + toJavaScriptProperty("borderColor", self.borderColor) \
             + "}"
 
+class SubOrg():
+
+    def __init__(self, id, x, y, name, diagramId):
+        self.id = id
+        self.x = x
+        self.y = y
+        self.name = name
+        self.diagramId = diagramId
+
+    def toJavaScript(self):
+        return "{" \
+            + toJavaScriptProperty("id", self.id) \
+            + toJavaScriptProperty("name", self.name) \
+            + toJavaScriptProperty("diagramId", self.diagramId) \
+            + toJavaScriptProperty("borderColor", self.borderColor) \
+            + "}"
+
 def getTemplateList():
     try:
         fileNames = os.listdir(getTemplatesDir())
@@ -640,6 +658,39 @@ def parse_xml_doc(doc):
 
         # Set text color.
         line = "person.text.fill('" + textColor + "');\n";
+        result += line;
+
+    # Read the persons.
+
+    # Read the sub-organizations.
+    subOrgElements = doc.getElementsByTagName("subOrg")
+    # subOrgs = {}
+
+    for element in subOrgElements:
+
+        # Read attributes.
+        id = element.getAttribute("id")
+        name = element.getAttribute("name")
+        x = stringToInt(element.getAttribute("x"))
+        y = stringToInt(element.getAttribute("y"))
+        diagramId = element.getAttribute("diagramId")
+
+        # Get border color.
+        borderColor = 'black' # Default.
+        if element.hasAttribute("border_color"):
+            borderColor = element.getAttribute("border_color")
+
+        # Store person.
+        subOrg = SubOrg(id, x, y, name, diagramId)
+        subOrg.borderColor = borderColor
+        # subOrgs[id] = subOrg
+
+        # Create in JavaScript.
+        line = "var subOrg = " + subOrg.toJavaScript() + "\n";
+        result += line;
+
+        # Add the person to the diagram.
+        line = "addSubOrgToDiagram(subOrg, " + str(x) + ", " + str(y) + ")\n";
         result += line;
 
     # Read the relationships.
