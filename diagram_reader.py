@@ -425,7 +425,11 @@ def quotedList(lst):
 
 def stringToInt(str):
     # Use "float" to handle numbers with decimal points.
-    return int(float(str))
+    try:
+        return int(float(str))
+    except ValueError as error:
+        print(error)
+        return 0
 
 def toJavaScriptList(name, lst):
     return name + ": [" + ', '.join('"' + item + '"' for item in lst) + "],\n"
