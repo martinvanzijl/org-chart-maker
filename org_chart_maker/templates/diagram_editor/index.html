@@ -1690,10 +1690,11 @@ function exportToXML() {
   // Create data.
   var pd = JSON.stringify(personsFiltered);
   var rd = JSON.stringify(relationships);
+  var sd = JSON.stringify(subOrgs);
   var propd = JSON.stringify(diagramProperties);
 
-  var params = { name: diagramName, persons: pd, relationships: rd,
-                 diagramProperties: propd,
+  var params = { name: diagramName, persons: pd, relationships: rd, subOrgs: sd,
+    diagramProperties: propd,
   };
 
   $.post( url, params, function(data, status) {
