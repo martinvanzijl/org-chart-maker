@@ -146,6 +146,15 @@
   </div>
 </div>
 
+<!-- The context menu for sub-orgs. -->
+<div id="sub-org-context-menu-container"></div>
+<div id="sub-org-context-menu">
+  <div>
+    <button id="sub-org-context-menu-edit-button">Edit...</button>
+    <button id="sub-org-context-menu-remove-button">Remove</button>
+  </div>
+</div>
+
 <!-- The main content. -->
 <div class="main">
 
@@ -1799,7 +1808,7 @@ stage.on('mouseup', function (e) {
 
 // Set up context menu for persons.
 let currentShape;
-var menuNode = document.getElementById('person-context-menu');
+var personMenuNode = document.getElementById('person-context-menu');
 document.getElementById('person-context-menu-edit-button').addEventListener('click', () => {
   showPersonDetails(selectedPerson.personId);
 });
@@ -1807,6 +1816,19 @@ document.getElementById('person-context-menu-edit-button').addEventListener('cli
 document.getElementById('person-context-menu-remove-button').addEventListener('click', () => {
   deletePersonClicked();
 });
+
+// Set up context menu for sub-orgs.
+var subOrgMenuNode = document.getElementById('sub-org-context-menu');
+document.getElementById('sub-org-context-menu-edit-button').addEventListener('click', () => {
+  showSubOrgDetails(selectedSubOrg.id);
+});
+
+document.getElementById('sub-org-context-menu-remove-button').addEventListener('click', () => {
+  deletePersonClicked();
+});
+
+// Initial value.
+var menuNode = personMenuNode;
 
 // Add context menu to stage for persons.
 stage.on('contextmenu', function (e) {
@@ -1819,8 +1841,15 @@ stage.on('contextmenu', function (e) {
   }
   currentShape = e.target;
 
-  // show menu, if it is on a person
+  // show menu, if it is on a person or sub-org.
   if (currentShape.getClassName() == "Rect" || currentShape.getClassName() == "Text") {
+    // Choose the right menu.
+    menuNode = personMenuNode;
+    if (currentShape.parent.isSubOrg) {
+      menuNode = subOrgMenuNode;
+    }
+
+    // Show it.
     menuNode.style.display = 'initial';
     var containerRect = stage.container().getBoundingClientRect();
     menuNode.style.top =

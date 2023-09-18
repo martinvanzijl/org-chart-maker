@@ -25,6 +25,9 @@ function addSubOrgToDiagram(org, x, y) {
     draggable: true,
   });
 
+  // Set flag.
+  group.isSubOrg = true;
+
   // Calculate center.
   var centerX = (width / 2);
   var centerY = (height / 2);

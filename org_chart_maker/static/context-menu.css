@@ -8,7 +8,26 @@
   z-index: 1;
 }
 
+/* TODO: Create a shared class instead. */
+#sub-org-context-menu {
+  display: none;
+  position: absolute;
+  width: 85px;
+  background-color: white;
+  box-shadow: 0 0 5px grey;
+  border-radius: 3px;
+  z-index: 1;
+}
+
 #person-context-menu button {
+  width: 100%;
+  background-color: white;
+  border: none;
+  margin: 0;
+  padding: 10px;
+}
+
+#sub-org-context-menu button {
   width: 100%;
   background-color: white;
   border: none;
@@ -19,4 +38,7 @@
 #person-context-menu button:hover {
   background-color: lightgray;
 }
-</style>
+
+#sub-org-context-menu button:hover {
+  background-color: lightgray;
+}
