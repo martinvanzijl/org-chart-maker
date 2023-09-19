@@ -1443,6 +1443,13 @@ function updateDiagramBasedOnProperties() {
           selectedPerson.rect.strokeWidth(1)
         }
         selectedPerson = null;
+
+        // Deselect sub-orgs.
+        if (selectedSubOrg) {
+          restoreBorderColor(selectedSubOrg);
+          selectedSubOrg.rect.strokeWidth(1)
+        }
+        selectedSubOrg = null;
       }
 
       // Function to select person.
