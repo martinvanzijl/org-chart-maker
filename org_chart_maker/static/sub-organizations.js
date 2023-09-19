@@ -27,6 +27,7 @@ function addSubOrgToDiagram(org, x, y) {
 
   // Set flag.
   group.isSubOrg = true;
+  group.subOrg = org;
 
   // Calculate center.
   var centerX = (width / 2);
@@ -290,6 +291,21 @@ function subOrgOpenDiagramClicked() {
 
   // Show a diagram in a new tab or window.
   var diagramId = $( "#subOrgDiagramId" ).val();
+
+  if (isValidDiagramId(diagramId)) {
+    var url = "/?diagram=" + diagramId;
+    window.open(url, "_blank");
+  }
+  else {
+    alert("Not a valid diagram ID.");
+  }
+}
+
+// Callback for when the sub-org right-click menu "open diagram" item is clicked.
+// TODO: Merge with function above.
+function subOrgContextMenuOpenDiagramClicked() {
+  // Show a diagram in a new tab or window.
+  var diagramId = currentSubOrg.diagramId;
 
   if (isValidDiagramId(diagramId)) {
     var url = "/?diagram=" + diagramId;

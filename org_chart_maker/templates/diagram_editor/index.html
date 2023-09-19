@@ -148,10 +148,12 @@
 
 <!-- The context menu for sub-orgs. -->
 <div id="sub-org-context-menu-container"></div>
-<div id="sub-org-context-menu">
+<div id="sub-org-context-menu" style="width: 120px;">
   <div>
-    <button id="sub-org-context-menu-edit-button">Edit...</button>
-    <button id="sub-org-context-menu-remove-button">Remove</button>
+    <!-- TODO: Put the text-alignment style information in the CSS file. -->
+    <button id="sub-org-context-menu-edit-button" style="text-align: left;">Edit...</button>
+    <button id="sub-org-context-menu-remove-button" style="text-align: left;">Remove</button>
+    <button id="sub-org-context-menu-open-diagram-button" style="text-align: left;">Open Diagram</button>
   </div>
 </div>
 
@@ -1827,6 +1829,10 @@ document.getElementById('sub-org-context-menu-remove-button').addEventListener('
   deletePersonClicked();
 });
 
+document.getElementById('sub-org-context-menu-open-diagram-button').addEventListener('click', () => {
+  subOrgContextMenuOpenDiagramClicked();
+});
+
 // Initial value.
 var menuNode = personMenuNode;
 
@@ -1846,6 +1852,7 @@ stage.on('contextmenu', function (e) {
     // Choose the right menu.
     menuNode = personMenuNode;
     if (currentShape.parent.isSubOrg) {
+      currentSubOrg = currentShape.parent.subOrg;
       menuNode = subOrgMenuNode;
     }
 
