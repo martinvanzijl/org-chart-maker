@@ -328,7 +328,7 @@ def save(name, persons, relationships, subOrgs, diagramProperties):
 
     return returnData
 
-def export_to_csv(name, persons, relationships):
+def export_to_csv(name, persons, relationships, subOrgs):
     """Export the given diagram to a CSV file."""
 
     # Make file name.
@@ -366,8 +366,17 @@ def export_to_csv(name, persons, relationships):
 
                 writer.writerow(row);
 
-        # TODO: Store this in a secure location and delete it after it is
-        # downloaded.
+            # Write persons.
+            for subOrg in subOrgs.values():
+                row = ["(sub-org) " + subOrg["name"], "", "", "", ""];
+
+                # personId = person["personId"];
+                # if personId in reportsTo:
+                #     row.append(reportsTo[personId]);
+                # else:
+                #     row.append("");
+
+                writer.writerow(row);
 
         # Return status.
         returnData = {

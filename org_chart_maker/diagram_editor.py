@@ -219,15 +219,15 @@ def export_to_csv():
     name = request.form.get('name')
     persons = request.form.get('persons')
     relationships = request.form.get('relationships')
-    # subOrgs = request.form.get('subOrgs')
+    subOrgs = request.form.get('subOrgs')
 
     # Load from JSON.
     pd = loads(persons)
     rd = loads(relationships)
-    # sd = loads(relationships)
+    sd = loads(subOrgs)
 
     # Do the save.
-    content = diagram_reader.export_to_csv(name, pd, rd)
+    content = diagram_reader.export_to_csv(name, pd, rd, sd)
     return jsonify(content)
 
 @bp.route("/exportToXML", methods=("POST",))

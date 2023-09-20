@@ -1675,8 +1675,10 @@ function exportToCSV() {
   // Create data.
   var pd = JSON.stringify(personsFiltered);
   var rd = JSON.stringify(relationships);
+  var sd = JSON.stringify(subOrgs);
 
-  var params = { name: diagramName, persons: pd, relationships: rd };
+  var params = { name: diagramName, persons: pd, relationships: rd,
+                 subOrgs: sd };
 
   $.post( url, params, function(data, status) {
     // Get AJAX response.
