@@ -117,21 +117,24 @@ function addSubOrgToDiagram(org, x, y) {
     }
   });
 
-  // TODO: Decide how to use relationships.
-  // group.on('mousedown', function (e) {
-  //   if (diagramMode == ADD_RELATIONSHIP) {
-  //     newRelationshipParent = org;
-  //     drawingArrow = true;
-  //   }
-  // });
-  //
-  // group.on('mouseup', function (e) {
-  //   if (diagramMode == ADD_RELATIONSHIP) {
-  //     newRelationshipChild = org;
-  //   }
-  // });
-  //
+  group.on('mousedown', function (e) {
+    if (diagramMode == ADD_RELATIONSHIP) {
+      console.log ("Starting to draw arrow...");
+      newRelationshipParent = org;
+      drawingArrow = true;
+    }
+  });
+
+  group.on('mouseup', function (e) {
+    if (diagramMode == ADD_RELATIONSHIP) {
+      newRelationshipChild = org;
+    }
+  });
+
   // group.on('dragmove', function (e) {
+  //   // Debug.
+  //   console.log("Drag move event...");
+  //
   //   // Move relationships.
   //   updateRelationshipEndPoints(org);
   // });

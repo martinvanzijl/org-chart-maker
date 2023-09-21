@@ -1490,7 +1490,24 @@ function updateDiagramBasedOnProperties() {
       var showArrowHeads = {{ g.user.show_arrow_heads }};
 
       // Add relationship to diagram.
-      function addRelationshipToDiagram(x1, y1, x2, y2, parentId, childId, color, type) {
+      function addRelationshipToDiagram(x1, y1, x2, y2, parent, child, color, type) {
+        // Set the relationship IDs.
+        var parentId = null;
+        var childId = null;
+
+        if (parent.isSubOrg) {
+          parentId = parent.id;
+        }
+        else {
+          parentId = parent.personId;
+        }
+
+        if (child.isSubOrg) {
+          childId = child.id;
+        }
+        else {
+          childId = child.personId;
+        }
 
         // Check that relationship does not already exist.
         var parent = persons[parentId];
@@ -1498,7 +1515,7 @@ function updateDiagramBasedOnProperties() {
 
         if (relationshipExists(parent, child)) {
           // Do not add a duplicate relationship.
-          console.log("Relationship already exists. Not added again.")
+          console.log("Relationship already exists. Not added again.");
           return null;
         }
 
@@ -1545,8 +1562,8 @@ function updateDiagramBasedOnProperties() {
         relationships.push(relationship);
 
         // Add relationships to persons.
-        persons[parentId].relationships.push(relationship);
-        persons[childId].relationships.push(relationship);
+        parent.relationships.push(relationship);
+        child.relationships.push(relationship);
 
         // Add click handler.
         arrow.on('click', function (e) {
@@ -1743,6 +1760,8 @@ var newRelationshipArrow = null;
 // Handle dragging a relationship.
 stage.on('mousemove', function (e) {
   if (drawingArrow) {
+    console.log("Drawing arrow with mouse move event.");
+
     // Get position.
     var pos = stage.getRelativePointerPosition();
 
@@ -1797,8 +1816,8 @@ stage.on('mouseup', function (e) {
       }
       else {
         // Add the relationship.
-        var relationship = addRelationshipToDiagram(0, 0, 0, 0, newRelationshipParent.personId,
-          newRelationshipChild.personId, 'black', newRelationshipType);
+        var relationship = addRelationshipToDiagram(0, 0, 0, 0, newRelationshipParent,
+          newRelationshipChild, 'black', newRelationshipType);
 
         // Select it immediately.
         if (relationship) {
