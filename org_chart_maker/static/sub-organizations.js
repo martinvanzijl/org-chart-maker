@@ -97,6 +97,7 @@ function addSubOrgToDiagram(org, x, y) {
       showSubOrgDetails(id);
   });
 
+  // When clicking the rectangle, select the sub-org.
   rect.on('click', function (e) {
     if (diagramMode == DEFAULT) {
       selectSubOrg(org);
@@ -104,6 +105,7 @@ function addSubOrgToDiagram(org, x, y) {
     }
   });
 
+  // When clicking the text, select the sub-org.
   text.on('click', function (e) {
     if (diagramMode == DEFAULT) {
       selectSubOrg(org);
@@ -111,31 +113,30 @@ function addSubOrgToDiagram(org, x, y) {
     }
   });
 
+  // Before drag+drop, first select the sub-org.
   group.on('dragstart', function (e) {
     if (diagramMode == DEFAULT) {
       selectSubOrg(org);
     }
   });
 
+  // When holding the mouse down, start drawing an arrow.6
   group.on('mousedown', function (e) {
     if (diagramMode == ADD_RELATIONSHIP) {
-      console.log ("Starting to draw arrow...");
       newRelationshipParent = org;
       drawingArrow = true;
     }
   });
 
+  // When releasing the mouse, finish adding the relationship.
   group.on('mouseup', function (e) {
     if (diagramMode == ADD_RELATIONSHIP) {
       newRelationshipChild = org;
     }
   });
 
+  // When dragging the rectangle, update existing arrow endpoints.
   group.on('dragmove', function (e) {
-    // Debug.
-    console.log("Drag move event...");
-
-    // Move relationships.
     updateRelationshipEndPoints(org);
   });
 
