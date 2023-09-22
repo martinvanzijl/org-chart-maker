@@ -131,13 +131,13 @@ function addSubOrgToDiagram(org, x, y) {
     }
   });
 
-  // group.on('dragmove', function (e) {
-  //   // Debug.
-  //   console.log("Drag move event...");
-  //
-  //   // Move relationships.
-  //   updateRelationshipEndPoints(org);
-  // });
+  group.on('dragmove', function (e) {
+    // Debug.
+    console.log("Drag move event...");
+
+    // Move relationships.
+    updateRelationshipEndPoints(org);
+  });
 
   // Add pointers to shapes.
   org.rect = rect;
