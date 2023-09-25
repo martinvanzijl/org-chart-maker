@@ -252,9 +252,6 @@ function createNewSubOrg(pos) {
   // Select it immediately.
   selectSubOrg(org);
 
-  // Debug.
-  // console.log("Would create new sub-org...");
-
   // Reset the mode.
   setDiagramMode (DEFAULT);
 }
@@ -284,15 +281,11 @@ function saveSubOrgDetails() {
 
 // Callback for when the sub-org dialog "select diagram" button is clicked.
 function subOrgSelectDiagramClicked() {
-  // console.log("Would show 'Select Sub-Org.' dialog...");
-
   $( "#selectSubOrgDiagramDialog" ).dialog( "open" );
 }
 
 // Callback for when the sub-org dialog "open diagram" button is clicked.
 function subOrgOpenDiagramClicked() {
-  // console.log("Would open sub-org diagram...");
-
   // Show a diagram in a new tab or window.
   var diagramId = $( "#subOrgDiagramId" ).val();
 
@@ -340,10 +333,8 @@ function addToSubOrgDiagramDialog(diagramId) {
 
 // Select a diagram ID.
 function selectDiagramId(diagramId) {
-  // console.log("Selecting diagram ID:", diagramId);
-
   // Update GUI.
-  document.getElementById("subOrgDiagramId").value =diagramId;
+  document.getElementById("subOrgDiagramId").value = diagramId;
 
   // Close the dialog.
   selectSubOrgDiagramDialog.dialog( "close" );

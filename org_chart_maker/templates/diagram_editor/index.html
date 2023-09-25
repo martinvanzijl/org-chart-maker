@@ -1759,6 +1759,11 @@ var newRelationshipArrow = null;
 
 // Handle dragging a relationship.
 stage.on('mousemove', function (e) {
+  // Debug. This seems to be called when click+dragging from persons but not
+  // from sub-orgs. What is the difference?
+  console.log("Mouse move event code...");
+
+  // Draw the actual arrow.
   if (drawingArrow) {
     console.log("Drawing arrow with mouse move event.");
 
