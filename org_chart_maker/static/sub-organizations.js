@@ -120,7 +120,7 @@ function addSubOrgToDiagram(org, x, y) {
     }
   });
 
-  // When holding the mouse down, start drawing an arrow.6
+  // When holding the mouse down, start drawing an arrow.
   group.on('mousedown', function (e) {
     if (diagramMode == ADD_RELATIONSHIP) {
       newRelationshipParent = org;

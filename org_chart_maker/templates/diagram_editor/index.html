@@ -1475,6 +1475,7 @@ function updateDiagramBasedOnProperties() {
 
       // Check for relationship.
       function isParentOf(parent, child) {
+        // TODO: Check that "parent.relationships" actually exists!
         for (var index in parent.relationships) {
           if (parent.relationships[index].toPersonId == child.personId) {
             // Exists.
