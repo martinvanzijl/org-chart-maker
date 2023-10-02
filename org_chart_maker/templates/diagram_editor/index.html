@@ -1406,6 +1406,7 @@ function updateDiagramBasedOnProperties() {
       // Update the end points for a relationship.
       function updateArrowEndPoints(relationship) {
         // Get start coordinate.
+        // TODO: Store the actual person or sub-org, not just the ID!
         var fromPerson = persons[relationship.fromPersonId];
         var x1 = fromPerson.group.x() + (fromPerson.rect.width() / 2);
         var y1 = fromPerson.group.y() + fromPerson.rect.height();
@@ -1473,11 +1474,30 @@ function updateDiagramBasedOnProperties() {
         return isParentOf(person1, person2) || isParentOf(person2, person1);
       }
 
+      // Get ID of given item.
+      function getID(item) {
+        if (isSubOrg(item)) {
+          return item.id;
+        }
+        else {
+          return item.personId;
+        }
+      }
+
       // Check for relationship.
       function isParentOf(parent, child) {
-        // TODO: Check that "parent.relationships" actually exists!
+        // Check that "parent.relationships" actually exists!
+        // DOES NOT WORK!
+        // if (!parent.relationships) {
+        //   return false;
+        // }
+
+        // Debug.
+        console.log ("Parent:", parent);
+        console.log ("Child:", child);
+
         for (var index in parent.relationships) {
-          if (parent.relationships[index].toPersonId == child.personId) {
+          if (parent.relationships[index].toPersonId == getID(personId)) {
             // Exists.
             return true;
           }
@@ -1511,8 +1531,8 @@ function updateDiagramBasedOnProperties() {
         }
 
         // Check that relationship does not already exist.
-        var parent = persons[parentId];
-        var child = persons[childId];
+        // var parent = persons[parentId];
+        // var child = persons[childId];
 
         if (relationshipExists(parent, child)) {
           // Do not add a duplicate relationship.
@@ -1762,11 +1782,11 @@ var newRelationshipArrow = null;
 stage.on('mousemove', function (e) {
   // Debug. This seems to be called when click+dragging from persons but not
   // from sub-orgs. What is the difference?
-  console.log("Mouse move event code...");
+  // console.log("Mouse move event code...");
 
   // Draw the actual arrow.
   if (drawingArrow) {
-    console.log("Drawing arrow with mouse move event.");
+    // console.log("Drawing arrow with mouse move event.");
 
     // Get position.
     var pos = stage.getRelativePointerPosition();
