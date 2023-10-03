@@ -1403,16 +1403,32 @@ function updateDiagramBasedOnProperties() {
         }
       }
 
+      // Get the person or sub-org from the given ID.
+      function getFromID(id) {
+        // console.log("ID:", id);
+        if (persons[id]) {
+          return persons[id];
+        }
+        else {
+          return subOrgs[id];
+        }
+      }
+
       // Update the end points for a relationship.
       function updateArrowEndPoints(relationship) {
         // Get start coordinate.
         // TODO: Store the actual person or sub-org, not just the ID!
-        var fromPerson = persons[relationship.fromPersonId];
+        var fromPerson = getFromID(relationship.fromPersonId);
         var x1 = fromPerson.group.x() + (fromPerson.rect.width() / 2);
         var y1 = fromPerson.group.y() + fromPerson.rect.height();
 
         // Get end coordinate.
-        var toPerson = persons[relationship.toPersonId];
+        var toPerson = getFromID(relationship.toPersonId);
+        // console.log("toPerson:", toPerson);
+        if (!toPerson) {
+          console.log("Destination item does not exist:", relationship.toPersonId);
+          return;
+        }
         // var x2 = toPerson.group.x() + (toPerson.rect.width() / 2);
         // var y2 = toPerson.group.y();
         intersectionPoint = lineIntersectionOnRect(
@@ -1476,7 +1492,7 @@ function updateDiagramBasedOnProperties() {
 
       // Get ID of given item.
       function getID(item) {
-        if (isSubOrg(item)) {
+        if (item.isSubOrg) {
           return item.id;
         }
         else {
@@ -1493,11 +1509,11 @@ function updateDiagramBasedOnProperties() {
         // }
 
         // Debug.
-        console.log ("Parent:", parent);
-        console.log ("Child:", child);
+        // console.log ("Parent:", parent);
+        // console.log ("Child:", child);
 
         for (var index in parent.relationships) {
-          if (parent.relationships[index].toPersonId == getID(personId)) {
+          if (parent.relationships[index].toPersonId == getID(child)) {
             // Exists.
             return true;
           }
