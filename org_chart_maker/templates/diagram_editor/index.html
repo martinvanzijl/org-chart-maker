@@ -212,6 +212,9 @@ function setDiagramMode(mode) {
   for (var index in persons) {
     persons[index].group.draggable (groupsAreDraggable);
   }
+  for (var index in subOrgs) {
+    subOrgs[index].group.draggable (groupsAreDraggable);
+  }
 
   // Highlight the correct button.
   var buttonAddPerson = document.getElementById("buttonAddPerson");
@@ -916,8 +919,8 @@ function isFilteredOut(person) {
 
 // Check if relationship is filtered out from view.
 function isRelationshipFilteredOut(relationship) {
-  var fromPerson = persons[relationship.fromPersonId];
-  var toPerson = persons[relationship.toPersonId];
+  var fromPerson = getFromID(relationship.fromPersonId);
+  var toPerson = getFromID(relationship.toPersonId);
   var relationshipVisible = isVisible(fromPerson) && isVisible(toPerson);
   return !relationshipVisible;
 }
@@ -1419,6 +1422,10 @@ function updateDiagramBasedOnProperties() {
         // Get start coordinate.
         // TODO: Store the actual person or sub-org, not just the ID!
         var fromPerson = getFromID(relationship.fromPersonId);
+        if (!fromPerson) {
+          console.log("Source item does not exist:", relationship.fromPersonId);
+          return;
+        }
         var x1 = fromPerson.group.x() + (fromPerson.rect.width() / 2);
         var y1 = fromPerson.group.y() + fromPerson.rect.height();
 
@@ -1492,7 +1499,7 @@ function updateDiagramBasedOnProperties() {
 
       // Get ID of given item.
       function getID(item) {
-        if (item.isSubOrg) {
+        if (item.group.isSubOrg) {
           return item.id;
         }
         else {
@@ -1528,23 +1535,10 @@ function updateDiagramBasedOnProperties() {
 
       // Add relationship to diagram.
       function addRelationshipToDiagram(x1, y1, x2, y2, parent, child, color, type) {
+
         // Set the relationship IDs.
-        var parentId = null;
-        var childId = null;
-
-        if (parent.isSubOrg) {
-          parentId = parent.id;
-        }
-        else {
-          parentId = parent.personId;
-        }
-
-        if (child.isSubOrg) {
-          childId = child.id;
-        }
-        else {
-          childId = child.personId;
-        }
+        var parentId = getID(parent);
+        var childId = getID(child);
 
         // Check that relationship does not already exist.
         // var parent = persons[parentId];
