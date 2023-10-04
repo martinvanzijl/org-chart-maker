@@ -1831,6 +1831,19 @@ stage.on('mousemove', function (e) {
   }
 });
 
+// Get the item type (person or sub-org).
+var TYPE_PERSON   = 0;
+var TYPE_SUB_ORG  = 1;
+
+function getItemType(item) {
+  if (item.group.isSubOrg) {
+    return TYPE_SUB_ORG;
+  }
+  else {
+    return TYPE_PERSON;
+  }
+}
+
 // End dragging a relationship.
 stage.on('mouseup', function (e) {
   if (drawingArrow) {
@@ -1851,6 +1864,12 @@ stage.on('mouseup', function (e) {
         console.log("No relationship added.")
       }
       else {
+        // Check the relationship is OK.
+        if (getItemType(newRelationshipParent) != getItemType(newRelationshipChild)) {
+          showToastMessage("Relationship not allowed.");
+          return;
+        }
+
         // Add the relationship.
         var relationship = addRelationshipToDiagram(0, 0, 0, 0, newRelationshipParent,
           newRelationshipChild, 'black', newRelationshipType);
