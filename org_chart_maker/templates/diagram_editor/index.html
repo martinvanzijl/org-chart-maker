@@ -359,8 +359,8 @@ function deleteRelationship (relationship) {
   relationship.arrow.remove();
 
   // Remove pointers.
-  removeItemOnce(persons[relationship.fromPersonId].relationships, relationship);
-  removeItemOnce(persons[relationship.toPersonId].relationships, relationship);
+  removeItemOnce(getFromID(relationship.fromPersonId).relationships, relationship);
+  removeItemOnce(getFromID(relationship.toPersonId).relationships, relationship);
   removeItemOnce(relationships, relationship);
 }
 
