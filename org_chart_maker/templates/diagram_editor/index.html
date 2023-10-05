@@ -1499,6 +1499,10 @@ function updateDiagramBasedOnProperties() {
 
       // Get ID of given item.
       function getID(item) {
+        if (!item.group) {
+            console.log("Item without group:", item);
+        }
+
         if (item.group.isSubOrg) {
           return item.id;
         }

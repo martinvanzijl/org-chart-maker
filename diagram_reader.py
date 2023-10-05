@@ -463,20 +463,10 @@ def toJavaScriptList(name, lst):
 def toJavaScriptProperty(name, value):
     return name + ": '" + str(value) + "',\n";
 
-class Person():
+class Item():
+    """Base class for person and sub-org."""
 
-    def __init__(self, personId, x, y, name, title, url, department):
-        self.personId = personId
-        self.x = x
-        self.y = y
-        self.name = name
-        self.title = title
-        self.url = url
-        self.department = department
-
-        # Photos list.
-        self.photos = []
-
+    def __init__(self, name):
         # Set fixed height.
         self.height = PERSON_HEIGHT
 
@@ -485,9 +475,6 @@ class Person():
         fontSize = 20
         averageCharWidth = fontSize * 0.55
         self.width = max(PERSON_WIDTH, len(name) * averageCharWidth)
-
-    def addPhoto(self, photo):
-        self.photos.append(photo)
 
     def getCenterX(self):
         return self.x + (self.getWidth() / 2)
@@ -507,6 +494,25 @@ class Person():
     def getRelationshipOriginY(self):
         return self.getCenterY()
 
+class Person(Item):
+
+    def __init__(self, personId, x, y, name, title, url, department):
+        Item.__init__(self, name)
+
+        self.personId = personId
+        self.x = x
+        self.y = y
+        self.name = name
+        self.title = title
+        self.url = url
+        self.department = department
+
+        # Photos list.
+        self.photos = []
+
+    def addPhoto(self, photo):
+        self.photos.append(photo)
+
     def toJavaScript(self):
         return "{" \
             + toJavaScriptProperty("personId", self.personId) \
@@ -519,9 +525,11 @@ class Person():
             + toJavaScriptProperty("borderColor", self.borderColor) \
             + "}"
 
-class SubOrg():
+class SubOrg(Item):
 
     def __init__(self, id, x, y, name, diagramId):
+        Item.__init__(self, name)
+
         self.id = id
         self.x = x
         self.y = y
@@ -673,7 +681,7 @@ def parse_xml_doc(doc):
 
     # Read the sub-organizations.
     subOrgElements = doc.getElementsByTagName("subOrg")
-    # subOrgs = {}
+    subOrgs = {}
 
     for element in subOrgElements:
 
@@ -692,7 +700,7 @@ def parse_xml_doc(doc):
         # Store person.
         subOrg = SubOrg(id, x, y, name, diagramId)
         subOrg.borderColor = borderColor
-        # subOrgs[id] = subOrg
+        subOrgs[id] = subOrg
 
         # Create in JavaScript.
         line = "var subOrg = " + subOrg.toJavaScript() + "\n";
@@ -726,8 +734,15 @@ def parse_xml_doc(doc):
                 type = element.getAttribute("type")
 
             # Place arrow.
-            fromPerson = persons[fromPersonId]
-            toPerson = persons[toPersonId]
+            try:
+                fromPerson = persons[fromPersonId]
+            except KeyError:
+                fromPerson = subOrgs[fromPersonId]
+
+            try:
+                toPerson = persons[toPersonId]
+            except KeyError:
+                toPerson = subOrgs[toPersonId]
 
             # Draw the line.
             x1 = fromPerson.getRelationshipOriginX()
@@ -737,7 +752,8 @@ def parse_xml_doc(doc):
 
             # Add the relationship to the diagram.
             args =  ", ".join(str(val) for val in [x1, y1, x2, y2]);
-            args += ", " + quotedList([fromPersonId, toPersonId, color, type]);
+            args += ", getFromID('" + fromPersonId + "'), getFromID('" + toPersonId + "')"
+            args += ", " + quotedList([color, type]);
             line = "addRelationshipToDiagram(" + args + ");\n";
             result += line;
 
