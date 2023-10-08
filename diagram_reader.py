@@ -352,7 +352,12 @@ def export_to_csv(name, persons, relationships, subOrgs):
             for relationship in relationships:
                 managerId = relationship["fromPersonId"];
                 employeeId = relationship["toPersonId"];
-                reportsTo[employeeId] = persons[managerId]["name"];
+                try:
+                    # Person.
+                    reportsTo[employeeId] = persons[managerId]["name"];
+                except KeyError:
+                    # Sub-org.
+                    reportsTo[employeeId] = subOrgs[managerId]["name"];
 
             # Write persons.
             for person in persons.values():
@@ -368,13 +373,13 @@ def export_to_csv(name, persons, relationships, subOrgs):
 
             # Write persons.
             for subOrg in subOrgs.values():
-                row = ["(sub-org) " + subOrg["name"], "", "", "", ""];
+                row = ["(sub-org) " + subOrg["name"], "", "", ""];
 
-                # personId = person["personId"];
-                # if personId in reportsTo:
-                #     row.append(reportsTo[personId]);
-                # else:
-                #     row.append("");
+                id = subOrg["id"];
+                if id in reportsTo:
+                    row.append(reportsTo[id]);
+                else:
+                    row.append("");
 
                 writer.writerow(row);
 
