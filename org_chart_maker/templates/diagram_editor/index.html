@@ -1948,8 +1948,19 @@ function hideActiveMenu() {
   for (var index = 0; index < menus.length; ++index) {
     var menu = menus.item(index);
     menu.style.display = 'none'; // Hide menu item.
-    // Make menu item visible again after a short delay.
-    setTimeout(function() { menu.style.display = ''; }, 500);
+  }
+
+  // Make menu item visible again after a short delay.
+  setTimeout(makeMenusVisibleAgain, 500);
+}
+
+// Set menu items visible again.
+function makeMenusVisibleAgain() {
+  console.log("Making menus visible again.");
+  var menus = document.getElementsByClassName("dropdown-content");
+  for (var index = 0; index < menus.length; ++index) {
+    var menu = menus.item(index);
+    menu.style.display = ''; // Hide menu item.
   }
 }
 
