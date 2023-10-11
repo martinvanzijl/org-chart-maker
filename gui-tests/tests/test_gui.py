@@ -403,3 +403,20 @@ def test_diagram_properties_window():
 
     # Close the driver.
     driver.quit()
+
+def test_add_sub_org():
+    # Create the driver.
+    driver = webdriver.Chrome("./chromedriver")
+
+    # Log in.
+    login(driver)
+
+    # Click the "Add sub-org." button.
+    add_sub_org_button = driver.find_element(by=By.ID, value="buttonAddSubOrg")
+    add_sub_org_button.click()
+
+    # Click on the canvas.
+    canvas = driver.find_element(by=By.TAG_NAME, value="canvas")
+    canvas.click()
+
+    # TODO: Check that the sub-org was actually created.
