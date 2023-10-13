@@ -187,7 +187,7 @@ def rename(diagram, newName):
     # Convert into JSON:
     # return json.dumps(returnData)
 
-def createXmlDoc(persons, relationships, name, diagramProperties):
+def createXmlDoc(persons, relationships, subOrgs, name, diagramProperties):
     """Create an XML document object from the given persons and relationships."""
 
     doc = xml.Document()
@@ -272,10 +272,27 @@ def createXmlDoc(persons, relationships, name, diagramProperties):
 
         root.appendChild(element)
 
+    # Write sub-organizations.
+    for subOrg in subOrgs.values():
+        element = doc.createElement("subOrg")
+
+        element.setAttribute("id", subOrg["id"])
+        element.setAttribute("name", subOrg["name"])
+        element.setAttribute("diagramId", subOrg["diagramId"])
+
+        group = loads(subOrg["group"])
+        attr = group["attrs"]
+
+        # TODO: Convert to integers first.
+        element.setAttribute("x", str(attr["x"]))
+        element.setAttribute("y", str(attr["y"]))
+
+        root.appendChild(element)
+
     # Return.
     return doc
 
-def save(name, persons, relationships, diagramProperties):
+def save(name, persons, relationships, subOrgs, diagramProperties):
     """Save the given diagram."""
 
     # Ensure ending exists.
@@ -287,7 +304,7 @@ def save(name, persons, relationships, diagramProperties):
         dest = os.path.join(getDiagramsDir(), name)
 
         # Create XML document.
-        doc = createXmlDoc(persons, relationships, name, diagramProperties)
+        doc = createXmlDoc(persons, relationships, subOrgs, name, diagramProperties)
 
         # Write the XML file.
         outputFile = open(dest, "w")
@@ -311,7 +328,7 @@ def save(name, persons, relationships, diagramProperties):
 
     return returnData
 
-def export_to_csv(name, persons, relationships):
+def export_to_csv(name, persons, relationships, subOrgs):
     """Export the given diagram to a CSV file."""
 
     # Make file name.
@@ -335,7 +352,12 @@ def export_to_csv(name, persons, relationships):
             for relationship in relationships:
                 managerId = relationship["fromPersonId"];
                 employeeId = relationship["toPersonId"];
-                reportsTo[employeeId] = persons[managerId]["name"];
+                try:
+                    # Person.
+                    reportsTo[employeeId] = persons[managerId]["name"];
+                except KeyError:
+                    # Sub-org.
+                    reportsTo[employeeId] = subOrgs[managerId]["name"];
 
             # Write persons.
             for person in persons.values():
@@ -349,8 +371,17 @@ def export_to_csv(name, persons, relationships):
 
                 writer.writerow(row);
 
-        # TODO: Store this in a secure location and delete it after it is
-        # downloaded.
+            # Write persons.
+            for subOrg in subOrgs.values():
+                row = ["(sub-org) " + subOrg["name"], "", "", ""];
+
+                id = subOrg["id"];
+                if id in reportsTo:
+                    row.append(reportsTo[id]);
+                else:
+                    row.append("");
+
+                writer.writerow(row);
 
         # Return status.
         returnData = {
@@ -368,11 +399,11 @@ def export_to_csv(name, persons, relationships):
 
     return returnData;
 
-def export_to_xml(name, persons, relationships, diagramProperties):
+def export_to_xml(name, persons, relationships, subOrgs, diagramProperties):
     """Export the given diagram to a XML file."""
 
     # Create XML document.
-    doc = createXmlDoc(persons, relationships, name, diagramProperties)
+    doc = createXmlDoc(persons, relationships, subOrgs, name, diagramProperties)
 
     # Make file name.
     now = datetime.datetime.now()
@@ -437,20 +468,10 @@ def toJavaScriptList(name, lst):
 def toJavaScriptProperty(name, value):
     return name + ": '" + str(value) + "',\n";
 
-class Person():
+class Item():
+    """Base class for person and sub-org."""
 
-    def __init__(self, personId, x, y, name, title, url, department):
-        self.personId = personId
-        self.x = x
-        self.y = y
-        self.name = name
-        self.title = title
-        self.url = url
-        self.department = department
-
-        # Photos list.
-        self.photos = []
-
+    def __init__(self, name):
         # Set fixed height.
         self.height = PERSON_HEIGHT
 
@@ -459,9 +480,6 @@ class Person():
         fontSize = 20
         averageCharWidth = fontSize * 0.55
         self.width = max(PERSON_WIDTH, len(name) * averageCharWidth)
-
-    def addPhoto(self, photo):
-        self.photos.append(photo)
 
     def getCenterX(self):
         return self.x + (self.getWidth() / 2)
@@ -481,6 +499,25 @@ class Person():
     def getRelationshipOriginY(self):
         return self.getCenterY()
 
+class Person(Item):
+
+    def __init__(self, personId, x, y, name, title, url, department):
+        Item.__init__(self, name)
+
+        self.personId = personId
+        self.x = x
+        self.y = y
+        self.name = name
+        self.title = title
+        self.url = url
+        self.department = department
+
+        # Photos list.
+        self.photos = []
+
+    def addPhoto(self, photo):
+        self.photos.append(photo)
+
     def toJavaScript(self):
         return "{" \
             + toJavaScriptProperty("personId", self.personId) \
@@ -490,6 +527,25 @@ class Person():
             + toJavaScriptProperty("department", self.department) \
             + toJavaScriptList("photos", self.photos) \
             + toJavaScriptProperty("activePhotoIndex", self.activePhotoIndex) \
+            + toJavaScriptProperty("borderColor", self.borderColor) \
+            + "}"
+
+class SubOrg(Item):
+
+    def __init__(self, id, x, y, name, diagramId):
+        Item.__init__(self, name)
+
+        self.id = id
+        self.x = x
+        self.y = y
+        self.name = name
+        self.diagramId = diagramId
+
+    def toJavaScript(self):
+        return "{" \
+            + toJavaScriptProperty("id", self.id) \
+            + toJavaScriptProperty("name", self.name) \
+            + toJavaScriptProperty("diagramId", self.diagramId) \
             + toJavaScriptProperty("borderColor", self.borderColor) \
             + "}"
 
@@ -626,6 +682,39 @@ def parse_xml_doc(doc):
         line = "person.text.fill('" + textColor + "');\n";
         result += line;
 
+    # Read the persons.
+
+    # Read the sub-organizations.
+    subOrgElements = doc.getElementsByTagName("subOrg")
+    subOrgs = {}
+
+    for element in subOrgElements:
+
+        # Read attributes.
+        id = element.getAttribute("id")
+        name = element.getAttribute("name")
+        x = stringToInt(element.getAttribute("x"))
+        y = stringToInt(element.getAttribute("y"))
+        diagramId = element.getAttribute("diagramId")
+
+        # Get border color.
+        borderColor = 'black' # Default.
+        if element.hasAttribute("border_color"):
+            borderColor = element.getAttribute("border_color")
+
+        # Store person.
+        subOrg = SubOrg(id, x, y, name, diagramId)
+        subOrg.borderColor = borderColor
+        subOrgs[id] = subOrg
+
+        # Create in JavaScript.
+        line = "var subOrg = " + subOrg.toJavaScript() + "\n";
+        result += line;
+
+        # Add the person to the diagram.
+        line = "addSubOrgToDiagram(subOrg, " + str(x) + ", " + str(y) + ")\n";
+        result += line;
+
     # Read the relationships.
     relationshipElements = doc.getElementsByTagName("relationship")
 
@@ -650,8 +739,15 @@ def parse_xml_doc(doc):
                 type = element.getAttribute("type")
 
             # Place arrow.
-            fromPerson = persons[fromPersonId]
-            toPerson = persons[toPersonId]
+            try:
+                fromPerson = persons[fromPersonId]
+            except KeyError:
+                fromPerson = subOrgs[fromPersonId]
+
+            try:
+                toPerson = persons[toPersonId]
+            except KeyError:
+                toPerson = subOrgs[toPersonId]
 
             # Draw the line.
             x1 = fromPerson.getRelationshipOriginX()
@@ -661,7 +757,8 @@ def parse_xml_doc(doc):
 
             # Add the relationship to the diagram.
             args =  ", ".join(str(val) for val in [x1, y1, x2, y2]);
-            args += ", " + quotedList([fromPersonId, toPersonId, color, type]);
+            args += ", getFromID('" + fromPersonId + "'), getFromID('" + toPersonId + "')"
+            args += ", " + quotedList([color, type]);
             line = "addRelationshipToDiagram(" + args + ");\n";
             result += line;
 

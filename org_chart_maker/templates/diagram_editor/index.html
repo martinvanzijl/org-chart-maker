@@ -4,6 +4,7 @@
 <script src="static/konva.min.js"></script>
 <script src="static/geometry.js"></script>
 <script src="static/filter-by-level.js"></script>
+<script src="static/sub-organizations.js"></script>
 <script src="static/undo.js"></script>
 
 <!-- Menu. -->
@@ -145,6 +146,17 @@
   </div>
 </div>
 
+<!-- The context menu for sub-orgs. -->
+<div id="sub-org-context-menu-container"></div>
+<div id="sub-org-context-menu" style="width: 120px;">
+  <div>
+    <!-- TODO: Put the text-alignment style information in the CSS file. -->
+    <button id="sub-org-context-menu-edit-button" style="text-align: left;">Edit...</button>
+    <button id="sub-org-context-menu-remove-button" style="text-align: left;">Remove</button>
+    <button id="sub-org-context-menu-open-diagram-button" style="text-align: left;">Open Diagram</button>
+  </div>
+</div>
+
 <!-- The main content. -->
 <div class="main">
 
@@ -156,6 +168,8 @@
   <button id="buttonAddRelationship" onclick="addRelationshipClicked()">Relationship</button>
   <br />
   <button id="buttonAddDottedRelationship" onclick="addDottedRelationshipClicked()">Dotted Rel.</button>
+  <br />
+  <button id="buttonAddSubOrg" onclick="addSubOrgClicked()" draggable="true" ondragstart="addPersonStartDrag(event)">Sub-Org.</button>
   <span>Selected Item</span>
   <button id="buttonEditPerson" onclick="editPersonClicked()">Edit</button>
   <br />
@@ -175,6 +189,7 @@ var personsTableRows = {};
 $( "#buttonAddPerson" ).button();
 $( "#buttonAddRelationship" ).button();
 $( "#buttonAddDottedRelationship" ).button();
+$( "#buttonAddSubOrg" ).button();
 $( "#buttonEditPerson" ).button();
 $( "#buttonDeletePerson" ).button();
 
@@ -182,6 +197,7 @@ $( "#buttonDeletePerson" ).button();
 var DEFAULT = 0;
 var ADD_PERSON = 1;
 var ADD_RELATIONSHIP = 2;
+var ADD_SUB_ORG = 3;
 var diagramMode = DEFAULT;
 
 // Relationship type.
@@ -196,15 +212,20 @@ function setDiagramMode(mode) {
   for (var index in persons) {
     persons[index].group.draggable (groupsAreDraggable);
   }
+  for (var index in subOrgs) {
+    subOrgs[index].group.draggable (groupsAreDraggable);
+  }
 
   // Highlight the correct button.
   var buttonAddPerson = document.getElementById("buttonAddPerson");
   var buttonAddRelationship = document.getElementById("buttonAddRelationship");
   var buttonAddDottedRelationship = document.getElementById("buttonAddDottedRelationship");
+  var buttonAddSubOrg = document.getElementById("buttonAddSubOrg");
 
   unHighlightButton(buttonAddPerson);
   unHighlightButton(buttonAddRelationship);
   unHighlightButton(buttonAddDottedRelationship);
+  unHighlightButton(buttonAddSubOrg);
 
   if (mode == ADD_PERSON) {
     highlightButton(buttonAddPerson);
@@ -216,6 +237,9 @@ function setDiagramMode(mode) {
     else {
       highlightButton(buttonAddDottedRelationship);
     }
+  }
+  else if (mode == ADD_SUB_ORG) {
+    highlightButton(buttonAddSubOrg);
   }
 }
 
@@ -244,6 +268,12 @@ function addPersonClicked()
 function addPersonStartDrag(ev)
 {
   ev.dataTransfer.setData("text", ev.target.id);
+}
+
+// Callback for clicking the "Add Sub-Org." button.
+function addSubOrgClicked()
+{
+  setDiagramMode (ADD_SUB_ORG);
 }
 
 // Set relationship type to draw.
@@ -329,8 +359,8 @@ function deleteRelationship (relationship) {
   relationship.arrow.remove();
 
   // Remove pointers.
-  removeItemOnce(persons[relationship.fromPersonId].relationships, relationship);
-  removeItemOnce(persons[relationship.toPersonId].relationships, relationship);
+  removeItemOnce(getFromID(relationship.fromPersonId).relationships, relationship);
+  removeItemOnce(getFromID(relationship.toPersonId).relationships, relationship);
   removeItemOnce(relationships, relationship);
 }
 
@@ -355,7 +385,35 @@ $( document ).keydown(function() {
 });
 </script>
 
-<!-- The dialog -->
+<!-- The sub-org details dialog -->
+<div id="subOrgDetailsDialog" title="Sub-org. Details" style="display: none;">
+  <table>
+    <tr><td><label for="subOrgName">Name: </label></td><td><input id="subOrgName"/></td></tr>
+    <tr>
+      <td><label for="subOrgDiagramId">Diagram ID: </label></td>
+      <td>
+        <input id="subOrgDiagramId"/>
+        <span> </span>
+        <button id="buttonSubOrgSelectDiagram" onclick="subOrgSelectDiagramClicked()">Select...</button>
+        <span> </span>
+        <button id="buttonSubOrgOpenDiagram" onclick="subOrgOpenDiagramClicked()">Open</button>
+      </td>
+    </tr>
+  </table>
+</div>
+
+<script>
+// Create the dialog.
+var subOrgDetailsDialog = $( "#subOrgDetailsDialog" ).dialog({ autoOpen: false, closeOnEscape: true, modal: true, width: 445,
+  buttons: {
+    "Save": saveSubOrgDetails,
+    "Cancel": function() { subOrgDetailsDialog.dialog( "close" ); }
+  },
+  maxHeight: ($(window).height() - 50)
+});
+</script>
+
+<!-- The person details dialog -->
 <div id="personDetailsDialog" title="Person Details" style="display: none;">
 
   <!-- Details. -->
@@ -633,6 +691,18 @@ function showPhoto(photoPath) {
 }
 </script>
 
+<!-- The "select sub-org diagram" dialog. -->
+<div id="selectSubOrgDiagramDialog" title="Select Sub-Org Diagram">
+</div>
+
+<script>
+var selectSubOrgDiagramDialog = $( "#selectSubOrgDiagramDialog" ).dialog({
+  autoOpen: false,
+  modal: true, // Hack to hide menu when shown if required.
+  maxHeight: ($(window).height() - 50)
+});
+</script>
+
 <!-- The "open" dialog. -->
 <div id="openOrgChartDialog" title="Open Org Chart">
   <!-- Does not work! -->
@@ -849,8 +919,8 @@ function isFilteredOut(person) {
 
 // Check if relationship is filtered out from view.
 function isRelationshipFilteredOut(relationship) {
-  var fromPerson = persons[relationship.fromPersonId];
-  var toPerson = persons[relationship.toPersonId];
+  var fromPerson = getFromID(relationship.fromPersonId);
+  var toPerson = getFromID(relationship.toPersonId);
   var relationshipVisible = isVisible(fromPerson) && isVisible(toPerson);
   return !relationshipVisible;
 }
@@ -1052,6 +1122,10 @@ function updateDiagramBasedOnProperties() {
           createNewPerson(stage.getRelativePointerPosition());
 
           // Update undo stack.
+          addUndo();
+        }
+        else if (diagramMode == ADD_SUB_ORG) {
+          createNewSubOrg(stage.getRelativePointerPosition());
           addUndo();
         }
         else {
@@ -1332,15 +1406,36 @@ function updateDiagramBasedOnProperties() {
         }
       }
 
+      // Get the person or sub-org from the given ID.
+      function getFromID(id) {
+        // console.log("ID:", id);
+        if (persons[id]) {
+          return persons[id];
+        }
+        else {
+          return subOrgs[id];
+        }
+      }
+
       // Update the end points for a relationship.
       function updateArrowEndPoints(relationship) {
         // Get start coordinate.
-        var fromPerson = persons[relationship.fromPersonId];
+        // TODO: Store the actual person or sub-org, not just the ID!
+        var fromPerson = getFromID(relationship.fromPersonId);
+        if (!fromPerson) {
+          console.log("Source item does not exist:", relationship.fromPersonId);
+          return;
+        }
         var x1 = fromPerson.group.x() + (fromPerson.rect.width() / 2);
         var y1 = fromPerson.group.y() + fromPerson.rect.height();
 
         // Get end coordinate.
-        var toPerson = persons[relationship.toPersonId];
+        var toPerson = getFromID(relationship.toPersonId);
+        // console.log("toPerson:", toPerson);
+        if (!toPerson) {
+          console.log("Destination item does not exist:", relationship.toPersonId);
+          return;
+        }
         // var x2 = toPerson.group.x() + (toPerson.rect.width() / 2);
         // var y2 = toPerson.group.y();
         intersectionPoint = lineIntersectionOnRect(
@@ -1372,6 +1467,13 @@ function updateDiagramBasedOnProperties() {
           selectedPerson.rect.strokeWidth(1)
         }
         selectedPerson = null;
+
+        // Deselect sub-orgs.
+        if (selectedSubOrg) {
+          restoreBorderColor(selectedSubOrg);
+          selectedSubOrg.rect.strokeWidth(1)
+        }
+        selectedSubOrg = null;
       }
 
       // Function to select person.
@@ -1395,10 +1497,34 @@ function updateDiagramBasedOnProperties() {
         return isParentOf(person1, person2) || isParentOf(person2, person1);
       }
 
+      // Get ID of given item.
+      function getID(item) {
+        if (!item.group) {
+            console.log("Item without group:", item);
+        }
+
+        if (item.group.isSubOrg) {
+          return item.id;
+        }
+        else {
+          return item.personId;
+        }
+      }
+
       // Check for relationship.
       function isParentOf(parent, child) {
+        // Check that "parent.relationships" actually exists!
+        // DOES NOT WORK!
+        // if (!parent.relationships) {
+        //   return false;
+        // }
+
+        // Debug.
+        // console.log ("Parent:", parent);
+        // console.log ("Child:", child);
+
         for (var index in parent.relationships) {
-          if (parent.relationships[index].toPersonId == child.personId) {
+          if (parent.relationships[index].toPersonId == getID(child)) {
             // Exists.
             return true;
           }
@@ -1412,15 +1538,19 @@ function updateDiagramBasedOnProperties() {
       var showArrowHeads = {{ g.user.show_arrow_heads }};
 
       // Add relationship to diagram.
-      function addRelationshipToDiagram(x1, y1, x2, y2, parentId, childId, color, type) {
+      function addRelationshipToDiagram(x1, y1, x2, y2, parent, child, color, type) {
+
+        // Set the relationship IDs.
+        var parentId = getID(parent);
+        var childId = getID(child);
 
         // Check that relationship does not already exist.
-        var parent = persons[parentId];
-        var child = persons[childId];
+        // var parent = persons[parentId];
+        // var child = persons[childId];
 
         if (relationshipExists(parent, child)) {
           // Do not add a duplicate relationship.
-          console.log("Relationship already exists. Not added again.")
+          console.log("Relationship already exists. Not added again.");
           return null;
         }
 
@@ -1467,8 +1597,8 @@ function updateDiagramBasedOnProperties() {
         relationships.push(relationship);
 
         // Add relationships to persons.
-        persons[parentId].relationships.push(relationship);
-        persons[childId].relationships.push(relationship);
+        parent.relationships.push(relationship);
+        child.relationships.push(relationship);
 
         // Add click handler.
         arrow.on('click', function (e) {
@@ -1597,8 +1727,10 @@ function exportToCSV() {
   // Create data.
   var pd = JSON.stringify(personsFiltered);
   var rd = JSON.stringify(relationships);
+  var sd = JSON.stringify(subOrgs);
 
-  var params = { name: diagramName, persons: pd, relationships: rd };
+  var params = { name: diagramName, persons: pd, relationships: rd,
+                 subOrgs: sd };
 
   $.post( url, params, function(data, status) {
     // Get AJAX response.
@@ -1630,10 +1762,11 @@ function exportToXML() {
   // Create data.
   var pd = JSON.stringify(personsFiltered);
   var rd = JSON.stringify(relationships);
+  var sd = JSON.stringify(subOrgs);
   var propd = JSON.stringify(diagramProperties);
 
-  var params = { name: diagramName, persons: pd, relationships: rd,
-                 diagramProperties: propd,
+  var params = { name: diagramName, persons: pd, relationships: rd, subOrgs: sd,
+    diagramProperties: propd,
   };
 
   $.post( url, params, function(data, status) {
@@ -1661,7 +1794,14 @@ var newRelationshipArrow = null;
 
 // Handle dragging a relationship.
 stage.on('mousemove', function (e) {
+  // Debug. This seems to be called when click+dragging from persons but not
+  // from sub-orgs. What is the difference?
+  // console.log("Mouse move event code...");
+
+  // Draw the actual arrow.
   if (drawingArrow) {
+    // console.log("Drawing arrow with mouse move event.");
+
     // Get position.
     var pos = stage.getRelativePointerPosition();
 
@@ -1695,6 +1835,19 @@ stage.on('mousemove', function (e) {
   }
 });
 
+// Get the item type (person or sub-org).
+var TYPE_PERSON   = 0;
+var TYPE_SUB_ORG  = 1;
+
+function getItemType(item) {
+  if (item.group.isSubOrg) {
+    return TYPE_SUB_ORG;
+  }
+  else {
+    return TYPE_PERSON;
+  }
+}
+
 // End dragging a relationship.
 stage.on('mouseup', function (e) {
   if (drawingArrow) {
@@ -1715,9 +1868,15 @@ stage.on('mouseup', function (e) {
         console.log("No relationship added.")
       }
       else {
+        // Check the relationship is OK.
+        if (getItemType(newRelationshipParent) != getItemType(newRelationshipChild)) {
+          showToastMessage("Relationship not allowed.");
+          return;
+        }
+
         // Add the relationship.
-        var relationship = addRelationshipToDiagram(0, 0, 0, 0, newRelationshipParent.personId,
-          newRelationshipChild.personId, 'black', newRelationshipType);
+        var relationship = addRelationshipToDiagram(0, 0, 0, 0, newRelationshipParent,
+          newRelationshipChild, 'black', newRelationshipType);
 
         // Select it immediately.
         if (relationship) {
@@ -1738,7 +1897,7 @@ stage.on('mouseup', function (e) {
 
 // Set up context menu for persons.
 let currentShape;
-var menuNode = document.getElementById('person-context-menu');
+var personMenuNode = document.getElementById('person-context-menu');
 document.getElementById('person-context-menu-edit-button').addEventListener('click', () => {
   showPersonDetails(selectedPerson.personId);
 });
@@ -1746,6 +1905,23 @@ document.getElementById('person-context-menu-edit-button').addEventListener('cli
 document.getElementById('person-context-menu-remove-button').addEventListener('click', () => {
   deletePersonClicked();
 });
+
+// Set up context menu for sub-orgs.
+var subOrgMenuNode = document.getElementById('sub-org-context-menu');
+document.getElementById('sub-org-context-menu-edit-button').addEventListener('click', () => {
+  showSubOrgDetails(selectedSubOrg.id);
+});
+
+document.getElementById('sub-org-context-menu-remove-button').addEventListener('click', () => {
+  deletePersonClicked();
+});
+
+document.getElementById('sub-org-context-menu-open-diagram-button').addEventListener('click', () => {
+  subOrgContextMenuOpenDiagramClicked();
+});
+
+// Initial value.
+var menuNode = personMenuNode;
 
 // Add context menu to stage for persons.
 stage.on('contextmenu', function (e) {
@@ -1758,8 +1934,16 @@ stage.on('contextmenu', function (e) {
   }
   currentShape = e.target;
 
-  // show menu, if it is on a person
+  // show menu, if it is on a person or sub-org.
   if (currentShape.getClassName() == "Rect" || currentShape.getClassName() == "Text") {
+    // Choose the right menu.
+    menuNode = personMenuNode;
+    if (currentShape.parent.isSubOrg) {
+      currentSubOrg = currentShape.parent.subOrg;
+      menuNode = subOrgMenuNode;
+    }
+
+    // Show it.
     menuNode.style.display = 'initial';
     var containerRect = stage.container().getBoundingClientRect();
     menuNode.style.top =
@@ -1829,9 +2013,10 @@ function postDiagramToServer() {
   // Create data.
   var pd = JSON.stringify(persons);
   var rd = JSON.stringify(relationships);
+  var sd = JSON.stringify(subOrgs);
   var propd = JSON.stringify(diagramProperties);
 
-  var params = { name: diagramName, persons: pd, relationships: rd,
+  var params = { name: diagramName, persons: pd, relationships: rd, subOrgs: sd,
     diagramProperties: propd,
     showSavedMessageOnLoad: savingAsNewFilename};
 
@@ -1911,6 +2096,11 @@ con.addEventListener('drop', function (e) {
 
     // Update undo stack.
     addUndo();
+  }
+  else if (data == "buttonAddSubOrg") {
+    stage.setPointersPositions(e);
+    createNewSubOrg(stage.getRelativePointerPosition());
+    // addUndo();
   }
 });
 
