@@ -12,7 +12,8 @@
 {% block includes %}{% endblock %}
 
 <!-- Page title. -->
-<title>Org Chart Maker</title>
+<!-- TODO: Remove the ".xml" from the title. -->
+<title>Org Chart Maker{% if g.diagramName %} - {{ g.diagramName }}{% endif %}</title>
 
 </head>
 <body>
