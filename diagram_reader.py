@@ -584,6 +584,7 @@ def parse_diagram_file(fileName, defaultFileName = None):
         # Try reading specified diagram.
         doc = xml.parse(inputFileName)
         g.diagramName = fileName
+        g.diagramTitle = removeExtension(fileName, ".xml")
     except IOError as e:
         # Print error.
         print("Could not load specified diagram:")
@@ -595,6 +596,7 @@ def parse_diagram_file(fileName, defaultFileName = None):
                 print("Loading default diagram instead.")
                 doc = xml.parse(defaultInputFileName)
                 g.diagramName = defaultFileName
+                g.diagramTitle = removeExtension(defaultFileName, ".xml")
             except FileNotFoundError as error:
                 # Exit if not found.
                 g.toastMessage = "Diagram " + fileName + " not found."
