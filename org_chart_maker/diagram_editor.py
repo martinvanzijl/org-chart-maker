@@ -97,6 +97,7 @@ def index():
         logger.exception(error)
         # Clear name.
         g.diagramName = None
+        g.diagramTitle = "New Diagram"
 
     # Pass flag to template.
     g.allow_register_new_users = register_new_users_allowed()

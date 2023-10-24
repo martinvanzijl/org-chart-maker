@@ -12,7 +12,7 @@
 {% block includes %}{% endblock %}
 
 <!-- Page title. -->
-<title>Org Chart Maker</title>
+<title>Org Chart Maker{% if g.diagramTitle %} - {{ g.diagramTitle }}{% endif %}</title>
 
 </head>
 <body>
