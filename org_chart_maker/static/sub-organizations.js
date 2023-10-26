@@ -339,3 +339,11 @@ function selectDiagramId(diagramId) {
   // Close the dialog.
   selectSubOrgDiagramDialog.dialog( "close" );
 }
+
+// Create a new sub-organization diagram.
+function selectSubOrgCreateNewClicked() {
+  // Debug.
+  console.log("Should show diagram name dialog here!");
+
+  // TODO: Actually show the dialog...
+}
