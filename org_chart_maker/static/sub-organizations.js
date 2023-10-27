@@ -345,5 +345,6 @@ function selectSubOrgCreateNewClicked() {
   // Debug.
   console.log("Should show diagram name dialog here!");
 
-  // TODO: Actually show the dialog...
+  // Actually show the dialog.
+  showEnterSubOrgNameDialog();
 }

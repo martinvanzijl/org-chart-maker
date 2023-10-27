@@ -789,6 +789,48 @@ function saveOrgChartDialogSaveClicked() {
 }
 </script>
 
+<!-- The "enter linked diagram name" dialog. -->
+<div id="enterSubOrgNameDialog" title="Enter Sub-org Name">
+  <p>
+    <label for="subOrgNameInput">Name: </label>
+    <input name="subOrgNameInput" id="subOrgNameInput" pattern="[a-zA-Z0-9_-]*" required>
+  </p>
+  <span style="font-size: smaller;">Only letters, numbers, underscores and hyphens are allowed.</span>
+</div>
+
+<script>
+var enterSubOrgNameDialog = $( "#enterSubOrgNameDialog" ).dialog({
+  autoOpen: false,
+  maxHeight: ($(window).height() - 50),
+  modal: true,
+  buttons: {
+    "OK": enterSubOrgNameDialogOKClicked,
+    "Cancel": function() { enterSubOrgNameDialog.dialog( "close" ); }
+  },
+});
+
+function showEnterSubOrgNameDialog() {
+    $( "#enterSubOrgNameDialog" ).dialog( "open" );
+};
+
+// Handler for when the "save" button is clicked.
+function enterSubOrgNameDialogOKClicked() {
+  var userInput = $( "#subOrgNameInput" ).val();
+
+  if (isValidDiagramName(userInput)) {
+    // Accept.
+    var diagramName = userInput;
+
+    // TODO: Save and start editing new diagram.
+    console.log("Creating new diagram called", diagramName, "...");
+  }
+  else {
+    // Reject.
+    alert("Please enter a valid name. Only letters, numbers, underscores and hyphens are allowed.");
+  }
+}
+</script>
+
 <!-- The "upload" dialog. -->
 <form id="uploadDiagramForm" action="/" method="post" enctype="multipart/form-data" style="display: none;">
     <input id="upload_file_input" type="file" name="uploaded_file" accept=".xml, application/xml" />
