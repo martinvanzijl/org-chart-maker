@@ -813,6 +813,42 @@ function showEnterSubOrgNameDialog() {
     $( "#enterSubOrgNameDialog" ).dialog( "open" );
 };
 
+// Create a new (empty) diagram with the given name.
+// Switch focus to it if successful.
+function createNewSubOrgDiagram(diagramName) {
+  // Use AJAX to ask the server to save the diagram.
+  var url = "/save";
+
+  // Create data.
+  var pd = JSON.stringify({});
+  var rd = JSON.stringify([]);
+  var sd = JSON.stringify({});
+  var propd = JSON.stringify({});
+
+  var params = { name: diagramName, persons: pd, relationships: rd, subOrgs: sd,
+    diagramProperties: propd,
+    showSavedMessageOnLoad: false};
+
+  $.post( url, params, function(data, status) {
+    // Get AJAX response.
+    var jsonReply = data;
+
+    // Check result.
+    var replyStatus = jsonReply.status;
+
+    if (replyStatus == "OK") {
+      console.log("Created new diagram!");
+
+      var url = "/?diagram=" + diagramName;
+      window.open(url, "_blank");
+    }
+    else {
+      // An error happened.
+      alert("Could not create sub-org diagram. Details:\n" + jsonReply.problem);
+    }
+  });
+}
+
 // Handler for when the "save" button is clicked.
 function enterSubOrgNameDialogOKClicked() {
   var userInput = $( "#subOrgNameInput" ).val();
@@ -821,8 +857,17 @@ function enterSubOrgNameDialogOKClicked() {
     // Accept.
     var diagramName = userInput;
 
-    // TODO: Save and start editing new diagram.
-    console.log("Creating new diagram called", diagramName, "...");
+    // Create a new diagram.
+    createNewSubOrgDiagram(diagramName);
+
+    // Update the parent dialog.
+    document.getElementById("subOrgDiagramId").value = diagramName;
+
+    // Close the dialog.
+    enterSubOrgNameDialog.dialog( "close" );
+
+    // Close the parent dialog.
+    selectSubOrgDiagramDialog.dialog( "close" );
   }
   else {
     // Reject.
