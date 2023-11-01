@@ -420,3 +420,38 @@ def test_add_sub_org():
     canvas.click()
 
     # TODO: Check that the sub-org was actually created.
+
+# Test case for linking a diagram with a sub-org.
+def test_linking_diagram_to_sub_org():
+    # Create the driver.
+    driver = webdriver.Chrome("./chromedriver")
+
+    # Log in.
+    login(driver)
+
+    # Click the "Add sub-org." button.
+    add_sub_org_button = driver.find_element_by_id("buttonAddSubOrg")
+    add_sub_org_button.click()
+
+    # Click on the canvas.
+    canvas = driver.find_element(by=By.TAG_NAME, value="canvas")
+    canvas.click()
+
+    # Double-click the person.
+    canvas.click()
+    canvas.click()
+
+    # Click on the "Select" button.
+    buttonSubOrgSelectDiagram = driver.find_element_by_id("buttonSubOrgSelectDiagram")
+    buttonSubOrgSelectDiagram.click()
+
+    # Click on the "Create New" button.
+    buttonSelectSubOrgCreateNew = driver.find_element_by_id("buttonSelectSubOrgCreateNew")
+    buttonSelectSubOrgCreateNew.click()
+
+    # Check that the "Enter name" dialog is shown.
+    enterSubOrgNameDialog = driver.find_element_by_id("enterSubOrgNameDialog")
+    assert enterSubOrgNameDialog.is_displayed()
+
+    # Close the driver.
+    driver.quit()
