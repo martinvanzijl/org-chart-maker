@@ -693,6 +693,7 @@ function showPhoto(photoPath) {
 
 <!-- The "select sub-org diagram" dialog. -->
 <div id="selectSubOrgDiagramDialog" title="Select Sub-Org Diagram">
+  <button id="buttonSelectSubOrgCreateNew" onclick="selectSubOrgCreateNewClicked()" class="open-diagram-link">Create New...</button>
 </div>
 
 <script>
@@ -780,6 +781,94 @@ function saveOrgChartDialogSaveClicked() {
 
     // Save.
     postDiagramToServer();
+  }
+  else {
+    // Reject.
+    alert("Please enter a valid name. Only letters, numbers, underscores and hyphens are allowed.");
+  }
+}
+</script>
+
+<!-- The "enter linked diagram name" dialog. -->
+<div id="enterSubOrgNameDialog" title="Enter Sub-org Name">
+  <p>
+    <label for="subOrgNameInput">Name: </label>
+    <input name="subOrgNameInput" id="subOrgNameInput" pattern="[a-zA-Z0-9_-]*" required>
+  </p>
+  <span style="font-size: smaller;">Only letters, numbers, underscores and hyphens are allowed.</span>
+</div>
+
+<script>
+var enterSubOrgNameDialog = $( "#enterSubOrgNameDialog" ).dialog({
+  autoOpen: false,
+  maxHeight: ($(window).height() - 50),
+  modal: true,
+  buttons: {
+    "OK": enterSubOrgNameDialogOKClicked,
+    "Cancel": function() { enterSubOrgNameDialog.dialog( "close" ); }
+  },
+});
+
+// Show the dialog to enter the name of the new sub-org diagram.
+function showEnterSubOrgNameDialog() {
+    $( "#enterSubOrgNameDialog" ).dialog( "open" );
+};
+
+// Create a new (empty) diagram with the given name.
+// Switch focus to it if successful.
+function createNewSubOrgDiagram(diagramName) {
+  // Use AJAX to ask the server to save the diagram.
+  var url = "/save";
+
+  // Create data.
+  var pd = JSON.stringify({});
+  var rd = JSON.stringify([]);
+  var sd = JSON.stringify({});
+  var propd = JSON.stringify({});
+
+  var params = { name: diagramName, persons: pd, relationships: rd, subOrgs: sd,
+    diagramProperties: propd,
+    showSavedMessageOnLoad: false};
+
+  $.post( url, params, function(data, status) {
+    // Get AJAX response.
+    var jsonReply = data;
+
+    // Check result.
+    var replyStatus = jsonReply.status;
+
+    if (replyStatus == "OK") {
+      console.log("Created new diagram!");
+
+      var url = "/?diagram=" + diagramName;
+      window.open(url, "_blank");
+    }
+    else {
+      // An error happened.
+      alert("Could not create sub-org diagram. Details:\n" + jsonReply.problem);
+    }
+  });
+}
+
+// Handler for when the "save" button is clicked.
+function enterSubOrgNameDialogOKClicked() {
+  var userInput = $( "#subOrgNameInput" ).val();
+
+  if (isValidDiagramName(userInput)) {
+    // Accept.
+    var diagramName = userInput;
+
+    // Create a new diagram.
+    createNewSubOrgDiagram(diagramName);
+
+    // Update the parent dialog.
+    document.getElementById("subOrgDiagramId").value = diagramName;
+
+    // Close the dialog.
+    enterSubOrgNameDialog.dialog( "close" );
+
+    // Close the parent dialog.
+    selectSubOrgDiagramDialog.dialog( "close" );
   }
   else {
     // Reject.

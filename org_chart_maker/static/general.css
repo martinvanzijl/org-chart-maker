@@ -43,3 +43,7 @@ p.open-diagram-link {
   border: dotted;
   border-color: #dddddd;
 }
+
+button.open-diagram-link {
+  margin-top: 6px;
+}
