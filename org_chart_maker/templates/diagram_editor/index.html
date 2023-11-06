@@ -105,7 +105,8 @@
       <button class="dropbtn">Options</button>
       <div class="dropdown-content">
         <a href="/manage" target="_blank">Manage</a>
-        <a href="/preferences" target="_blank">Preferences</a>
+        <!-- <a href="/preferences" target="_blank">Preferences</a> -->
+        <a href="javascript:showPreferencesDialog();">Preferences...</a>
       </div>
     </div>
 
@@ -115,7 +116,7 @@
       <div class="dropdown-content" style="width:190px">
         <a href="javascript:autoLayout();">Auto-Layout</a>
         <a href="javascript:showFilterByDepartmentDialog();">Filter by Department...</a>
-        <a href="javascript:showDiagramPropertiesDialog();">Properties...</a>
+        <a href=";">Properties...</a>
       </div>
     </div>
 
@@ -690,6 +691,19 @@ function showPhoto(photoPath) {
   window.open(photoPath, "_blank");
 }
 </script>
+
+<!-- The preferences dialog -->
+<div id="preferencesDialog" title="Diagram Preferences" style="display: none;">
+  <form id="preferencesForm" action="javascript:savePreferences();">
+    <p>Select what to display in the top menu:</p>
+    <input type="radio" id="text" name="top_menu_type" value="text" checked>
+    <label for="text">Text</label><br>
+    <input type="radio" id="images" name="top_menu_type" value="images">
+    <label for="images">Images</label><br>
+    <br>
+    <input type="submit" value="Save Preferences" />
+  </form>
+</div>
 
 <!-- The "select sub-org diagram" dialog. -->
 <div id="selectSubOrgDiagramDialog" title="Select Sub-Org Diagram">
@@ -2255,6 +2269,26 @@ window.addEventListener('beforeunload', (event) => {
   }
 });
 
+var departmentsForm = document.getElementById("departmentsForm");
+
+// Create the "preferences" dialog.
+var preferencesDialog = $( "#preferencesDialog" ).dialog({ autoOpen: false, closeOnEscape: true, modal: true, width: 420,
+  buttons: {
+    "Save": savePreferences,
+    "Cancel": function() { preferencesDialog.dialog( "close" ); }
+  },
+  maxHeight: ($(window).height() - 50)
+});
+
+// Show the "preferences" dialog.
+function showPreferencesDialog() {
+  $( "#preferencesDialog" ).dialog( "open" );
+};
+
+// Save the "preferences".
+function savePreferences() {
+  console.log("Saving preferences...");
+};
 </script>
 
 <!-- End main content. -->
