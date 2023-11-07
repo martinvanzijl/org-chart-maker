@@ -693,15 +693,19 @@ function showPhoto(photoPath) {
 </script>
 
 <!-- The preferences dialog -->
-<div id="preferencesDialog" title="Diagram Preferences" style="display: none;">
+<div id="preferencesDialog" title="Preferences" style="display: none;">
   <form id="preferencesForm" action="javascript:savePreferences();">
     <p>Select what to display in the top menu:</p>
     <input type="radio" id="text" name="top_menu_type" value="text" checked>
     <label for="text">Text</label><br>
     <input type="radio" id="images" name="top_menu_type" value="images">
     <label for="images">Images</label><br>
-    <br>
-    <input type="submit" value="Save Preferences" />
+    <!-- <br> -->
+    <!-- <input type="submit" value="Save Preferences" /> -->
+    <p>Select what to display in the diagram:</p>
+    <input type="checkbox" id="show_arrow_heads" name="show_arrow_heads" checked>
+    <label for="text">Show arrow heads</label><br>
+    <!-- <br> -->
   </form>
 </div>
 
@@ -2275,7 +2279,7 @@ var departmentsForm = document.getElementById("departmentsForm");
 var preferencesDialog = $( "#preferencesDialog" ).dialog({ autoOpen: false, closeOnEscape: true, modal: true, width: 420,
   buttons: {
     "Save": savePreferences,
-    "Cancel": function() { preferencesDialog.dialog( "close" ); }
+    "Close": function() { preferencesDialog.dialog( "close" ); }
   },
   maxHeight: ($(window).height() - 50)
 });
