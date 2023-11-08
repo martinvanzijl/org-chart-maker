@@ -9,6 +9,7 @@
 
 <!-- JQuery. -->
 <script src="static/jquery-3.6.0.min.js"></script>
+<script src="static/preferences.js"></script>
 <script src="static/toast-message.js"></script>
 
 <title>Org Chart Maker - Preferences</title>
@@ -56,37 +57,6 @@
 {% if g.user %}
   document.getElementById("show_arrow_heads").checked = {{ g.user.show_arrow_heads }};
 {% endif %}
-
-function savePreferences() {
-  // Use AJAX to ask the server to save the diagram.
-  var url = "/savePreferences";
-
-  var params = {};
-  if (document.getElementById("text").checked) {
-    params["top_menu_type"] = "text";
-  }
-  else {
-    params["top_menu_type"] = "images";
-  }
-
-  params["show_arrow_heads"] = document.getElementById("show_arrow_heads").checked;
-
-  $.post( url, params, function(data, status) {
-    // Get AJAX response.
-    var jsonReply = data;
-
-    // Check result.
-    var replyStatus = jsonReply.status;
-
-    if (replyStatus == "OK") {
-      showToastMessage("Preferences saved.");
-    }
-    else {
-      // An error happened.
-      alert("Could not save preferences. Details:\n" + jsonReply.problem);
-    }
-  });
-}
 </script>
 
 </body>

@@ -4,6 +4,7 @@
 <script src="static/konva.min.js"></script>
 <script src="static/geometry.js"></script>
 <script src="static/filter-by-level.js"></script>
+<script src="static/preferences.js"></script>
 <script src="static/sub-organizations.js"></script>
 <script src="static/undo.js"></script>
 
@@ -1160,11 +1161,20 @@ function diagramPropertiesDialogOKClicked() {
 // Set all arrow sizes.
 // The parameter must be a number.
 function setArrowSizes(size) {
+  // Ignore if preference enabled.
+  if (!showArrowHeads) {
+    console.log("No need to update arrow sizes.");
+    return;
+  }
+
   // Sanity check.
   if (!isValidArrowSize(size)) {
     console.log("Could not set arrow size:", size);
     return;
   }
+
+  // Debug.
+  console.log("Setting arrow sizes.");
 
   // Set all sizes.
   for (var index in relationships) {
@@ -1681,6 +1691,7 @@ function updateDiagramBasedOnProperties() {
         if (!showArrowHeads) {
           arrow.pointerLength(0);
           arrow.pointerWidth(0);
+          console.log("Removing arrow head.")
         }
 
         // Apply style.
@@ -2290,9 +2301,18 @@ function showPreferencesDialog() {
 };
 
 // Save the "preferences".
-function savePreferences() {
-  console.log("Saving preferences...");
-};
+// function savePreferences() {
+//   console.log("Saving preferences...");
+// };
+
+// Read settings from database.
+{% if g.user and g.user.top_menu_type == 1 %}
+  document.getElementById("images").checked = true;
+{% endif %}
+
+{% if g.user %}
+  document.getElementById("show_arrow_heads").checked = {{ g.user.show_arrow_heads }};
+{% endif %}
 </script>
 
 <!-- End main content. -->
