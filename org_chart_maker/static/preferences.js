@@ -15,8 +15,18 @@ function savePreferences() {
     params["top_menu_type"] = "images";
   }
 
-  params["show_arrow_heads"] = document.getElementById("show_arrow_heads").checked;
+  showArrowHeads = document.getElementById("show_arrow_heads").checked;
+  params["show_arrow_heads"] = showArrowHeads;
 
+  // Update on client.
+  if (showArrowHeads) {
+    setArrowSizes(diagramProperties.arrowSize);
+  }
+  else {
+    setArrowSizes(0);
+  }
+
+  // Save to server.
   $.post( url, params, function(data, status) {
     // Get AJAX response.
     var jsonReply = data;

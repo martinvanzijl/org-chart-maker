@@ -1134,7 +1134,7 @@ function isValidArrowSize(size) {
   var sizeAsNumber = Number(size);
 
   // Check.
-  if (isNaN(sizeAsNumber) || sizeAsNumber <= 0) {
+  if (isNaN(sizeAsNumber) || sizeAsNumber < 0) {
     return false;
   }
 
