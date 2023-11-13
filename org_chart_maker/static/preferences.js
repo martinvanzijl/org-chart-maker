@@ -19,12 +19,7 @@ function savePreferences() {
   params["show_arrow_heads"] = showArrowHeads;
 
   // Update on client.
-  if (showArrowHeads) {
-    setArrowSizes(diagramProperties.arrowSize);
-  }
-  else {
-    setArrowSizes(0);
-  }
+  updateDiagramBasedOnPreferences();
 
   // Save to server.
   $.post( url, params, function(data, status) {
@@ -42,4 +37,10 @@ function savePreferences() {
       alert("Could not save preferences. Details:\n" + jsonReply.problem);
     }
   });
+}
+
+// Update diagram based on preferences.
+function updateDiagramBasedOnPreferences() {
+  var arrowSize = showArrowHeads ? diagramProperties.arrowSize : 0;
+  setArrowSizes(arrowSize);
 }

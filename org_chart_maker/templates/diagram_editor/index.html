@@ -1163,8 +1163,9 @@ function diagramPropertiesDialogOKClicked() {
 function setArrowSizes(size) {
   // Ignore if preference enabled.
   if (!showArrowHeads) {
-    console.log("No need to update arrow sizes.");
-    return;
+    // console.log("No need to update arrow sizes.");
+    // return;
+    size = 0; // Hack!
   }
 
   // Sanity check.
