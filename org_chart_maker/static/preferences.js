@@ -2,6 +2,12 @@
 // JavaScript for preferences.
 // -----------------------------------------------------------------------------
 
+// Function to save preferences and immediately apply to the diagram.
+function saveAndApplyPreferences() {
+  savePreferences();
+  updateDiagramBasedOnPreferences();
+}
+
 // Function to save preferences.
 function savePreferences() {
   // Use AJAX to ask the server to save the diagram.
@@ -15,11 +21,11 @@ function savePreferences() {
     params["top_menu_type"] = "images";
   }
 
+  // TODO: Actually update the menu bar to show text/images as required.
+  // Perhaps this is overkill?
+
   showArrowHeads = document.getElementById("show_arrow_heads").checked;
   params["show_arrow_heads"] = showArrowHeads;
-
-  // Update on client.
-  updateDiagramBasedOnPreferences();
 
   // Save to server.
   $.post( url, params, function(data, status) {
@@ -41,6 +47,7 @@ function savePreferences() {
 
 // Update diagram based on preferences.
 function updateDiagramBasedOnPreferences() {
+  console.log("Updating diagram.");
   var arrowSize = showArrowHeads ? diagramProperties.arrowSize : 0;
   setArrowSizes(arrowSize);
 }
