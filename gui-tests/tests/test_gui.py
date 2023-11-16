@@ -455,3 +455,39 @@ def test_linking_diagram_to_sub_org():
 
     # Close the driver.
     driver.quit()
+
+# Test case for the preferences window.
+def test_preferences_window():
+    # Create the driver.
+    driver = webdriver.Chrome("./chromedriver")
+
+    # Log in.
+    login(driver)
+
+    # Select the menu item.
+
+    # Hover over the "Options" menu, then click the menu item.
+    buttons = driver.find_elements_by_class_name("dropbtn")
+
+    for button in buttons:
+        if button.text == "Options":
+            diagramMenu = button
+            break
+
+    action = webdriver.common.action_chains.ActionChains(driver)
+    action.move_to_element(diagramMenu)
+    action.perform()
+
+    waitForSeconds(driver, 0.1)
+
+    link = driver.find_element_by_link_text("Preferences...")
+    link.click()
+
+    waitForSeconds(driver, 0.1)
+
+    # Check that the dialog is shown.
+    dialog = driver.find_element(by=By.ID, value="preferencesDialog")
+    assert dialog.is_displayed()
+
+    # Close the driver.
+    driver.quit()
