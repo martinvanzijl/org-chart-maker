@@ -90,6 +90,7 @@
         <a href="javascript:saveDiagram();">Save</a>
         <a href="javascript:saveDiagramAs();">Save As...</a>
         <a href="javascript:showUploadDialog();">Upload...</a>
+        <a href="javascript:showImportCSVDialog();">Import CSV...</a>
       </div>
     </div>
 
@@ -913,6 +914,25 @@ uploadFileInput.onchange = e => {
 
 function showUploadDialog() {
     $('#upload_file_input').trigger('click');
+};
+</script>
+
+<!-- The "Import CSV" dialog. -->
+<form id="importCsvForm" action="/" method="post" enctype="multipart/form-data" style="display: none;">
+    <input id="import_csv_input" type="file" name="uploaded_file" accept=".csv, application/csv" />
+    <input type="submit" value="Upload" />
+</form>
+
+<script>
+var importCsvInput = document.getElementById('import_csv_input');
+
+importCsvInput.onchange = e => {
+    // Submit the form.
+    $('#importCsvForm').trigger("submit");
+};
+
+function showImportCSVDialog() {
+    $('#import_csv_input').trigger('click');
 };
 </script>
 
