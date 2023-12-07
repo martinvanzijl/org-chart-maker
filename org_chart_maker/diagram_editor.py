@@ -324,3 +324,23 @@ def add_photo():
 
     # Return the data.
     return jsonify(content)
+
+@bp.route("/import_csv_file", methods=("POST",))
+def import_csv_file():
+    """Import a CSV file."""
+
+    # Check for file upload.
+    csvFile = request.files["uploaded_file"]
+
+    # Set save file name.
+    #fileName = csvFile.filename
+
+    # Debug.
+    # print ("CSV file name:", fileName);
+
+    # TODO: Parse file and add to diagram via AJAX.
+    diagram_reader.import_from_csv(csvFile)
+
+    # Return.
+    content = {"status": "OK"};
+    return jsonify(content)

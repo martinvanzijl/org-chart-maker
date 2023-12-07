@@ -919,7 +919,7 @@ function showUploadDialog() {
 </script>
 
 <!-- The "Import CSV" dialog. -->
-<form id="importCsvForm" action="javascript:importSelectedCsvFile();" method="post" enctype="multipart/form-data" style="display: none;">
+<form id="importCsvForm" action="/import_csv_file" method="post" enctype="multipart/form-data" style="display: none;">
     <input id="import_csv_input" type="file" name="uploaded_file" accept=".csv, application/csv" />
     <input type="submit" value="Upload" />
 </form>
@@ -935,6 +935,32 @@ importCsvInput.onchange = e => {
 function showImportCSVDialog() {
     $('#import_csv_input').trigger('click');
 };
+
+// Attach a submit handler to the form
+$( "#importCsvForm" ).submit(function( event ) {
+
+  // Stop form from submitting normally
+  event.preventDefault();
+
+  // Send the data using post.
+  var formData = new FormData(this);
+  $.ajax({
+      type: 'POST',
+      url: $(this).attr('action'),
+      data: formData,
+      cache: false,
+      contentType: false,
+      processData: false,
+      success: function(data) {
+          addCsvDataToDiagram(data);
+      },
+      error: function(data) {
+          console.log("error");
+          console.log(data);
+      }
+  });
+});
+
 </script>
 
 <!-- The "filter by department" dialog. -->

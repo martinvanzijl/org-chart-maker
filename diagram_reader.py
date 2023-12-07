@@ -829,5 +829,27 @@ def addPhoto(f):
 
     return returnData
 
+def import_from_csv(inputFile):
+    """Import a diagram from the given CSV file."""
+
+    # TODO: Join the letters into lines.
+    content = inputFile.read().decode().split('\n')
+    # print ("File contents:")
+    # print (content)
+
+    # Convert.
+    # string = str(content)
+    # print ("String:")
+    # print (string)
+
+    # Read file contents.
+    reader = csv.reader(content)
+    # reader = csv.reader(string, delimiter=',')
+
+    # Go through each row.
+    print ("Rows:")
+    for row in reader:
+        print(row)
+
 if __name__ == "__main__":
     parse_diagram_file()
