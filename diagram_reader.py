@@ -832,24 +832,38 @@ def addPhoto(f):
 def import_from_csv(inputFile):
     """Import a diagram from the given CSV file."""
 
-    # TODO: Join the letters into lines.
-    content = inputFile.read().decode().split('\n')
-    # print ("File contents:")
-    # print (content)
-
-    # Convert.
-    # string = str(content)
-    # print ("String:")
-    # print (string)
-
     # Read file contents.
+    content = inputFile.read().decode().split('\n')
     reader = csv.reader(content)
-    # reader = csv.reader(string, delimiter=',')
+
+    # Create the list.
+    persons = {}
 
     # Go through each row.
-    print ("Rows:")
+    print ("Going through rows...")
     for row in reader:
-        print(row)
+
+        # Skip empty rows.
+        if len(row) < 5:
+            print("Skipping row...")
+            continue
+
+        # Read attributes.
+        (name, title, url, department, reportsTo) = row
+
+        print ("Row:", row)
+
+        # Store person.
+        # person = Person(personId, x, y, name, title, url, department)
+        # persons[personId] = person
+
+        # # Create the person.
+        # line = "var person = " + person.toJavaScript() + "\n";
+        # result += line;
+        #
+        # # Add the person to the diagram.
+        # line = "addPersonToDiagram(person, " + str(x) + ", " + str(y) + ")\n";
+        # result += line;
 
 if __name__ == "__main__":
     parse_diagram_file()
