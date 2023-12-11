@@ -338,9 +338,9 @@ def import_csv_file():
     # Debug.
     # print ("CSV file name:", fileName);
 
-    # TODO: Parse file and add to diagram via AJAX.
-    diagram_reader.import_from_csv(csvFile)
+    # Parse file and add to diagram via AJAX.
+    content = diagram_reader.import_from_csv(csvFile)
 
     # Return.
-    content = {"status": "OK"};
+    # content = {"status": "OK"};
     return jsonify(content)

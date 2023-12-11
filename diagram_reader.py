@@ -8,6 +8,7 @@ from flask.json import loads
 import os
 import shutil
 import tempfile
+import uuid
 from org_chart_maker.utils import removeSuffix
 from werkzeug.utils import secure_filename
 import xml.dom.minidom as xml
@@ -836,8 +837,9 @@ def import_from_csv(inputFile):
     content = inputFile.read().decode().split('\n')
     reader = csv.reader(content)
 
-    # Create the list.
-    persons = {}
+    # Create the dictionary.
+    # persons = {}
+    persons = []
 
     # Go through each row.
     print ("Going through rows...")
@@ -849,21 +851,27 @@ def import_from_csv(inputFile):
             continue
 
         # Read attributes.
-        (name, title, url, department, reportsTo) = row
-
-        print ("Row:", row)
+        # (name, title, url, department, reportsTo) = row
+        # print ("Row:", row)
 
         # Store person.
-        # person = Person(personId, x, y, name, title, url, department)
-        # persons[personId] = person
+        # x = 0
+        # y = 0
+        # personId = str(uuid.uuid1())
 
-        # # Create the person.
-        # line = "var person = " + person.toJavaScript() + "\n";
-        # result += line;
-        #
-        # # Add the person to the diagram.
-        # line = "addPersonToDiagram(person, " + str(x) + ", " + str(y) + ")\n";
-        # result += line;
+        # TODO: Store list instead.
+        # person = Person(personId, x, y, name, title, url, department)
+        person = row
+        # persons[personId] = person
+        persons.append(person)
+
+    # Return data.
+    returnData = {
+      "status": "OK",
+      "persons": persons
+    }
+
+    return returnData
 
 if __name__ == "__main__":
     parse_diagram_file()
