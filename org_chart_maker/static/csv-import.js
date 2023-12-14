@@ -18,6 +18,10 @@
 // Add CSV data to the diagram.
 function addCsvDataToDiagram (data) {
 
+  // Create relationships list.
+  var relationships = {}; // [Employee] --> "Manager"
+  var nameToPerson = {};
+
   // Go through persons.
   for (var index in data.persons) {
     // Skip header row.
@@ -33,13 +37,13 @@ function addCsvDataToDiagram (data) {
     var title = row[1];
     var url = row[2];
     var department = row[3];
-    var reportsTo = row[4];
+    var reportsToName = row[4];
 
     // Create ID.
     var personId = createPersonId();
 
     // Create person.
-    person = {
+    var person = {
         personId: personId,
         name: name,
         title: title,
@@ -56,7 +60,27 @@ function addCsvDataToDiagram (data) {
     // Add to diagram.
     addPersonToDiagram(person, pos.x, pos.y);
 
-    // TODO: Avoid laying out the whole diagram.
-    autoLayout();
+    // Note relationship.
+    nameToPerson[name] = person;
+
+    if (reportsToName) {
+      relationships[personId] = reportsToName;
+    }
   }
+
+  // Go through relationships.
+  for (var personId in relationships) {
+    // Get row.
+    var reportsToName = relationships[personId];
+
+    // Get fields.
+    var employee = persons[personId];
+    var manager = nameToPerson[reportsToName];
+
+    // Create relationship.
+    addRelationshipToDiagram(0, 0, 0, 0, employee, manager, 'black', SOLID);
+  }
+
+  // TODO: Avoid laying out the whole diagram.
+  autoLayout();
 }
