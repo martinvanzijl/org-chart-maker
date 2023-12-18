@@ -837,32 +837,19 @@ def import_from_csv(inputFile):
     content = inputFile.read().decode().split('\n')
     reader = csv.reader(content)
 
-    # Create the dictionary.
-    # persons = {}
+    # Create the list.
     persons = []
 
     # Go through each row.
-    print ("Going through rows...")
     for row in reader:
 
         # Skip empty rows.
         if len(row) < 5:
-            print("Skipping row...")
+            # print("Skipping row...")
             continue
 
-        # Read attributes.
-        # (name, title, url, department, reportsTo) = row
-        # print ("Row:", row)
-
-        # Store person.
-        # x = 0
-        # y = 0
-        # personId = str(uuid.uuid1())
-
-        # TODO: Store list instead.
-        # person = Person(personId, x, y, name, title, url, department)
+		# Store person in list.
         person = row
-        # persons[personId] = person
         persons.append(person)
 
     # Return data.

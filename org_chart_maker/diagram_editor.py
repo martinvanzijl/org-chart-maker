@@ -332,15 +332,8 @@ def import_csv_file():
     # Check for file upload.
     csvFile = request.files["uploaded_file"]
 
-    # Set save file name.
-    #fileName = csvFile.filename
-
-    # Debug.
-    # print ("CSV file name:", fileName);
-
     # Parse file and add to diagram via AJAX.
     content = diagram_reader.import_from_csv(csvFile)
 
     # Return.
-    # content = {"status": "OK"};
     return jsonify(content)
