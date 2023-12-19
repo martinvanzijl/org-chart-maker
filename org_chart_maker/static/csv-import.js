@@ -8,6 +8,7 @@ function addCsvDataToDiagram (data) {
   // Create relationships list.
   var relationships = {}; // [Employee] --> "Manager"
   var nameToPerson = {};
+  var personList = {};
 
   // Go through persons.
   for (var index in data.persons) {
@@ -41,6 +42,9 @@ function addCsvDataToDiagram (data) {
         borderColor: "black",
     };
 
+    // Add to list.
+    personList[personId] = person;
+
     // Set position.
     var pos = {x: 0, y: 0};
 
@@ -68,6 +72,9 @@ function addCsvDataToDiagram (data) {
     addRelationshipToDiagram(0, 0, 0, 0, employee, manager, 'black', SOLID);
   }
 
-  // TODO: Avoid laying out the whole diagram.
-  autoLayout();
+  // Layout the added persons.
+  autoLayoutItems(personList);
+
+  // Update undo stack.
+  addUndo();
 }

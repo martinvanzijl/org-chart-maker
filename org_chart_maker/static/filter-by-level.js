@@ -105,6 +105,12 @@ function autoLayoutRow(items, startY) {
 // Automatically layout the diagram.
 function autoLayout()
 {
+    autoLayoutItems(persons);
+}
+
+// Automatically layout the given persons.
+function autoLayoutItems(personList)
+{
     // Clear depth map.
     m_depthMap = {};
 
@@ -112,8 +118,8 @@ function autoLayout()
     var depthMultiMap = {};
 
     // Find the right depth for each person.
-    for (var index in persons) {
-        var person = persons[index];
+    for (var index in personList) {
+        var person = personList[index];
         var depth = getDepth(person);
         if (!(depth in depthMultiMap)) {
             depthMultiMap[depth] = [];
