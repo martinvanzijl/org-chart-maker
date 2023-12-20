@@ -8,6 +8,7 @@ from flask.json import loads
 import os
 import shutil
 import tempfile
+import uuid
 from org_chart_maker.utils import removeSuffix
 from werkzeug.utils import secure_filename
 import xml.dom.minidom as xml
@@ -825,6 +826,36 @@ def addPhoto(f):
       "status": "OK",
       "photoPath": relativePath,
       "photoName": fileName
+    }
+
+    return returnData
+
+def import_from_csv(inputFile):
+    """Import a diagram from the given CSV file."""
+
+    # Read file contents.
+    content = inputFile.read().decode().split('\n')
+    reader = csv.reader(content)
+
+    # Create the list.
+    persons = []
+
+    # Go through each row.
+    for row in reader:
+
+        # Skip empty rows.
+        if len(row) < 5:
+            # print("Skipping row...")
+            continue
+
+		# Store person in list.
+        person = row
+        persons.append(person)
+
+    # Return data.
+    returnData = {
+      "status": "OK",
+      "persons": persons
     }
 
     return returnData

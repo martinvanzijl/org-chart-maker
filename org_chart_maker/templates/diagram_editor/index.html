@@ -3,6 +3,7 @@
 {% block includes %}
 <script src="static/konva.min.js"></script>
 <script src="static/geometry.js"></script>
+<script src="static/csv-import.js"></script>
 <script src="static/filter-by-level.js"></script>
 <script src="static/preferences.js"></script>
 <script src="static/sub-organizations.js"></script>
@@ -90,6 +91,7 @@
         <a href="javascript:saveDiagram();">Save</a>
         <a href="javascript:saveDiagramAs();">Save As...</a>
         <a href="javascript:showUploadDialog();">Upload...</a>
+        <a href="javascript:showImportCSVDialog();">Import CSV...</a>
       </div>
     </div>
 
@@ -914,6 +916,51 @@ uploadFileInput.onchange = e => {
 function showUploadDialog() {
     $('#upload_file_input').trigger('click');
 };
+</script>
+
+<!-- The "Import CSV" dialog. -->
+<form id="importCsvForm" action="/import_csv_file" method="post" enctype="multipart/form-data" style="display: none;">
+    <input id="import_csv_input" type="file" name="uploaded_file" accept=".csv, application/csv" />
+    <input type="submit" value="Upload" />
+</form>
+
+<script>
+var importCsvInput = document.getElementById('import_csv_input');
+
+importCsvInput.onchange = e => {
+    // Submit the form.
+    $('#importCsvForm').trigger("submit");
+};
+
+function showImportCSVDialog() {
+    $('#import_csv_input').trigger('click');
+};
+
+// Attach a submit handler to the form
+$( "#importCsvForm" ).submit(function( event ) {
+
+  // Stop form from submitting normally
+  event.preventDefault();
+
+  // Send the data using post.
+  var formData = new FormData(this);
+  $.ajax({
+      type: 'POST',
+      url: $(this).attr('action'),
+      data: formData,
+      cache: false,
+      contentType: false,
+      processData: false,
+      success: function(data) {
+          addCsvDataToDiagram(data);
+      },
+      error: function(data) {
+          console.log("error");
+          console.log(data);
+      }
+  });
+});
+
 </script>
 
 <!-- The "filter by department" dialog. -->
@@ -2224,11 +2271,16 @@ con.addEventListener('drop', function (e) {
   }
 });
 
+// Create a new ID for a person.
+function createPersonId() {
+  // From https://stackoverflow.com/questions/105034/how-to-create-a-guid-uuid
+  return Date.now().toString(36) + Math.random().toString(36).substring(2);
+}
+
 // Create a new person and add it to the diagram at the given position.
 function createNewPerson(pos) {
   // Create ID.
-  // From https://stackoverflow.com/questions/105034/how-to-create-a-guid-uuid
-  var personId = Date.now().toString(36) + Math.random().toString(36).substring(2);
+  var personId = createPersonId();
 
   // Create person.
   person = {
