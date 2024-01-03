@@ -145,4 +145,30 @@ def logout():
 def forgotPassword():
     """Allow the user to send a 'reset password' link."""
 
+    if request.method == "POST":
+        # Look up database record.
+        username = request.form["username"]
+        email = request.form["email"]
+        db = get_db()
+        error = None
+        user = db.execute(
+            "SELECT * FROM user WHERE username = ?", (username,)
+        ).fetchone()
+
+        # Check entered email matches database record. This is a basic
+        # security measure to avoid spamming.
+        if user is None:
+            error = "Username does not exist."
+        elif not user["email"] == email:
+            error = "Incorrect email for username."
+
+        if error is None:
+            # store the user id in a new session and return to the index
+            # session.clear()
+            # session["user_id"] = user["id"]
+            # return redirect(url_for("index"))
+            flash("Sending email...")
+        else:
+            flash(error)
+
     return render_template("auth/forgot-password.html")
