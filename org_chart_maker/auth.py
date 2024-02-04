@@ -1,10 +1,12 @@
 import functools
 import re
+import uuid
 
 from flask import Blueprint
 from flask import current_app
 from flask import flash
 from flask import g
+from flask import jsonify
 from flask import redirect
 from flask import render_template
 from flask import request
@@ -141,35 +143,81 @@ def logout():
     session.clear()
     return redirect(url_for("index"))
 
-@bp.route("/forgot-password", methods=("GET", "POST"))
+# @bp.route("/forgot-password", methods=("GET", "POST"))
+@bp.route("/forgot-password", methods=("GET",))
 def forgotPassword():
     """Allow the user to send a 'reset password' link."""
 
-    if request.method == "POST":
-        # Look up database record.
-        username = request.form["username"]
-        email = request.form["email"]
-        db = get_db()
-        error = None
-        user = db.execute(
-            "SELECT * FROM user WHERE username = ?", (username,)
-        ).fetchone()
-
-        # Check entered email matches database record. This is a basic
-        # security measure to avoid spamming.
-        if user is None:
-            error = "Username does not exist."
-        elif not user["email"] == email:
-            error = "Incorrect email for username."
-
-        if error is None:
-            # store the user id in a new session and return to the index
-            # session.clear()
-            # session["user_id"] = user["id"]
-            # return redirect(url_for("index"))
-            flash("Sending email...")
-            MailServer().sendPasswordResetEmail()
-        else:
-            flash(error)
+    # if request.method == "POST":
+    #     # Look up database record.
+    #     username = request.form["username"]
+    #     email = request.form["email"]
+    #     db = get_db()
+    #     error = None
+    #     user = db.execute(
+    #         "SELECT * FROM user WHERE username = ?", (username,)
+    #     ).fetchone()
+    #
+    #     # Check entered email matches database record. This is a basic
+    #     # security measure to avoid spamming.
+    #     if user is None:
+    #         error = "Username does not exist."
+    #     elif not user["email"] == email:
+    #         error = "Incorrect email for username."
+    #
+    #     if error is None:
+    #         # store the user id in a new session and return to the index
+    #         # session.clear()
+    #         # session["user_id"] = user["id"]
+    #         # return redirect(url_for("index"))
+    #         flash("Sending email...")
+    #         MailServer().sendPasswordResetEmail()
+    #     else:
+    #         flash(error)
 
     return render_template("auth/forgot-password.html")
+
+@bp.route("/create-reset-password-link", methods=("POST",))
+def createResetPasswordLink():
+    """Create a 'reset password' link."""
+
+    # Debug.
+    print ("Creating password reset link...")
+
+    # Look up user in database.
+    username = request.form["username"]
+    email = request.form["email"]
+    db = get_db()
+    error = None
+    user = db.execute(
+        "SELECT * FROM user WHERE username = ?", (username,)
+    ).fetchone()
+
+    # Check entered email matches database record. This is a basic
+    # security measure to avoid spamming.
+    if user is None:
+        error = "Username does not exist."
+    elif not user["email"] == email:
+        error = "Incorrect email for username."
+
+    if error is None:
+        # flash("Sending email...")
+        # MailServer().sendPasswordResetEmail()
+        pass
+    else:
+        # flash(error)
+        content = {"status": "Error", "problem": error}
+        return jsonify(content)
+
+    # Create the database record.
+    link = str(uuid.uuid4())
+    db = get_db()
+    db.execute(
+        "INSERT INTO password_reset_link (user_id, link, created_date, expiry_date, status) VALUES (?, ?, ?, ?, ?)",
+        (user["id"], link, "DATE('now')", "DATE('now', +2 days)", "sent")
+    )
+    db.commit()
+
+    # Return output.
+    content = {"status": "OK", "link": link}
+    return jsonify(content)
