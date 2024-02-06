@@ -213,11 +213,30 @@ def createResetPasswordLink():
     link = str(uuid.uuid4())
     db = get_db()
     db.execute(
-        "INSERT INTO password_reset_link (user_id, link, created_date, expiry_date, status) VALUES (?, ?, ?, ?, ?)",
-        (user["id"], link, "DATE('now')", "DATE('now', +2 days)", "sent")
+        "INSERT INTO password_reset_link (user_id, link, created_date, expiry_date, status) VALUES (?, ?, date('now'), date('now', '+2 days'), ?)",
+        (user["id"], link, "sent")
     )
     db.commit()
 
     # Return output.
     content = {"status": "OK", "link": link}
     return jsonify(content)
+
+@bp.route("/reset-password", methods=("GET",))
+def resetPassword():
+    """Show the page to enter a new password."""
+
+    # Look up link in database.
+    link = request.args.get('link')
+    db = get_db()
+    error = None
+    db_record = db.execute(
+        "SELECT * FROM password_reset_link WHERE link = ?", (link,)
+    ).fetchone()
+
+    if db_record is None:
+        error = "Invalid link."
+        # TODO: Show this and disable the fields.
+
+    # Return output.
+    return render_template("auth/reset-password.html")
