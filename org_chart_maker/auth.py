@@ -226,6 +226,8 @@ def createResetPasswordLink():
 def resetPassword():
     """Show the page to enter a new password."""
 
+    print ("Hello.")
+
     # Look up link in database.
     link = request.args.get('link')
     db = get_db()
@@ -240,3 +242,20 @@ def resetPassword():
 
     # Return output.
     return render_template("auth/reset-password.html")
+
+@bp.route("/save-new-password", methods=("POST",))
+def saveNewPassword():
+    """Save the new password for the user."""
+
+    # Look up link in database.
+    new_password = request.args.get('new_password')
+    # TODO: Pass the user ID securely!
+    db = get_db()
+    error = None
+    db_record = db.execute(
+        "UPDATE user SET * password = ? WHERE id = ?", (generate_password_hash(new_password), user_id)
+    )
+
+    # Return.
+    content = {"status": "OK"};
+    return jsonify(content)
