@@ -226,12 +226,10 @@ def createResetPasswordLink():
 def resetPassword():
     """Show the page to enter a new password."""
 
-    print ("Hello.")
-
     # Look up link in database.
     link = request.args.get('link')
-    db = get_db()
     error = None
+    db = get_db()
     db_record = db.execute(
         "SELECT * FROM password_reset_link WHERE link = ?", (link,)
     ).fetchone()
@@ -241,20 +239,37 @@ def resetPassword():
         # TODO: Show this and disable the fields.
 
     # Return output.
+    g.passwordResetLink = link
     return render_template("auth/reset-password.html")
 
 @bp.route("/save-new-password", methods=("POST",))
 def saveNewPassword():
     """Save the new password for the user."""
 
-    # Look up link in database.
-    new_password = request.args.get('new_password')
-    # TODO: Pass the user ID securely!
+    # Get the user ID securely!
+    link = request.form.get('link')
     db = get_db()
     error = None
     db_record = db.execute(
-        "UPDATE user SET * password = ? WHERE id = ?", (generate_password_hash(new_password), user_id)
+        "SELECT * FROM password_reset_link WHERE link = ?", (link,)
+    ).fetchone()
+    user_id = db_record["user_id"];
+    # user_id = int(user_id); # Cast from string to number.
+    # user_id = 3; # Hack!
+
+    # Look up link in database.
+    new_password = request.form.get('new_password')
+    print ("New Password:", new_password)
+    print ("User ID:", user_id)
+    db.execute(
+        "UPDATE user SET password = ? WHERE id = ?", (generate_password_hash(new_password), user_id)
     )
+    # db.execute(
+    #     "UPDATE user SET password = 'what' WHERE id = 3"
+    # )
+    db.commit()
+
+    # TODO: The password is not updated. Perhaps I must cast to an integer first.
 
     # Return.
     content = {"status": "OK"};
