@@ -237,8 +237,12 @@ def resetPassword():
     if db_record is None:
         error = "Invalid link."
         # TODO: Show this and disable the fields.
+    elif db_record["status"] == "used":
+        error = "Link as already been used."
+        # TODO: Show this and disable the fields.
 
     # Return output.
+    g.error = error
     g.passwordResetLink = link
     return render_template("auth/reset-password.html")
 
