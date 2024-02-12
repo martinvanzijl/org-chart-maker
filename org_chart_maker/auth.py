@@ -253,12 +253,19 @@ def saveNewPassword():
     db_record = db.execute(
         "SELECT * FROM password_reset_link WHERE link = ?", (link,)
     ).fetchone()
+    link_id = db_record["id"];
     user_id = db_record["user_id"];
 
-    # Look up link in database.
+    # Update user in database.
     new_password = request.form.get('new_password')
     db.execute(
         "UPDATE user SET password = ? WHERE id = ?", (generate_password_hash(new_password), user_id)
+    )
+    db.commit()
+
+    # Update link in database.
+    db.execute(
+        "UPDATE password_reset_link SET status = 'used' WHERE id = ?", (link_id,)
     )
     db.commit()
 
