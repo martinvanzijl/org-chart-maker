@@ -254,22 +254,13 @@ def saveNewPassword():
         "SELECT * FROM password_reset_link WHERE link = ?", (link,)
     ).fetchone()
     user_id = db_record["user_id"];
-    # user_id = int(user_id); # Cast from string to number.
-    # user_id = 3; # Hack!
 
     # Look up link in database.
     new_password = request.form.get('new_password')
-    print ("New Password:", new_password)
-    print ("User ID:", user_id)
     db.execute(
         "UPDATE user SET password = ? WHERE id = ?", (generate_password_hash(new_password), user_id)
     )
-    # db.execute(
-    #     "UPDATE user SET password = 'what' WHERE id = 3"
-    # )
     db.commit()
-
-    # TODO: The password is not updated. Perhaps I must cast to an integer first.
 
     # Return.
     content = {"status": "OK"};
