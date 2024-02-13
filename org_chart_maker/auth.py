@@ -1,3 +1,4 @@
+import datetime
 import functools
 import re
 import uuid
@@ -236,10 +237,13 @@ def resetPassword():
 
     if db_record is None:
         error = "Invalid link."
-        # TODO: Show this and disable the fields.
     elif db_record["status"] == "used":
         error = "Link as already been used."
-        # TODO: Show this and disable the fields.
+    else:
+        link_expiry_date = db_record["expiry_date"]
+        now = datetime.date.today()
+        if now > link_expiry_date:
+            error = "Link has expired."
 
     # Return output.
     g.error = error
