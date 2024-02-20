@@ -219,9 +219,12 @@ def createResetPasswordLink():
     )
     db.commit()
 
+    # Get email address.
+    destination_email = user["email"]
+
     # Return output.
     expiry_date = datetime.date.today() + datetime.timedelta(days=2)
-    content = {"status": "OK", "link": link, "expiry_date": expiry_date}
+    content = {"status": "OK", "link": link, "expiry_date": expiry_date, "destination_email": destination_email}
     return jsonify(content)
 
 @bp.route("/reset-password", methods=("GET",))
