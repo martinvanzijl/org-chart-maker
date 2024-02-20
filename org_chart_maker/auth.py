@@ -220,7 +220,8 @@ def createResetPasswordLink():
     db.commit()
 
     # Return output.
-    content = {"status": "OK", "link": link}
+    expiry_date = datetime.date.today() + datetime.timedelta(days=2)
+    content = {"status": "OK", "link": link, "expiry_date": expiry_date}
     return jsonify(content)
 
 @bp.route("/reset-password", methods=("GET",))
@@ -280,3 +281,9 @@ def saveNewPassword():
     # Return.
     content = {"status": "OK"};
     return jsonify(content)
+
+@bp.route("/password-saved", methods=("GET",))
+def passwordSaved():
+    """Show the page to confirm your password has been changed."""
+
+    return render_template("auth/password-saved.html")
