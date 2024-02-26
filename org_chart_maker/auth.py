@@ -1,10 +1,13 @@
+import datetime
 import functools
 import re
+import uuid
 
 from flask import Blueprint
 from flask import current_app
 from flask import flash
 from flask import g
+from flask import jsonify
 from flask import redirect
 from flask import render_template
 from flask import request
@@ -14,7 +17,6 @@ from werkzeug.security import check_password_hash
 from werkzeug.security import generate_password_hash
 
 from org_chart_maker.db import get_db
-
 from org_chart_maker.utils import register_new_users_allowed
 
 bp = Blueprint("auth", __name__, url_prefix="/auth")
@@ -68,6 +70,7 @@ def register():
     if request.method == "POST":
         username = request.form["username"]
         password = request.form["password"]
+        email = request.form["email"]
         db = get_db()
         error = None
 
@@ -83,8 +86,8 @@ def register():
         if error is None:
             try:
                 db.execute(
-                    "INSERT INTO user (username, password) VALUES (?, ?)",
-                    (username, generate_password_hash(password)),
+                    "INSERT INTO user (username, password, email) VALUES (?, ?, ?)",
+                    (username, generate_password_hash(password), email),
                 )
                 db.commit()
             except db.IntegrityError:
@@ -139,3 +142,150 @@ def logout():
     """Clear the current session, including the stored user id."""
     session.clear()
     return redirect(url_for("index"))
+
+# @bp.route("/forgot-password", methods=("GET", "POST"))
+@bp.route("/forgot-password", methods=("GET",))
+def forgotPassword():
+    """Allow the user to send a 'reset password' link."""
+
+    # if request.method == "POST":
+    #     # Look up database record.
+    #     username = request.form["username"]
+    #     email = request.form["email"]
+    #     db = get_db()
+    #     error = None
+    #     user = db.execute(
+    #         "SELECT * FROM user WHERE username = ?", (username,)
+    #     ).fetchone()
+    #
+    #     # Check entered email matches database record. This is a basic
+    #     # security measure to avoid spamming.
+    #     if user is None:
+    #         error = "Username does not exist."
+    #     elif not user["email"] == email:
+    #         error = "Incorrect email for username."
+    #
+    #     if error is None:
+    #         # store the user id in a new session and return to the index
+    #         # session.clear()
+    #         # session["user_id"] = user["id"]
+    #         # return redirect(url_for("index"))
+    #         flash("Sending email...")
+    #         MailServer().sendPasswordResetEmail()
+    #     else:
+    #         flash(error)
+
+    return render_template("auth/forgot-password.html")
+
+@bp.route("/create-reset-password-link", methods=("POST",))
+def createResetPasswordLink():
+    """Create a 'reset password' link."""
+
+    # Debug.
+    print ("Creating password reset link...")
+
+    # Look up user in database.
+    username = request.form["username"]
+    email = request.form["email"]
+    db = get_db()
+    error = None
+    user = db.execute(
+        "SELECT * FROM user WHERE username = ?", (username,)
+    ).fetchone()
+
+    # Check entered email matches database record. This is a basic
+    # security measure to avoid spamming.
+    if user is None:
+        error = "Username does not exist."
+    elif not user["email"] == email:
+        error = "Incorrect email for username."
+
+    if error is None:
+        # flash("Sending email...")
+        # MailServer().sendPasswordResetEmail()
+        pass
+    else:
+        # flash(error)
+        content = {"status": "Error", "problem": error}
+        return jsonify(content)
+
+    # Create the database record.
+    link = str(uuid.uuid4())
+    db = get_db()
+    db.execute(
+        "INSERT INTO password_reset_link (user_id, link, created_date, expiry_date, status) VALUES (?, ?, date('now'), date('now', '+2 days'), ?)",
+        (user["id"], link, "sent")
+    )
+    db.commit()
+
+    # Get email address.
+    destination_email = user["email"]
+
+    # Return output.
+    expiry_date = datetime.date.today() + datetime.timedelta(days=2)
+    content = {"status": "OK", "link": link, "expiry_date": expiry_date, "destination_email": destination_email}
+    return jsonify(content)
+
+@bp.route("/reset-password", methods=("GET",))
+def resetPassword():
+    """Show the page to enter a new password."""
+
+    # Look up link in database.
+    link = request.args.get('link')
+    error = None
+    db = get_db()
+    db_record = db.execute(
+        "SELECT * FROM password_reset_link WHERE link = ?", (link,)
+    ).fetchone()
+
+    if db_record is None:
+        error = "Invalid link."
+    elif db_record["status"] == "used":
+        error = "Link as already been used."
+    else:
+        link_expiry_date = db_record["expiry_date"]
+        now = datetime.date.today()
+        if now > link_expiry_date:
+            error = "Link has expired."
+
+    # Return output.
+    g.error = error
+    g.passwordResetLink = link
+    return render_template("auth/reset-password.html")
+
+@bp.route("/save-new-password", methods=("POST",))
+def saveNewPassword():
+    """Save the new password for the user."""
+
+    # Get the user ID securely!
+    link = request.form.get('link')
+    db = get_db()
+    error = None
+    db_record = db.execute(
+        "SELECT * FROM password_reset_link WHERE link = ?", (link,)
+    ).fetchone()
+    link_id = db_record["id"];
+    user_id = db_record["user_id"];
+
+    # Update user in database.
+    new_password = request.form.get('new_password')
+    db.execute(
+        "UPDATE user SET password = ? WHERE id = ?", (generate_password_hash(new_password), user_id)
+    )
+    db.commit()
+
+    # Update link in database.
+    db.execute(
+        "UPDATE password_reset_link SET status = 'used' WHERE id = ?", (link_id,)
+    )
+    db.commit()
+
+    # Return.
+    content = {"status": "OK"};
+    return jsonify(content)
+
+@bp.route("/password-saved", methods=("GET",))
+def passwordSaved():
+    """Show the page to confirm your password has been changed."""
+
+    return render_template("auth/password-saved.html")
