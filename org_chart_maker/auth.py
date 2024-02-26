@@ -17,7 +17,6 @@ from werkzeug.security import check_password_hash
 from werkzeug.security import generate_password_hash
 
 from org_chart_maker.db import get_db
-from org_chart_maker.emails import MailServer
 from org_chart_maker.utils import register_new_users_allowed
 
 bp = Blueprint("auth", __name__, url_prefix="/auth")
