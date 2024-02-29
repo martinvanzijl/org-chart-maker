@@ -491,3 +491,25 @@ def test_preferences_window():
 
     # Close the driver.
     driver.quit()
+
+# Test the "Forgot Password" page.
+def test_forgot_password_page():
+    # Create the driver.
+    driver = webdriver.Chrome("./chromedriver")
+
+    # Go to the login page.
+    driver.get("http://localhost:5001/")
+
+    # Wait for elements to load.
+    driver.implicitly_wait(0.5)
+
+    # Go to the "Forgot Password" page.
+    link = driver.find_element_by_link_text("Forgot Password?")
+    link.click()
+
+    # Wait for elements to load.
+    driver.implicitly_wait(0.5)
+
+    # Check the title.
+    title = driver.title
+    assert title == "Reset Password - Org Chart Maker"
