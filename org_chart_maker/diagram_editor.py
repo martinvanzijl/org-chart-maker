@@ -211,6 +211,27 @@ def save_diagram():
     content = diagram_reader.save(name, pd, rd, sd, propertiesData)
     return jsonify(content)
 
+@bp.route("/saveTemplate", methods=("POST",))
+def save_template():
+    """Save a template."""
+
+    # Read parameters.
+    name = request.form.get('name')
+    persons = request.form.get('persons')
+    relationships = request.form.get('relationships')
+    subOrgs = request.form.get('subOrgs')
+    diagramProperties = request.form.get('diagramProperties')
+
+    # Load from JSON.
+    pd = loads(persons)
+    rd = loads(relationships)
+    sd = loads(subOrgs)
+    propertiesData = loads(diagramProperties)
+
+    # Do the save.
+    content = diagram_reader.saveTemplate(name, pd, rd, sd, propertiesData)
+    return jsonify(content)
+
 @bp.route("/exportToCSV", methods=("POST",))
 @login_required
 def export_to_csv():

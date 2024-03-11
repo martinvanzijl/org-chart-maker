@@ -86,10 +86,11 @@
       <button class="dropbtn">File</button>
       <div class="dropdown-content">
         <a href="/new">New</a>
-        <a href="javascript:showTemplateDialog();">Template...</a>
+        <a href="javascript:showTemplateDialog();">New from Template...</a>
         <a href="javascript:showOpenDialog();">Open...</a>
         <a href="javascript:saveDiagram();">Save</a>
         <a href="javascript:saveDiagramAs();">Save As...</a>
+        <a href="javascript:saveDiagramAsTemplate();">Save as Template...</a>
         <a href="javascript:showUploadDialog();">Upload...</a>
         <a href="javascript:showImportCSVDialog();">Import CSV...</a>
       </div>
@@ -384,6 +385,9 @@ $( document ).keydown(function() {
     // Use Enter as shortcut key to "Save" button in "Save" dialog.
     else if (saveOrgChartDialog.dialog("isOpen")) {
       saveOrgChartDialogSaveClicked();
+    }
+    else if (saveAsTemplateDialog.dialog("isOpen")) {
+      saveAsTemplateDialogSaveClicked();
     }
   }
 });
@@ -772,6 +776,15 @@ function showTemplateDialog() {
   <span style="font-size: smaller;">Only letters, numbers, underscores and hyphens are allowed.</span>
 </div>
 
+<!-- The "save as template" dialog. -->
+<div id="saveAsTemplateDialog" title="Save as Template">
+  <p>
+    <label for="templateSaveFileNameInput">Name: </label>
+    <input name="templateSaveFileNameInput" id="templateSaveFileNameInput" pattern="[a-zA-Z0-9_-]*" required>
+  </p>
+  <span style="font-size: smaller;">Only letters, numbers, underscores and hyphens are allowed.</span>
+</div>
+
 <script>
 // Check if name is valid.
 function isValidDiagramName(name) {
@@ -803,6 +816,35 @@ function saveOrgChartDialogSaveClicked() {
 
     // Save.
     postDiagramToServer();
+  }
+  else {
+    // Reject.
+    alert("Please enter a valid name. Only letters, numbers, underscores and hyphens are allowed.");
+  }
+}
+
+var saveAsTemplateDialog = $( "#saveAsTemplateDialog" ).dialog({
+  autoOpen: false,
+  maxHeight: ($(window).height() - 50),
+  modal: true,
+  buttons: {
+    "Save": saveAsTemplateDialogSaveClicked,
+    "Cancel": function() { saveAsTemplateDialog.dialog( "close" ); }
+  },
+});
+
+// Show the "Save as Template" dialog.
+function showSaveAsTemplateDialog() {
+    $( "#saveAsTemplateDialog" ).dialog( "open" );
+};
+
+// Handler for when the "save" button is clicked.
+function saveAsTemplateDialogSaveClicked() {
+  var userInput = $( "#templateSaveFileNameInput" ).val();
+
+  if (isValidDiagramName(userInput)) {
+    // Save.
+    postTemplateToServer(userInput);
   }
   else {
     // Reject.
@@ -2172,6 +2214,11 @@ function saveDiagramAs() {
   showSaveDialog();
 }
 
+// Function to save the diagram as a template.
+function saveDiagramAsTemplate() {
+  showSaveAsTemplateDialog();
+}
+
 // Function to post diagram to server.
 function postDiagramToServer() {
   // Use AJAX to ask the server to save the diagram.
@@ -2225,6 +2272,41 @@ function postDiagramToServer() {
     else {
       // An error happened.
       alert("Could not save diagram. Details:\n" + jsonReply.problem);
+    }
+  });
+}
+
+// Function to post diagram to server as a template.
+function postTemplateToServer() {
+  // Use AJAX to ask the server to save the diagram.
+  var url = "/saveTemplate";
+
+  // Create data.
+  var pd = JSON.stringify(persons);
+  var rd = JSON.stringify(relationships);
+  var sd = JSON.stringify(subOrgs);
+  var propd = JSON.stringify(diagramProperties);
+
+  var params = { name: diagramName, persons: pd, relationships: rd, subOrgs: sd,
+    diagramProperties: propd};
+
+  $.post( url, params, function(data, status) {
+    // Get AJAX response.
+    var jsonReply = data;
+
+    // Check result.
+    var replyStatus = jsonReply.status;
+
+    if (replyStatus == "OK") {
+        // Show message.
+        showToastMessage("Template saved.");
+
+        // Hide the dialog.
+        saveAsTemplateDialog.dialog( "close" );
+    }
+    else {
+      // An error happened.
+      alert("Could not save template. Details:\n" + jsonReply.problem);
     }
   });
 }

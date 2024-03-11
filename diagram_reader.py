@@ -79,6 +79,20 @@ def getDiagramsDir():
     # Return it.
     return userDir
 
+def getTemplatesDir():
+    """Get the folder for the templates of the current user."""
+
+    # Calculate the directory.
+    diagramsDir = getDiagramsDir()
+    templatesDir = os.path.join(diagramsDir, "templates")
+
+    # Ensure the directory exists.
+    if not os.path.exists(templatesDir):
+        os.mkdir(templatesDir)
+
+    # Return it.
+    return templatesDir
+
 def getRootPhotosDir():
     """Get the root photos directory."""
 
@@ -320,6 +334,46 @@ def save(name, persons, relationships, subOrgs, diagramProperties):
           "diagramName": diagramName,
           "status": "OK"
         }
+    except FileNotFoundError as error:
+        # Return status.
+        returnData = {
+          "status": "Failed",
+          "problem": str(error)
+        }
+
+    return returnData
+
+def saveTemplate(name, persons, relationships, subOrgs, diagramProperties):
+    """Save the given template."""
+
+    # Ensure ending exists.
+    if not name.endswith(".xml"):
+        name += ".xml"
+
+    # Do the save.
+    try:
+        dest = os.path.join(getTemplatesDir(), name)
+
+        # Create XML document.
+        doc = createXmlDoc(persons, relationships, subOrgs, name, diagramProperties)
+
+        # Write the XML file.
+        outputFile = open(dest, "w")
+        outputFile.write(doc.toprettyxml())
+        outputFile.close()
+
+        # Determine name.
+        diagramName = removeSuffix(name, ".xml")
+
+        # Return status.
+        returnData = {
+          "diagramName": diagramName,
+          "status": "OK"
+        }
+
+        # Debug.
+        print("Template saved as:", dest)
+
     except FileNotFoundError as error:
         # Return status.
         returnData = {
