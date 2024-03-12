@@ -84,7 +84,7 @@
 
     <div class="dropdown">
       <button class="dropbtn">File</button>
-      <div class="dropdown-content">
+      <div class="dropdown-content" style="width:190px">
         <a href="/new">New</a>
         <a href="javascript:showTemplateDialog();">New from Template...</a>
         <a href="javascript:showOpenDialog();">Open...</a>
@@ -2277,7 +2277,7 @@ function postDiagramToServer() {
 }
 
 // Function to post diagram to server as a template.
-function postTemplateToServer() {
+function postTemplateToServer(templateName) {
   // Use AJAX to ask the server to save the diagram.
   var url = "/saveTemplate";
 
@@ -2287,7 +2287,7 @@ function postTemplateToServer() {
   var sd = JSON.stringify(subOrgs);
   var propd = JSON.stringify(diagramProperties);
 
-  var params = { name: diagramName, persons: pd, relationships: rd, subOrgs: sd,
+  var params = { name: templateName, persons: pd, relationships: rd, subOrgs: sd,
     diagramProperties: propd};
 
   $.post( url, params, function(data, status) {

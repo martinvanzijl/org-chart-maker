@@ -222,6 +222,9 @@ def save_template():
     subOrgs = request.form.get('subOrgs')
     diagramProperties = request.form.get('diagramProperties')
 
+    # Debug.
+    print ("Name passed to server:", name)
+
     # Load from JSON.
     pd = loads(persons)
     rd = loads(relationships)
