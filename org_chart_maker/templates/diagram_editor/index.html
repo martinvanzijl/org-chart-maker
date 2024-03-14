@@ -753,6 +753,9 @@ function showOpenDialog() {
   {% for template in g.templatesList %}
     <a href="/new?template={{ template }}"><p>{{ template }}</p></a>
   {% endfor %}
+  {% for template in g.userTemplatesList %}
+    <a href="/new?template={{ template }}&userTemplate=True"><p>{{ template }}</p></a>
+  {% endfor %}
 </div>
 
 <script>

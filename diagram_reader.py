@@ -79,7 +79,7 @@ def getDiagramsDir():
     # Return it.
     return userDir
 
-def getTemplatesDir():
+def getUserTemplatesDir():
     """Get the folder for the templates of the current user."""
 
     # Calculate the directory.
@@ -352,7 +352,7 @@ def saveTemplate(name, persons, relationships, subOrgs, diagramProperties):
 
     # Do the save.
     try:
-        dest = os.path.join(getTemplatesDir(), name)
+        dest = os.path.join(getUserTemplatesDir(), name)
 
         # Create XML document.
         doc = createXmlDoc(persons, relationships, subOrgs, name, diagramProperties)
@@ -605,26 +605,47 @@ class SubOrg(Item):
             + "}"
 
 def getTemplateList():
+    """Get the list of template diagrams."""
+
+    fileNames = []
+
     try:
-        fileNames = os.listdir(getTemplatesDir())
+        fileNames += os.listdir(getTemplatesDir())
     except FileNotFoundError as error:
         print(error)
-        fileNames = []
 
     return fileNames
 
-def parse_template_file(fileName):
+def getUserTemplateList():
+    """Get the list of custom template diagrams."""
+
+    fileNames = []
+
+    try:
+        fileNames += os.listdir(getUserTemplatesDir())
+    except FileNotFoundError as error:
+        print(error)
+
+    return fileNames
+
+def parse_template_file(fileName, isUserTemplate):
     """Parse a template file."""
 
-    inputFileName = os.path.join(getTemplatesDir(), fileName)
+    if isUserTemplate:
+        templateDir = getUserTemplatesDir()
+    else:
+        templateDir = getTemplatesDir()
+
+    inputFileName = os.path.join(templateDir, fileName)
 
     try:
         doc = xml.parse(inputFileName)
+        return parse_xml_doc(doc)
     except IOError as e:
         print("Could not load specified template:")
         print(e)
 
-    return parse_xml_doc(doc)
+    return None
 
 def parse_diagram_file(fileName, defaultFileName = None):
     """Parse a saved diagram file."""

@@ -115,6 +115,7 @@ def index():
 
     # Get templates.
     g.templatesList = diagram_reader.getTemplateList();
+    g.userTemplatesList = diagram_reader.getUserTemplateList();
 
     # Render web page.
     return render_template("diagram_editor/index.html", canvasContent=canvasContent)
@@ -133,9 +134,11 @@ def new():
 
     # Load template if specified.
     template = request.args.get('template')
+    isUserTemplate = request.args.get('userTemplate', False)
+
     if template:
         try:
-            canvasContent += diagram_reader.parse_template_file(template)
+            canvasContent += diagram_reader.parse_template_file(template, isUserTemplate)
         except ValueError as error:
             # Message to user.
             g.toastMessage = "Could not load template: (" + str(error) + ")"
@@ -144,6 +147,7 @@ def new():
 
     # Get templates.
     g.templatesList = diagram_reader.getTemplateList();
+    g.userTemplatesList = diagram_reader.getUserTemplateList();
 
     # Render web page.
     return render_template("diagram_editor/index.html", canvasContent=canvasContent)
