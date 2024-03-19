@@ -513,3 +513,38 @@ def test_forgot_password_page():
     # Check the title.
     title = driver.title
     assert title == "Reset Password - Org Chart Maker"
+
+# Test the "Save As Template" feature.
+def test_save_as_template():
+    # Create the driver.
+    driver = webdriver.Chrome("./chromedriver")
+
+    # Log in.
+    login(driver)
+
+    # Select the menu item.
+
+    # Hover over the "Options" menu, then click the menu item.
+    buttons = driver.find_elements_by_class_name("dropbtn")
+
+    for button in buttons:
+        if button.text == "File":
+            diagramMenu = button
+            break
+
+    action = webdriver.common.action_chains.ActionChains(driver)
+    action.move_to_element(diagramMenu)
+    action.perform()
+
+    waitForSeconds(driver, 0.1)
+
+    # Click the link.
+    link = driver.find_element_by_link_text("Save as Template...")
+    link.click()
+
+    # Wait for dialog to show.
+    waitForSeconds(driver, 0.1)
+
+    # Check that the dialog is shown.
+    dialog = driver.find_element(by=By.ID, value="saveAsTemplateDialog")
+    assert dialog.is_displayed()
