@@ -1,0 +1,2 @@
+# Ignore potentially large PDF files if we have the source.
+*.pdf
