@@ -289,3 +289,27 @@ def passwordSaved():
     """Show the page to confirm your password has been changed."""
 
     return render_template("auth/password-saved.html")
+
+@bp.route("/manage-account", methods=("GET",))
+def manageAccount():
+    """Show the page to manage your account."""
+
+    # Return output.
+    return render_template("auth/user.html")
+
+@bp.route("/update-user-profile", methods=("POST",))
+def updateUserProfile():
+    """Update a user profile."""
+
+    # Update user in database.
+    db = get_db()
+    user_id = request.form.get('user_id')
+    email = request.form.get('email')
+    db.execute(
+        "UPDATE user SET email = ? WHERE id = ?", (email, user_id)
+    )
+    db.commit()
+
+    # Return.
+    content = {"status": "OK"};
+    return jsonify(content)

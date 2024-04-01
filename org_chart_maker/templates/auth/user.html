@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="../static/general.css">
+<link rel="stylesheet" href="../static/menu-bar.css">
+<link rel="stylesheet" href="../static/toast-message.css">
+<link rel="icon" type="image/x-icon" href="../static/favicon.ico">
+
+<!-- JQuery. -->
+<script src="../static/jquery-3.6.0.min.js"></script>
+<script src="../static/preferences.js"></script>
+<script src="../static/toast-message.js"></script>
+
+<title>Org Chart Maker - Edit Profile</title>
+</head>
+<body>
+
+<ul class="menu">
+  <li class="menu"><a class="menu" href="/">Home</a></li>
+  <li class="menu" style="float:right"><a class="menu" href="/static/help.html" target="_blank">Help</a></li>
+</ul>
+
+<!-- The toast message. -->
+<div id="snackbar">Profile saved.</div>
+
+<h2>My Profile</h2>
+
+<form id="profileForm" action="javascript:saveProfile();">
+  <label for="email">Email:</label> <!-- TODO: Populate with existing email! -->
+  <input name="email" id="email" required>
+  <br />
+  <br />
+  <input type="submit" value="Save Profile" />
+</form>
+
+<script>
+// Function to save profile.
+function saveProfile() {
+  // Create ID.
+  // var id = Date.now().toString(36) + Math.random().toString(36).substring(2);
+
+  // Use AJAX to ask the server to save the link to the database.
+  var url = "update-user-profile";
+
+  var params = {};
+  params["user_id"] = "{{ g.user['id'] }}";
+  params["email"] = document.getElementById("email").value;
+
+  // Save to server.
+  $.post( url, params, function(data, status) {
+    // Get AJAX response.
+    var jsonReply = data;
+
+    // Check result.
+    var replyStatus = jsonReply.status;
+
+    if (replyStatus == "OK") {
+      showToastMessage("Profile updated.");
+    }
+    else {
+      // An error happened.
+      alert("Could not update profile. Details:\n" + jsonReply.problem);
+    }
+  });
+}
+</script>
+
+</body>
+</html>
