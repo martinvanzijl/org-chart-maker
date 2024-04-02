@@ -26,8 +26,8 @@
 <h2>My Profile</h2>
 
 <form id="profileForm" action="javascript:saveProfile();">
-  <label for="email">Email:</label> <!-- TODO: Populate with existing email! -->
-  <input name="email" id="email" required>
+  <label for="email">Email:</label>
+  <input name="email" id="email" value="{{ g.user['email'] }}" required>
   <br />
   <br />
   <input type="submit" value="Save Profile" />
