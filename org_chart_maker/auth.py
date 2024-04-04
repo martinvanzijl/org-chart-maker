@@ -294,6 +294,12 @@ def passwordSaved():
 def manageAccount():
     """Show the page to manage your account."""
 
+    # Format email.
+    if g.user["email"] is None:
+        g.email = ""
+    else:
+        g.email = g.user["email"]
+
     # Return output.
     return render_template("auth/user.html")
 
