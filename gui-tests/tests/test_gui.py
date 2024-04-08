@@ -548,3 +548,51 @@ def test_save_as_template():
     # Check that the dialog is shown.
     dialog = driver.find_element(by=By.ID, value="saveAsTemplateDialog")
     assert dialog.is_displayed()
+
+# Test the "Manage Profile" page.
+def test_profile_page():
+    # Create the driver.
+    driver = webdriver.Chrome("./chromedriver")
+
+    # Log in.
+    login(driver)
+
+    # Go to the "My Account" page.
+
+    # Hover over the "Options" menu, then click the link.
+    buttons = driver.find_elements_by_class_name("dropbtn")
+
+    for button in buttons:
+        if button.text == "Options":
+            optionsMenu = button
+            break
+
+    action = webdriver.common.action_chains.ActionChains(driver)
+    action.move_to_element(optionsMenu)
+    action.perform()
+
+    waitForSeconds(driver, 0.1)
+
+    # Store the ID of the original window
+    original_window = driver.current_window_handle
+
+    # Click the menu item.
+    link = driver.find_element_by_link_text("My Account")
+    link.click()
+
+    # Setup wait for later.
+    wait = WebDriverWait(driver, 10)
+
+    # Wait for the new window or tab.
+    wait.until(EC.number_of_windows_to_be(2))
+
+    # Loop through until we find a new window handle.
+    for window_handle in driver.window_handles:
+        if window_handle != original_window:
+            driver.switch_to.window(window_handle)
+            break
+
+    # TODO: Check that the "Safe Profile" button is enabled.
+    # button = driver.find_element_by_link_text("Save Profile")
+    # button = driver.find_element(By.XPATH, '//submit[text()="Save Profile"]')
+    # assert button.is_enabled()
