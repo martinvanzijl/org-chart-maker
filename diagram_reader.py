@@ -490,6 +490,10 @@ def getDiagramList():
         if "deleted" in fileNames:
             fileNames.remove("deleted")
 
+        # Remove the "templates" folder.
+        if "templates" in fileNames:
+            fileNames.remove("templates")
+
     except FileNotFoundError as error:
         # Print info.
         print(error)
