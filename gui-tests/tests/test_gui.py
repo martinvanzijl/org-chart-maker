@@ -225,6 +225,8 @@ def test_manage_page():
     # Log in.
     login(driver)
 
+    waitForSeconds(driver, 0.5)
+
     # Go to the "Manage" page.
 
     # Hover over the "Options" menu, then click the link.
