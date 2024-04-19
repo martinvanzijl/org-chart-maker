@@ -68,3 +68,16 @@ def test_logout(client, auth):
     with client:
         auth.logout()
         assert "user_id" not in session
+
+
+def test_invalid_reset_link(client, auth):
+    # log in.
+    client.get("/auth/login")
+    auth.login()
+
+    # Try invalid link.
+    response = client.get("/auth/reset-password?link=dne")
+
+    # Check output.
+    message = b"Invalid Reset Link"
+    assert (message in response.data)
