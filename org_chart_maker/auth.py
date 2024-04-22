@@ -251,7 +251,11 @@ def resetPassword():
     # Return output.
     g.error = error
     g.passwordResetLink = link
-    return render_template("auth/reset-password.html")
+
+    if g.error:
+        return render_template("auth/invalid-reset-link.html")
+    else:
+        return render_template("auth/reset-password.html")
 
 @bp.route("/save-new-password", methods=("POST",))
 def saveNewPassword():

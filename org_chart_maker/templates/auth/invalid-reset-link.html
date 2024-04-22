@@ -1,0 +1,12 @@
+{% extends 'base-auth.html' %}
+
+{% block header %}
+  <script src="../static/jquery-3.6.0.min.js"></script>
+  <h1>{% block title %}Invalid Reset Link{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+  <p style="font-size:smaller">The password reset link is invalid!</p>
+  <p style="font-size:smaller"><b>Reason:</b> {{ g.error }}</p>
+  <p style="font-size:smaller"><a href="/auth/forgot-password">Click here</a> to go to the "forgot password" page.</p>
+{% endblock %}
