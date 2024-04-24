@@ -160,6 +160,14 @@ def manage():
     diagramList = diagram_reader.getDiagramListAsJavaScript()
     return render_template("diagram_editor/manage.html", diagramList=diagramList)
 
+@bp.route("/manageTemplates", methods=("GET",))
+@login_required
+def manageTemplates():
+    """Show the screen to manage templates."""
+
+    diagramList = diagram_reader.getUserTemplateListAsJavaScript()
+    return render_template("diagram_editor/manage-templates.html", diagramList=diagramList)
+
 @bp.route("/preferences", methods=("GET",))
 @login_required
 def preferences():

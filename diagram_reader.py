@@ -510,6 +510,9 @@ def getDiagramList():
 def getDiagramListAsJavaScript():
     return "diagramList = [" + quotedList(getDiagramList()) + "];";
 
+def getUserTemplateListAsJavaScript():
+    return "diagramList = [" + quotedList(getUserTemplateList()) + "];";
+
 def quotedList(lst):
     return ', '.join('"' + item + '"' for item in lst)
 
