@@ -164,6 +164,25 @@ def delete(diagram):
             deletePhotoFolder(destFolderName)
         shutil.move(photosFolder, deletedPhotosFolder)
 
+def deleteUserTemplate(diagram):
+    # Append timestamp to deleted file name.
+    now = datetime.datetime.now()
+    timestamp = now.strftime("%Y%m%d-%H%M%S")
+
+    # Determine destination.
+    source = os.path.join(getUserTemplatesDir(), diagram)
+    dest = os.path.join(getUserTemplatesDir(), "deleted")
+
+    # Create "deleted" directory if it does not exist.
+    if not os.path.exists(dest):
+        os.mkdir(dest)
+
+    # Move the file.
+    destFileName = os.path.join(dest, diagram)
+    if os.path.exists(destFileName):
+        os.remove(destFileName)
+    shutil.move(source, dest)
+
 def deletePhotoFolder(folderPath):
     """Delete a photo folder."""
 

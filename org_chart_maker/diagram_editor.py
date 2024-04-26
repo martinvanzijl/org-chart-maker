@@ -201,6 +201,20 @@ def delete_diagram():
     content = "<p>Diagram deleted.</p>"
     return content
 
+@bp.route("/deleteTemplate", methods=("POST",))
+def delete_template():
+    """Delete a template."""
+
+    # Read parameters.
+    diagram = request.form.get('diagram')
+
+    # Do the delete.
+    diagram_reader.deleteUserTemplate(diagram)
+
+    # Content.
+    content = "<p>Template deleted.</p>"
+    return content
+
 @bp.route("/save", methods=("POST",))
 def save_diagram():
     """Save a diagram."""
