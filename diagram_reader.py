@@ -218,8 +218,30 @@ def rename(diagram, newName):
 
     return returnData
 
-    # Convert into JSON:
-    # return json.dumps(returnData)
+def renameUserTemplate(diagram, newName):
+    # Ensure ending exists.
+    if not newName.endswith(".xml"):
+        newName += ".xml"
+
+    # Do the rename.
+    try:
+        source = os.path.join(getUserTemplatesDir(), diagram)
+        dest = os.path.join(getUserTemplatesDir(), newName)
+        shutil.move(source, dest)
+
+        # Return status.
+        returnData = {
+          "status": "OK",
+          "newName": newName
+        }
+    except FileNotFoundError as error:
+        # Return status.
+        returnData = {
+          "status": "Failed",
+          "problem": str(error)
+        }
+
+    return returnData
 
 def createXmlDoc(persons, relationships, subOrgs, name, diagramProperties):
     """Create an XML document object from the given persons and relationships."""
@@ -649,6 +671,11 @@ def getUserTemplateList():
 
     try:
         fileNames += os.listdir(getUserTemplatesDir())
+
+        # Remove the "deleted" folder.
+        if "deleted" in fileNames:
+            fileNames.remove("deleted")
+
     except FileNotFoundError as error:
         print(error)
 

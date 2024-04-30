@@ -187,6 +187,18 @@ def rename_diagram():
     content = diagram_reader.rename(diagram, newName)
     return jsonify(content)
 
+@bp.route("/renameTemplate", methods=("POST",))
+def rename_template():
+    """Rename a template."""
+
+    # Read parameters.
+    diagram = request.form.get('diagram')
+    newName = request.form.get('name')
+
+    # Do the rename.
+    content = diagram_reader.renameUserTemplate(diagram, newName)
+    return jsonify(content)
+
 @bp.route("/delete", methods=("POST",))
 def delete_diagram():
     """Delete a diagram."""
