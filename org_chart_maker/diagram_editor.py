@@ -160,6 +160,14 @@ def manage():
     diagramList = diagram_reader.getDiagramListAsJavaScript()
     return render_template("diagram_editor/manage.html", diagramList=diagramList)
 
+@bp.route("/manageTemplates", methods=("GET",))
+@login_required
+def manageTemplates():
+    """Show the screen to manage templates."""
+
+    diagramList = diagram_reader.getUserTemplateListAsJavaScript()
+    return render_template("diagram_editor/manage-templates.html", diagramList=diagramList)
+
 @bp.route("/preferences", methods=("GET",))
 @login_required
 def preferences():
@@ -179,6 +187,18 @@ def rename_diagram():
     content = diagram_reader.rename(diagram, newName)
     return jsonify(content)
 
+@bp.route("/renameTemplate", methods=("POST",))
+def rename_template():
+    """Rename a template."""
+
+    # Read parameters.
+    diagram = request.form.get('diagram')
+    newName = request.form.get('name')
+
+    # Do the rename.
+    content = diagram_reader.renameUserTemplate(diagram, newName)
+    return jsonify(content)
+
 @bp.route("/delete", methods=("POST",))
 def delete_diagram():
     """Delete a diagram."""
@@ -191,6 +211,20 @@ def delete_diagram():
 
     # Content.
     content = "<p>Diagram deleted.</p>"
+    return content
+
+@bp.route("/deleteTemplate", methods=("POST",))
+def delete_template():
+    """Delete a template."""
+
+    # Read parameters.
+    diagram = request.form.get('diagram')
+
+    # Do the delete.
+    diagram_reader.deleteUserTemplate(diagram)
+
+    # Content.
+    content = "<p>Template deleted.</p>"
     return content
 
 @bp.route("/save", methods=("POST",))

@@ -11,7 +11,7 @@
 <script src="static/jquery-3.6.0.min.js"></script>
 <script src="static/toast-message.js"></script>
 
-<title>Org Chart Maker - Manage</title>
+<title>Org Chart Maker - Manage Templates</title>
 </head>
 <body>
 
@@ -21,17 +21,17 @@
 </ul>
 
 <!-- The toast message. -->
-<div id="snackbar">Diagram deleted.</div>
+<div id="snackbar">Template deleted.</div>
 
-<p>Diagrams | <a href="/manageTemplates">Templates</a></p>
+<p><a href="/manage">Diagrams</a> | Templates</p>
 
-<h2>Manage Diagrams</h2>
+<h2>Manage Templates</h2>
 
 <p><b>Summary</b></p>
 
-<p>To rename a diagram, click the "Rename" link on the right. To delete a diagram, click the "Delete" link on the right. You can delete multiple diagrams by checking the boxes and clicking "Delete Selected".</p>
+<p>To rename a template, click the "Rename" link on the right. To delete a template, click the "Delete" link on the right. You can delete multiple templates by checking the boxes and clicking "Delete Selected".</p>
 
-<p><b>Diagrams</b></p>
+<p><b>Templates</b></p>
 
 <script>
 
@@ -50,7 +50,7 @@ function deleteDiagram(index) {
   }
 
   // Use AJAX to ask the server to delete the diagram.
-  var url = "/delete";
+  var url = "/deleteTemplate";
   var params = { diagram: diagramId };
   $.post( url, params );
 
@@ -58,13 +58,13 @@ function deleteDiagram(index) {
   $('#row' + index).remove();
 
   // Show message.
-  showToastMessage("Diagram deleted.");
+  showToastMessage("Template deleted.");
 }
 
 // Function to delete multiple diagrams.
 function deleteMultipleDiagrams(indexes) {
   // Check if the user really wants to delete.
-  var answer = confirm("Are you sure you want to delete the selected diagrams?");
+  var answer = confirm("Are you sure you want to delete the selected templates?");
   if (!answer) {
     return;
   }
@@ -76,7 +76,7 @@ function deleteMultipleDiagrams(indexes) {
     var diagramId = diagramList[index];
 
     // Use AJAX call.
-    var url = "/delete";
+    var url = "/deleteTemplate";
     var params = { diagram: diagramId };
     $.post( url, params );
 
@@ -85,7 +85,7 @@ function deleteMultipleDiagrams(indexes) {
   }
 
   // Show message.
-  showToastMessage("Diagrams deleted.");
+  showToastMessage("Templates deleted.");
 }
 
 // Function to rename diagram.
@@ -102,7 +102,7 @@ function renameDiagram(index) {
   // TODO: Warn if name already exists.
 
   // Use AJAX to ask the server to rename the diagram.
-  var url = "/rename";
+  var url = "/renameTemplate";
   var diagramId = diagramList[index];
   var params = { diagram: diagramId, name: newName };
   $.post( url, params, function(data, status) {
@@ -124,11 +124,11 @@ function renameDiagram(index) {
       row.cells[1].innerHTML = newName;
 
       // Show message.
-      alert("Diagram renamed.");
+      alert("Template renamed.");
     }
     else {
       // An error happened.
-      alert("Could not rename diagram. Details:\n" + jsonReply.problem);
+      alert("Could not rename remplate. Details:\n" + jsonReply.problem);
     }
   });
 }

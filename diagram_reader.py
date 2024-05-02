@@ -164,6 +164,25 @@ def delete(diagram):
             deletePhotoFolder(destFolderName)
         shutil.move(photosFolder, deletedPhotosFolder)
 
+def deleteUserTemplate(diagram):
+    # Append timestamp to deleted file name.
+    now = datetime.datetime.now()
+    timestamp = now.strftime("%Y%m%d-%H%M%S")
+
+    # Determine destination.
+    source = os.path.join(getUserTemplatesDir(), diagram)
+    dest = os.path.join(getUserTemplatesDir(), "deleted")
+
+    # Create "deleted" directory if it does not exist.
+    if not os.path.exists(dest):
+        os.mkdir(dest)
+
+    # Move the file.
+    destFileName = os.path.join(dest, diagram)
+    if os.path.exists(destFileName):
+        os.remove(destFileName)
+    shutil.move(source, dest)
+
 def deletePhotoFolder(folderPath):
     """Delete a photo folder."""
 
@@ -199,8 +218,30 @@ def rename(diagram, newName):
 
     return returnData
 
-    # Convert into JSON:
-    # return json.dumps(returnData)
+def renameUserTemplate(diagram, newName):
+    # Ensure ending exists.
+    if not newName.endswith(".xml"):
+        newName += ".xml"
+
+    # Do the rename.
+    try:
+        source = os.path.join(getUserTemplatesDir(), diagram)
+        dest = os.path.join(getUserTemplatesDir(), newName)
+        shutil.move(source, dest)
+
+        # Return status.
+        returnData = {
+          "status": "OK",
+          "newName": newName
+        }
+    except FileNotFoundError as error:
+        # Return status.
+        returnData = {
+          "status": "Failed",
+          "problem": str(error)
+        }
+
+    return returnData
 
 def createXmlDoc(persons, relationships, subOrgs, name, diagramProperties):
     """Create an XML document object from the given persons and relationships."""
@@ -510,6 +551,9 @@ def getDiagramList():
 def getDiagramListAsJavaScript():
     return "diagramList = [" + quotedList(getDiagramList()) + "];";
 
+def getUserTemplateListAsJavaScript():
+    return "diagramList = [" + quotedList(getUserTemplateList()) + "];";
+
 def quotedList(lst):
     return ', '.join('"' + item + '"' for item in lst)
 
@@ -627,6 +671,11 @@ def getUserTemplateList():
 
     try:
         fileNames += os.listdir(getUserTemplatesDir())
+
+        # Remove the "deleted" folder.
+        if "deleted" in fileNames:
+            fileNames.remove("deleted")
+
     except FileNotFoundError as error:
         print(error)
 

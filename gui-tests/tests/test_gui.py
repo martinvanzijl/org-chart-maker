@@ -598,3 +598,59 @@ def test_profile_page():
     # button = driver.find_element_by_link_text("Save Profile")
     # button = driver.find_element(By.XPATH, '//submit[text()="Save Profile"]')
     # assert button.is_enabled()
+
+# Test the "Manage Templates" page.
+def test_manage_templates_page():
+    # Create the driver.
+    driver = webdriver.Chrome("./chromedriver")
+
+    # Log in.
+    login(driver)
+
+    waitForSeconds(driver, 0.5)
+
+    # Go to the "Manage" page.
+
+    # Hover over the "Options" menu, then click the link.
+    buttons = driver.find_elements_by_class_name("dropbtn")
+
+    for button in buttons:
+        if button.text == "Options":
+            optionsMenu = button
+            break
+
+    action = webdriver.common.action_chains.ActionChains(driver)
+    action.move_to_element(optionsMenu)
+    action.perform()
+
+    waitForSeconds(driver, 0.1)
+
+    # Store the ID of the original window
+    original_window = driver.current_window_handle
+
+    # Click the menu item.
+    link = driver.find_element_by_link_text("Manage")
+    link.click()
+
+    # Setup wait for later.
+    wait = WebDriverWait(driver, 10)
+
+    # Wait for the new window or tab.
+    wait.until(EC.number_of_windows_to_be(2))
+
+    # Loop through until we find a new window handle.
+    for window_handle in driver.window_handles:
+        if window_handle != original_window:
+            driver.switch_to.window(window_handle)
+            break
+
+    # Click the "Templates" link.
+    link = driver.find_element_by_link_text("Templates")
+    link.click()
+
+    # Wait for elements to load.
+    driver.implicitly_wait(0.5)
+
+    # Check the title.
+    title = driver.title
+    assert title == "Org Chart Maker - Manage Templates"
