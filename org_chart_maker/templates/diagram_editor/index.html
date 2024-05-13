@@ -102,6 +102,7 @@
         <a href="javascript:exportImage();">Image...</a>
         <a href="javascript:exportToCSV();">CSV...</a>
         <a href="javascript:exportToXML();">XML...</a>
+        <a href="javascript:exportToZipFile();">Zip File...</a>
       </div>
     </div>
 
@@ -1991,6 +1992,43 @@ function exportToXML() {
 
     if (replyStatus == "OK") {
       showToastMessage("Diagram exported to XML file.");
+
+      var dataURL = jsonReply.dataURL;
+      downloadURI(dataURL, jsonReply.downloadFileName);
+    }
+    else {
+      // An error happened.
+      alert("Could not export diagram. Details:\n" + jsonReply.problem);
+    }
+  });
+}
+
+function exportToZipFile() {
+  // Use AJAX to ask the server to export the diagram.
+  var url = "/exportToZipFile";
+
+  // Filter to exclude invisible items.
+  var personsFiltered = getVisiblePersons();
+
+  // Create data.
+  var pd = JSON.stringify(personsFiltered);
+  var rd = JSON.stringify(relationships);
+  var sd = JSON.stringify(subOrgs);
+  var propd = JSON.stringify(diagramProperties);
+
+  var params = { name: diagramName, persons: pd, relationships: rd, subOrgs: sd,
+    diagramProperties: propd,
+  };
+
+  $.post( url, params, function(data, status) {
+    // Get AJAX response.
+    var jsonReply = data;
+
+    // Check result.
+    var replyStatus = jsonReply.status;
+
+    if (replyStatus == "OK") {
+      showToastMessage("Diagram exported to zip file.");
 
       var dataURL = jsonReply.dataURL;
       downloadURI(dataURL, jsonReply.downloadFileName);

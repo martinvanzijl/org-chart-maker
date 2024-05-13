@@ -12,12 +12,25 @@ import uuid
 from org_chart_maker.utils import removeSuffix
 from werkzeug.utils import secure_filename
 import xml.dom.minidom as xml
+import zipfile
 
 PERSON_WIDTH = 200
 PERSON_HEIGHT = 50
 
 DIAGRAMS_DIR = "save-files";
 PHOTOS_DIR_NAME = "photos";
+
+# Based on https://stackoverflow.com/a/670635
+def addFolderToZip(zip_file, source_folder, folder_in_zip_file):
+    for file_name in os.listdir(source_folder):
+        source_path = os.path.join(source_folder, file_name)
+        if os.path.isfile(source_path):
+            print ('File added: ', str(file_name))
+            dest_path = os.path.join(folder_in_zip_file, file_name)
+            zip_file.write(source_path, dest_path)
+        # elif os.path.isdir(full_path):
+        #     print 'Entering folder: ' + str(full_path)
+        #     addFolderToZip(zip_file, full_path)
 
 def removeExtension(fileName, extension):
     """Remove the extension from the given file name."""
@@ -517,6 +530,49 @@ def export_to_xml(name, persons, relationships, subOrgs, diagramProperties):
     returnData = {
       "dataURL": "downloadCSV?filename=" + outputFileName,
       "downloadFileName": outputFileName,
+      "status": "OK"
+    }
+
+    return returnData
+
+def export_to_zip_file(name, persons, relationships, subOrgs, diagramProperties):
+    """Export the given diagram to a zip file."""
+
+    # Create XML document.
+    doc = createXmlDoc(persons, relationships, subOrgs, name, diagramProperties)
+
+    # Make file name.
+    now = datetime.datetime.now()
+    timestamp = now.strftime("%Y%m%d-%H%M%S")
+    basename = removeExtension(name, ".xml")
+    xmlFileName = basename + "-" + timestamp + ".xml"
+
+    # Write the XML file.
+    xmlFilePath = os.path.join(getExportedFilesDir(), xmlFileName);
+    outputFile = open(xmlFilePath, "w")
+    outputFile.write(doc.toprettyxml())
+    outputFile.close()
+
+    # TODO: Add photos.
+    photosDirPath = getPhotosDir(name)
+    print ("Photos dir path:", photosDirPath)
+
+    # Place all in zip file.
+    zipFileName = basename + "-" + timestamp + ".zip"
+    zipFilePath = os.path.join(getExportedFilesDir(), zipFileName);
+    zip = zipfile.ZipFile(zipFilePath, "w", zipfile.ZIP_DEFLATED)
+    zip.write(xmlFilePath, xmlFileName)
+
+    if os.path.exists(photosDirPath):
+        #zip.write(photosDirPath, "photos")
+        addFolderToZip(zip, photosDirPath, "photos")
+
+    zip.close()
+
+    # Return.
+    returnData = {
+      "dataURL": "downloadCSV?filename=" + zipFileName,
+      "downloadFileName": zipFileName,
       "status": "OK"
     }
 

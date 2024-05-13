@@ -315,6 +315,29 @@ def export_to_xml():
     content = diagram_reader.export_to_xml(name, pd, rd, sd, propertiesData)
     return jsonify(content)
 
+@bp.route("/exportToZipFile", methods=("POST",))
+@login_required
+def export_to_zip_file():
+    """Export a diagram to a zip file."""
+
+    # Read parameters.
+    name = request.form.get('name')
+    persons = request.form.get('persons')
+    relationships = request.form.get('relationships')
+    subOrgs = request.form.get('subOrgs')
+    diagramProperties = request.form.get('diagramProperties')
+
+    # Load from JSON.
+    pd = loads(persons)
+    rd = loads(relationships)
+    sd = loads(subOrgs)
+    propertiesData = loads(diagramProperties)
+
+    # Do the export.
+    content = diagram_reader.export_to_zip_file(name, pd, rd, sd, propertiesData)
+    return jsonify(content)
+
+
 def bool_string_to_int(bool_string):
     """Convert boolean string to integer."""
 
