@@ -526,6 +526,7 @@ $( "#uploadPhotoForm" ).submit(function( event ) {
           addPhotoToList(data.photoPath, data.photoName); // Add to GUI.
           currentPerson.photos.push(data.photoPath); // Add to model.
           updateThumbnail(currentPerson);
+          addUndo(); // Mark diagram as changed.
       },
       error: function(data) {
           console.log("error");
