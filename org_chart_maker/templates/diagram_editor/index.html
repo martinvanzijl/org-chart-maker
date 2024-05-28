@@ -61,12 +61,15 @@
     <a href="javascript:showOpenDialog();"><img src="/static/menu-icons/open.png" title="Open..." /></a>
     <a href="javascript:saveDiagram();"><img src="/static/menu-icons/save.png" title="Save..." /></a>
     <a href="javascript:saveDiagramAs();"><img src="/static/menu-icons/save-as.png" title="Save As..." /></a>
+    <a href="javascript:saveDiagramAsTemplate();"><img src="/static/menu-icons/save-as-template.png" title="Save as Template..." /></a>
     <a href="javascript:showUploadDialog();"><img src="/static/menu-icons/upload.png" title="Upload..." /></a>
+    <a href="javascript:showImportCSVDialog();"><img src="/static/menu-icons/import-csv.png" title="Import CSV..." /></a>
     <a href="javascript:exportImage();"><img src="/static/menu-icons/export-image.png" title="Export as Image..." /></a>
     <a href="javascript:exportToCSV();"><img src="/static/menu-icons/export-csv.png" title="Export as CSV..." /></a>
     <a href="javascript:exportToXML();"><img src="/static/menu-icons/export-xml.png" title="Export as XML..." /></a>
-    <a href="/manage"><img src="/static/menu-icons/manage.png" title="Manage Diagrams" /></a>
-    <a href="/preferences"><img src="/static/menu-icons/preferences.png" title="Preferences" /></a>
+    <a href="javascript:exportToZipFile();"><img src="/static/menu-icons/export-zip.png" title="Export as Zip File..." /></a>
+    <a href="/manage" target="_blank"><img src="/static/menu-icons/manage.png" title="Manage Diagrams" /></a>
+    <a href="javascript:showPreferencesDialog()"><img src="/static/menu-icons/preferences.png" title="Preferences" /></a>
 
     <a style="float:right" href="/static/help.html"><img src="/static/menu-icons/help.png" title="Help" target="_blank" /></a>
     {% if g.user %}
