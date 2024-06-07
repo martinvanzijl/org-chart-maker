@@ -372,6 +372,9 @@ def test_diagram_properties_window():
     # Log in.
     login(driver)
 
+    # Wait for top menu to load.
+    waitForSeconds(driver, 0.1)
+
     # Select the menu item.
 
     # Hover over the "Diagram" menu, then click the menu item.
