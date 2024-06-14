@@ -440,6 +440,9 @@ def saveTemplate(name, persons, relationships, subOrgs, diagramProperties):
 def export_to_csv(name, persons, relationships, subOrgs):
     """Export the given diagram to a CSV file."""
 
+    # Handle new diagram.
+    if name == "": name = "new-diagram"
+
     # Make file name.
     now = datetime.datetime.now()
     timestamp = now.strftime("%Y%m%d-%H%M%S")
@@ -511,6 +514,9 @@ def export_to_csv(name, persons, relationships, subOrgs):
 def export_to_xml(name, persons, relationships, subOrgs, diagramProperties):
     """Export the given diagram to a XML file."""
 
+    # Handle new diagram.
+    if name == "": name = "new-diagram"
+
     # Create XML document.
     doc = createXmlDoc(persons, relationships, subOrgs, name, diagramProperties)
 
@@ -537,6 +543,9 @@ def export_to_xml(name, persons, relationships, subOrgs, diagramProperties):
 
 def export_to_zip_file(name, persons, relationships, subOrgs, diagramProperties):
     """Export the given diagram to a zip file."""
+
+    # Handle new diagram.
+    if name == "": name = "new-diagram"
 
     # Create XML document.
     doc = createXmlDoc(persons, relationships, subOrgs, name, diagramProperties)
