@@ -238,6 +238,7 @@ def save_diagram():
     subOrgs = request.form.get('subOrgs')
     diagramProperties = request.form.get('diagramProperties')
     session['showSavedMessageOnLoad'] = request.form.get('showSavedMessageOnLoad')
+    overwrite = request.form.get('overwrite')
 
     # Load from JSON.
     pd = loads(persons)
@@ -246,7 +247,7 @@ def save_diagram():
     propertiesData = loads(diagramProperties)
 
     # Do the save.
-    content = diagram_reader.save(name, pd, rd, sd, propertiesData)
+    content = diagram_reader.save(name, pd, rd, sd, propertiesData, overwrite)
     return jsonify(content)
 
 @bp.route("/saveTemplate", methods=("POST",))
