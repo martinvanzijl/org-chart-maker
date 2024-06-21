@@ -361,12 +361,21 @@ def createXmlDoc(persons, relationships, subOrgs, name, diagramProperties):
     # Return.
     return doc
 
-def save(name, persons, relationships, subOrgs, diagramProperties):
+def save(name, persons, relationships, subOrgs, diagramProperties, overwrite = True):
     """Save the given diagram."""
 
     # Ensure ending exists.
     if not name.endswith(".xml"):
         name += ".xml"
+
+    # Check if diagram exists already.
+    if not overwrite:
+        existingNames = getDiagramList()
+        if name in existingNames:
+            return {
+              "status": "Failed",
+              "problem": "A diagram of the same name already exists."
+            }
 
     # Do the save.
     try:
