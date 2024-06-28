@@ -368,9 +368,6 @@ def save(name, persons, relationships, subOrgs, diagramProperties, overwrite = T
     if not name.endswith(".xml"):
         name += ".xml"
 
-    print ("In diagram reader module. Overwrite =", overwrite)
-    print ("In diagram reader module. Type of overwrite =", type(overwrite))
-
     # Check if diagram exists already.
     if overwrite == "false":
         existingNames = getDiagramList()

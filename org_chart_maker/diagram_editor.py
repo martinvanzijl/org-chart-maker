@@ -240,8 +240,6 @@ def save_diagram():
     session['showSavedMessageOnLoad'] = request.form.get('showSavedMessageOnLoad')
     overwrite = request.form.get('overwrite')
 
-    print ("Overwrite =", overwrite)
-
     # Load from JSON.
     pd = loads(persons)
     rd = loads(relationships)
