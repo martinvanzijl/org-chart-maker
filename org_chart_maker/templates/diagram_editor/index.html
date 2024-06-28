@@ -1018,6 +1018,46 @@ $( "#importCsvForm" ).submit(function( event ) {
 
 </script>
 
+<!-- The "are you sure you want to overwrite?" dialog. -->
+<div id="overwriteDialog" title="Overwrite Existing Diagram?">
+  <p>A diagram of the same name already exists. Do you want to <b>overwrite</b> it?</p>
+</div>
+
+<script>
+var overwriteDialog = $( "#overwriteDialog" ).dialog({
+  autoOpen: false,
+  modal: true, // Hack to hide menu when shown if required.
+  maxHeight: ($(window).height() - 50),
+  buttons: {
+    "Yes": overwriteDialogYesClicked,
+    "No": overwriteDialogNoClicked,
+    "Cancel": overwriteDialogCancelClicked
+  },
+});
+
+// Show the "overwrite existing diagram" dialog.
+function showOverwriteDialog() {
+  $( "#overwriteDialog" ).dialog( "open" );
+};
+
+function overwriteDialogYesClicked() {
+  userWantsToOverwrite = true;
+  postDiagramToServer();
+  userWantsToOverwrite = false;
+}
+
+function overwriteDialogNoClicked() {
+  // Ask user to choose another name.
+  // showSaveDialog();
+  overwriteDialog.dialog( "close" );
+}
+
+function overwriteDialogCancelClicked() {
+  overwriteDialog.dialog( "close" );
+  saveOrgChartDialog.dialog( "close" );
+}
+</script>
+
 <!-- The "filter by department" dialog. -->
 <div id="filterByDepartmentDialog" title="Filter by Department">
   <p>Show only people from the following departments:</p>
@@ -2269,6 +2309,10 @@ function saveDiagramAsTemplate() {
   showSaveAsTemplateDialog();
 }
 
+// TODO: Pass diagram name as parameter and only set global variable if the save is successful?
+
+var userWantsToOverwrite = false;
+
 // Function to post diagram to server.
 function postDiagramToServer() {
   // Use AJAX to ask the server to save the diagram.
@@ -2279,7 +2323,7 @@ function postDiagramToServer() {
   var rd = JSON.stringify(relationships);
   var sd = JSON.stringify(subOrgs);
   var propd = JSON.stringify(diagramProperties);
-  var overwriteOK = !savingAsNewFilename; // TODO: Pass to function instead!
+  var overwriteOK = (savingAsNewFilename == false) || userWantsToOverwrite;
 
   var params = { name: diagramName, persons: pd, relationships: rd, subOrgs: sd,
     diagramProperties: propd,
@@ -2322,8 +2366,14 @@ function postDiagramToServer() {
       }
     }
     else {
-      // An error happened.
-      alert("Could not save diagram. Details:\n" + jsonReply.problem);
+      if (jsonReply.problem == "A diagram of the same name already exists.") {
+        // Show the "are you sure you want to overwrite?" dialog.
+        showOverwriteDialog();
+      }
+      else {
+        // An error happened.
+        alert("Could not save diagram. Details:\n" + jsonReply.problem);
+      }
     }
   });
 }
