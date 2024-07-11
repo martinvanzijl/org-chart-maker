@@ -1,2 +1,5 @@
 # Krita files.
 *.kra
+
+# Archived files.
+archive/
