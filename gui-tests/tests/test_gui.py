@@ -469,6 +469,8 @@ def test_preferences_window():
     # Log in.
     login(driver)
 
+    waitForSeconds(driver, 0.5)
+
     # Select the menu item.
 
     # Hover over the "Options" menu, then click the menu item.
