@@ -661,3 +661,48 @@ def test_manage_templates_page():
     # Check the title.
     title = driver.title
     assert title == "Org Chart Maker - Manage Templates"
+
+# Test setting the border color for a person.
+def test_person_set_border_color():
+    # Create the driver.
+    driver = webdriver.Chrome("./chromedriver")
+
+    # Log in.
+    login(driver)
+
+    # Click the "Add person" button.
+    add_person_button = driver.find_element(by=By.ID, value="buttonAddPerson")
+    add_person_button.click()
+
+    # Click on the canvas.
+    canvas = driver.find_element(by=By.TAG_NAME, value="canvas")
+    canvas.click()
+
+    # Select the menu item.
+
+    # Hover over the "Options" menu, then click the menu item.
+    buttons = driver.find_elements_by_class_name("dropbtn")
+
+    for button in buttons:
+        if button.text == "Item":
+            itemMenu = button
+            break
+
+    action = webdriver.common.action_chains.ActionChains(driver)
+    action.move_to_element(itemMenu)
+    action.perform()
+
+    waitForSeconds(driver, 0.1)
+
+    # Click the link.
+    link = driver.find_element_by_link_text("Set Border Color...")
+    link.click()
+
+    # Wait for dialog to show.
+    waitForSeconds(driver, 0.1)
+
+    # Check that the dialog is shown.
+    dialog = driver.find_element(by=By.ID, value="borderColorDialog")
+    assert dialog.is_displayed()
+
+    # TODO: Check that the color chosen in the dialog is correct...
