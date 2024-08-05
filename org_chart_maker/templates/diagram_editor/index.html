@@ -34,6 +34,11 @@
 <script src="static/jquery-ui.min.js"></script>
 <link rel="stylesheet" href="static/jquery-ui.min.css">
 
+<!-- Color picker. -->
+<link rel="stylesheet" href="static/colorpicker.css" type="text/css" />
+<script type="text/javascript" src="static/colorpicker.js"></script>
+<script type="text/javascript" src="static/border-color-dialog.js"></script>
+
 <script>
     $( function() {
         $( "#tabs" ).tabs();
@@ -130,6 +135,13 @@
         <a href="javascript:autoLayout();">Auto-Layout</a>
         <a href="javascript:showFilterByDepartmentDialog();">Filter by Department...</a>
         <a href="javascript:showDiagramPropertiesDialog();">Properties...</a>
+      </div>
+    </div>
+
+    <div class="dropdown">
+      <button class="dropbtn">Item</button>
+      <div class="dropdown-content">
+        <a href="javascript:showBorderColorDialog();">Set Border Color...</a>
       </div>
     </div>
 
@@ -399,6 +411,40 @@ $( document ).keydown(function() {
       saveAsTemplateDialogSaveClicked();
     }
   }
+});
+</script>
+
+<!-- The border color dialog -->
+<div id="borderColorDialog" title="Border Color" style="display: none;">
+  <!-- <table>
+    <tr>
+      <td>
+        Green
+      </td>
+      <td>
+        Red
+      </td>
+    </tr>
+  </table> -->
+  <p id="colorpickerHolder"></p>
+</div>
+
+<script>
+// Create the dialog.
+var borderColorDialog = $( "#borderColorDialog" ).dialog({ autoOpen: false, closeOnEscape: true, modal: true, width: 445,
+  buttons: {
+    "OK": function() { borderColorDialog.dialog( "close" ); },
+    "Cancel": function() { revertBorderColor(); }
+  },
+  maxHeight: ($(window).height() - 50)
+});
+
+// Create color picker widget.
+$('#colorpickerHolder').ColorPicker({
+  flat: true,
+  onChange: function (hsb, hex, rgb) {
+		saveBorderColor(hex);
+	}
 });
 </script>
 
