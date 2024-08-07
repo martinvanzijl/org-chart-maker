@@ -247,7 +247,7 @@ def test_manage_page():
     original_window = driver.current_window_handle
 
     # Click the menu item.
-    link = driver.find_element_by_link_text("Manage")
+    link = driver.find_element_by_link_text("Manage Diagrams")
     link.click()
 
     # Setup wait for later.
@@ -636,7 +636,7 @@ def test_manage_templates_page():
     original_window = driver.current_window_handle
 
     # Click the menu item.
-    link = driver.find_element_by_link_text("Manage")
+    link = driver.find_element_by_link_text("Manage Diagrams")
     link.click()
 
     # Setup wait for later.
