@@ -484,6 +484,7 @@ var subOrgDetailsDialog = $( "#subOrgDetailsDialog" ).dialog({ autoOpen: false, 
     <ul>
       <li><a href="#tabs-1">Details</a></li>
       <li><a href="#tabs-2">Photos</a></li>
+      <li><a href="#tabs-3">Colors</a></li>
     </ul>
     <div id="tabs-1">
       <table>
@@ -502,6 +503,12 @@ var subOrgDetailsDialog = $( "#subOrgDetailsDialog" ).dialog({ autoOpen: false, 
         <tr style="visibility:collapse;"><th></th><th></th><th></th><th></th></tr>
       </table>
       <button id="buttonAddPhoto" onclick="addPhotoClicked()">Add...</button>
+    </div>
+    <div id="tabs-3">
+      <table id="colorsTable">
+        <tr><td>Border:</td></tr>
+        <tr><td>Fill:</td></tr>
+      </table>
     </div>
   </div>
 
