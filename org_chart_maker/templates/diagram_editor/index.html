@@ -484,7 +484,9 @@ var subOrgDetailsDialog = $( "#subOrgDetailsDialog" ).dialog({ autoOpen: false, 
     <ul>
       <li><a href="#tabs-1">Details</a></li>
       <li><a href="#tabs-2">Photos</a></li>
-      <li><a href="#tabs-3">Colors</a></li>
+      <!-- <li><a href="#tabs-3">Colors</a></li> -->
+      <li><a href="#tabs-3">Border</a></li>
+      <li><a href="#tabs-4">Fill</a></li>
     </ul>
     <div id="tabs-1">
       <table>
@@ -505,10 +507,17 @@ var subOrgDetailsDialog = $( "#subOrgDetailsDialog" ).dialog({ autoOpen: false, 
       <button id="buttonAddPhoto" onclick="addPhotoClicked()">Add...</button>
     </div>
     <div id="tabs-3">
-      <table id="colorsTable">
-        <tr><td>Border:</td></tr>
-        <tr><td>Fill:</td></tr>
-      </table>
+      <!-- DOES NOT WORK! The GUI does not display correctly on top of the dialog in compact mode. -->
+      <!-- <p><div id="colorpickerHolderPersonBorder"><div style="background-color: #0000ff; width: 24px; height: 24px;"></div></div></p> -->
+      <!-- <p><div id="colorpickerHolderPersonFill"><div style="background-color: #0000ff; width: 24px; height: 24px;"></div></div></p> -->
+      <!-- <table id="colorsTable">
+        <tr><td>Border:</td><td><p><div id="colorpickerHolderPersonBorder"><div style="background-color: #0000ff; width: 24px; height: 24px;"></div></div></p></td></tr>
+        <tr><td>Fill:</td><td><p><div id="colorpickerHolderPersonFill"><div style="background-color: #0000ff; width: 24px; height: 24px;"></div></div></p></td></tr>
+      </table> -->
+      <p id="colorpickerHolderPersonBorder"></p>
+    </div>
+    <div id="tabs-4">
+      <p id="colorpickerHolderPersonFill"></p>
     </div>
   </div>
 
@@ -606,6 +615,20 @@ personDetailsDialog = $( "#personDetailsDialog" ).dialog({ autoOpen: false, clos
 
 // Style the UI widgets.
 $( "#buttonAddPhoto" ).button();
+
+$('#colorpickerHolderPersonBorder').ColorPicker({
+  flat: true,
+  onChange: function (hsb, hex, rgb) {
+		// saveBorderColor(hex);
+	}
+});
+
+$('#colorpickerHolderPersonFill').ColorPicker({
+  flat: true,
+  onChange: function (hsb, hex, rgb) {
+		// saveBorderColor(hex);
+	}
+});
 
 // Callback for clicking the "Add Photo" button.
 function addPhotoClicked()
