@@ -608,7 +608,11 @@ $( "#uploadPhotoForm" ).submit(function( event ) {
 personDetailsDialog = $( "#personDetailsDialog" ).dialog({ autoOpen: false, closeOnEscape: true, modal: true, width: 420,
   buttons: {
     "Save": savePersonDetails,
-    "Cancel": function() { personDetailsDialog.dialog( "close" ); }
+    "Cancel": function() {
+      revertBorderColor();
+      revertFillColor();
+      personDetailsDialog.dialog( "close" );
+    }
   },
   maxHeight: ($(window).height() - 50)
 });
@@ -619,14 +623,14 @@ $( "#buttonAddPhoto" ).button();
 $('#colorpickerHolderPersonBorder').ColorPicker({
   flat: true,
   onChange: function (hsb, hex, rgb) {
-		// saveBorderColor(hex);
+		saveBorderColor(hex);
 	}
 });
 
 $('#colorpickerHolderPersonFill').ColorPicker({
   flat: true,
   onChange: function (hsb, hex, rgb) {
-		// saveBorderColor(hex);
+		saveFillColor(hex);
 	}
 });
 
@@ -676,6 +680,7 @@ function showPersonDetails(personId) {
 
   // Store.
   currentPerson = person;
+  selectedPerson = person; // TODO: Have just one variable instead of two...
 
   // Set title.
   $( "#personDetailsDialog" ).dialog( "option", "title", "Person details - " + person.name );
@@ -706,6 +711,12 @@ function showPersonDetails(personId) {
 
   // Highlight active photo.
   highlightActiveThumbnail();
+
+  // Set colors.
+  previousBorderColor = person.borderColor;
+  previousFillColor = person.fillColor;
+  $( "#colorpickerHolderPersonBorder" ).ColorPickerSetColor(previousBorderColor);
+  $( "#colorpickerHolderPersonFill" ).ColorPickerSetColor(previousFillColor);
 
   // Show dialog.
   $( "#personDetailsDialog" ).dialog( "open" );
@@ -1254,6 +1265,7 @@ function isRelationshipFilteredOut(relationship) {
 
 // The color for persons who are filtered out.
 var filteredOutPersonBorderColor = "lightgray";
+var filteredOutPersonFillColor = "white";
 
 // Check if the given person is visible (i.e. not filtered out).
 function isVisible(person) {
@@ -1602,8 +1614,9 @@ function updateDiagramBasedOnProperties() {
         // Add relationship list.
         person.relationships = [];
 
-        // Set border color.
+        // Set colors.
         restoreBorderColor(person);
+        restoreFillColor(person);
 
         // Update thumbnail.
         person.thumbnailBox = null;
@@ -1663,6 +1676,16 @@ function updateDiagramBasedOnProperties() {
         }
         else {
           person.rect.stroke(person.borderColor);
+        }
+      }
+
+      // Reset fill color for the given person.
+      function restoreFillColor(person) {
+        if (isFilteredOut(person)) {
+          person.rect.fill(filteredOutPersonFillColor);
+        }
+        else {
+          person.rect.fill(person.fillColor);
         }
       }
 
@@ -2552,6 +2575,7 @@ function createNewPerson(pos) {
       photos: [],
       activePhotoIndex: 0,
       borderColor: "black",
+      fillColor: "white",
   };
 
   // Add to diagram.

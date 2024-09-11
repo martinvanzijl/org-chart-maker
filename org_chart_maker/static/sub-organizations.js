@@ -244,6 +244,7 @@ function createNewSubOrg(pos) {
       name: "New Sub-Org",
       diagramId: "",
       borderColor: "black",
+      fillColor: "white",
   };
 
   // Add to diagram.

@@ -40,6 +40,7 @@ function addCsvDataToDiagram (data) {
         photos: [],
         activePhotoIndex: 0,
         borderColor: "black",
+        fillColor: "white",
     };
 
     // Add to list.
