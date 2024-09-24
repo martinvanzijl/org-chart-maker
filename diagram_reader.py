@@ -705,6 +705,7 @@ class Person(Item):
             + toJavaScriptList("photos", self.photos) \
             + toJavaScriptProperty("activePhotoIndex", self.activePhotoIndex) \
             + toJavaScriptProperty("borderColor", self.borderColor) \
+            + toJavaScriptProperty("fillColor", self.fillColor) \
             + "}"
 
 class SubOrg(Item):
@@ -852,11 +853,17 @@ def parse_xml_doc(doc):
         if element.hasAttribute("border_color"):
             borderColor = element.getAttribute("border_color")
 
+        # Get fill color.
+        fillColor = 'white' # Default.
+        if element.hasAttribute("fill_color"):
+            fillColor = element.getAttribute("fill_color")
+
         # Store person.
         person = Person(personId, x, y, name, title, url, department)
         person.activePhotoIndex = activePhotoIndex
         person.textColor = textColor
         person.borderColor = borderColor
+        person.fillColor = fillColor
         persons[personId] = person
 
         # Read the photos.
@@ -907,9 +914,15 @@ def parse_xml_doc(doc):
         if element.hasAttribute("border_color"):
             borderColor = element.getAttribute("border_color")
 
+        # Get fill color.
+        fillColor = 'white' # Default.
+        if element.hasAttribute("fill_color"):
+            fillColor = element.getAttribute("fill_color")
+
         # Store person.
         subOrg = SubOrg(id, x, y, name, diagramId)
         subOrg.borderColor = borderColor
+        subOrg.fillColor = fillColor
         subOrgs[id] = subOrg
 
         # Create in JavaScript.

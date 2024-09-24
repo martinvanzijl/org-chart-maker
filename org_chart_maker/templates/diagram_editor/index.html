@@ -484,6 +484,9 @@ var subOrgDetailsDialog = $( "#subOrgDetailsDialog" ).dialog({ autoOpen: false, 
     <ul>
       <li><a href="#tabs-1">Details</a></li>
       <li><a href="#tabs-2">Photos</a></li>
+      <!-- <li><a href="#tabs-3">Colors</a></li> -->
+      <li><a href="#tabs-3">Border</a></li>
+      <li><a href="#tabs-4">Fill</a></li>
     </ul>
     <div id="tabs-1">
       <table>
@@ -502,6 +505,19 @@ var subOrgDetailsDialog = $( "#subOrgDetailsDialog" ).dialog({ autoOpen: false, 
         <tr style="visibility:collapse;"><th></th><th></th><th></th><th></th></tr>
       </table>
       <button id="buttonAddPhoto" onclick="addPhotoClicked()">Add...</button>
+    </div>
+    <div id="tabs-3">
+      <!-- DOES NOT WORK! The GUI does not display correctly on top of the dialog in compact mode. -->
+      <!-- <p><div id="colorpickerHolderPersonBorder"><div style="background-color: #0000ff; width: 24px; height: 24px;"></div></div></p> -->
+      <!-- <p><div id="colorpickerHolderPersonFill"><div style="background-color: #0000ff; width: 24px; height: 24px;"></div></div></p> -->
+      <!-- <table id="colorsTable">
+        <tr><td>Border:</td><td><p><div id="colorpickerHolderPersonBorder"><div style="background-color: #0000ff; width: 24px; height: 24px;"></div></div></p></td></tr>
+        <tr><td>Fill:</td><td><p><div id="colorpickerHolderPersonFill"><div style="background-color: #0000ff; width: 24px; height: 24px;"></div></div></p></td></tr>
+      </table> -->
+      <p id="colorpickerHolderPersonBorder"></p>
+    </div>
+    <div id="tabs-4">
+      <p id="colorpickerHolderPersonFill"></p>
     </div>
   </div>
 
@@ -592,13 +608,31 @@ $( "#uploadPhotoForm" ).submit(function( event ) {
 personDetailsDialog = $( "#personDetailsDialog" ).dialog({ autoOpen: false, closeOnEscape: true, modal: true, width: 420,
   buttons: {
     "Save": savePersonDetails,
-    "Cancel": function() { personDetailsDialog.dialog( "close" ); }
+    "Cancel": function() {
+      revertBorderColor();
+      revertFillColor();
+      personDetailsDialog.dialog( "close" );
+    }
   },
   maxHeight: ($(window).height() - 50)
 });
 
 // Style the UI widgets.
 $( "#buttonAddPhoto" ).button();
+
+$('#colorpickerHolderPersonBorder').ColorPicker({
+  flat: true,
+  onChange: function (hsb, hex, rgb) {
+		saveBorderColor(hex);
+	}
+});
+
+$('#colorpickerHolderPersonFill').ColorPicker({
+  flat: true,
+  onChange: function (hsb, hex, rgb) {
+		saveFillColor(hex);
+	}
+});
 
 // Callback for clicking the "Add Photo" button.
 function addPhotoClicked()
@@ -646,6 +680,7 @@ function showPersonDetails(personId) {
 
   // Store.
   currentPerson = person;
+  selectedPerson = person; // TODO: Have just one variable instead of two...
 
   // Set title.
   $( "#personDetailsDialog" ).dialog( "option", "title", "Person details - " + person.name );
@@ -676,6 +711,12 @@ function showPersonDetails(personId) {
 
   // Highlight active photo.
   highlightActiveThumbnail();
+
+  // Set colors.
+  previousBorderColor = person.borderColor;
+  previousFillColor = person.fillColor;
+  $( "#colorpickerHolderPersonBorder" ).ColorPickerSetColor(previousBorderColor);
+  $( "#colorpickerHolderPersonFill" ).ColorPickerSetColor(previousFillColor);
 
   // Show dialog.
   $( "#personDetailsDialog" ).dialog( "open" );
@@ -1224,6 +1265,7 @@ function isRelationshipFilteredOut(relationship) {
 
 // The color for persons who are filtered out.
 var filteredOutPersonBorderColor = "lightgray";
+var filteredOutPersonFillColor = "white";
 
 // Check if the given person is visible (i.e. not filtered out).
 function isVisible(person) {
@@ -1572,8 +1614,9 @@ function updateDiagramBasedOnProperties() {
         // Add relationship list.
         person.relationships = [];
 
-        // Set border color.
+        // Set colors.
         restoreBorderColor(person);
+        restoreFillColor(person);
 
         // Update thumbnail.
         person.thumbnailBox = null;
@@ -1633,6 +1676,16 @@ function updateDiagramBasedOnProperties() {
         }
         else {
           person.rect.stroke(person.borderColor);
+        }
+      }
+
+      // Reset fill color for the given person.
+      function restoreFillColor(person) {
+        if (isFilteredOut(person)) {
+          person.rect.fill(filteredOutPersonFillColor);
+        }
+        else {
+          person.rect.fill(person.fillColor);
         }
       }
 
@@ -2522,6 +2575,7 @@ function createNewPerson(pos) {
       photos: [],
       activePhotoIndex: 0,
       borderColor: "black",
+      fillColor: "white",
   };
 
   // Add to diagram.

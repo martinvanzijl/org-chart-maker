@@ -69,7 +69,7 @@ def test_multiple_photos_with_same_name():
     # form.submit()
 
     # Wait for photo to upload.
-    # waitForSeconds(driver, 1)
+    waitForSeconds(driver, 1)
 
     # Choose a photo with the same name.
     fileInput.send_keys(photoPath2);
