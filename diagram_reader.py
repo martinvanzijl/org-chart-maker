@@ -349,6 +349,9 @@ def createXmlDoc(persons, relationships, subOrgs, name, diagramProperties):
         element.setAttribute("name", subOrg["name"])
         element.setAttribute("diagramId", subOrg["diagramId"])
 
+        if "borderColor" in subOrg:
+            element.setAttribute("border_color", subOrg["borderColor"])
+
         group = loads(subOrg["group"])
         attr = group["attrs"]
 
