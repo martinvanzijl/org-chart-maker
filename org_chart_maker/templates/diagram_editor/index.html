@@ -1669,13 +1669,23 @@ function updateDiagramBasedOnProperties() {
         person.titleText.x(width / 2 - person.titleText.width() / 2);
       }
 
+      // Check if item is selected.
+      function isSelected(item) {
+        return selectedPerson == item || selectedSubOrg == item;
+      }
+
       // Reset border color for the given person.
       function restoreBorderColor(person) {
         if (isFilteredOut(person)) {
           person.rect.stroke(filteredOutPersonBorderColor);
         }
         else {
-          person.rect.stroke(person.borderColor);
+          // if (isSelected(person)) {
+          //   person.rect.stroke("blue");
+          // }
+          // else {
+            person.rect.stroke(person.borderColor);
+          // }
         }
       }
 

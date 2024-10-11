@@ -334,6 +334,9 @@ def test_filter_by_department():
     # Log in.
     login(driver)
 
+    # Wait for top menu to load.
+    waitForSeconds(driver, 0.1)
+
     # Select the menu item.
 
     # Hover over the "Diagram" menu, then click the menu item.
