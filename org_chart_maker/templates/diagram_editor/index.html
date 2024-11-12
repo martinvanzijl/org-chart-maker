@@ -1508,6 +1508,16 @@ function updateDiagramBasedOnProperties() {
           draggable: true,
         });
 
+        // Handle dragging other selected persons.
+        group.on('dragmove', function (e) {
+          for (var index in persons) {
+            var person = persons[index];
+            if (person.selected && person != selectedPerson) {
+              person.group.move({x: e.evt.movementX,  y: e.evt.movementY});
+            }
+          }
+        });
+
         // Calculate center.
         var centerX = (width / 2);
         var centerY = (height / 2);
@@ -1568,22 +1578,24 @@ function updateDiagramBasedOnProperties() {
         });
 
         rect.on('click', function (e) {
+          var multipleSelectOn = e.evt.shiftKey;
           if (diagramMode == DEFAULT) {
-            selectPerson(person);
+            selectPerson(person, multipleSelectOn);
             e.cancelBubble = true; // Stop event propogation.
           }
         });
 
         text.on('click', function (e) {
+          var multipleSelectOn = e.evt.shiftKey;
           if (diagramMode == DEFAULT) {
-            selectPerson(person);
+            selectPerson(person, multipleSelectOn);
             e.cancelBubble = true; // Stop event propogation.
           }
         });
 
         group.on('dragstart', function (e) {
           if (diagramMode == DEFAULT) {
-            selectPerson(person);
+            selectPerson(person, true); // Keep any multiple selection...
           }
         });
 
@@ -1832,9 +1844,11 @@ function updateDiagramBasedOnProperties() {
         selectedRelationship = null;
 
         // Deselect persons.
-        if (selectedPerson) {
-          restoreBorderColor(selectedPerson);
-          selectedPerson.rect.strokeWidth(1)
+        for (var index in persons) {
+          var person = persons[index];
+          restoreBorderColor(person);
+          person.rect.strokeWidth(1)
+          person.selected = false;
         }
         selectedPerson = null;
 
@@ -1847,12 +1861,15 @@ function updateDiagramBasedOnProperties() {
       }
 
       // Function to select person.
-      function selectPerson(person) {
+      function selectPerson(person, keepExistingSelection) {
         // Deselect previous person.
-        selectNone();
+        if (!keepExistingSelection) {
+          selectNone();
+        }
 
         // Select the person.
         selectedPerson = person;
+        person.selected = true;
 
         // Highlight the person.
         person.rect.stroke("blue");
