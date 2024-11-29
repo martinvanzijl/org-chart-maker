@@ -99,16 +99,18 @@ function addSubOrgToDiagram(org, x, y) {
 
   // When clicking the rectangle, select the sub-org.
   rect.on('click', function (e) {
+    var multipleSelectOn = e.evt.shiftKey;
     if (diagramMode == DEFAULT) {
-      selectSubOrg(org);
+      selectSubOrg(org, multipleSelectOn);
       e.cancelBubble = true; // Stop event propogation.
     }
   });
 
   // When clicking the text, select the sub-org.
   text.on('click', function (e) {
+    var multipleSelectOn = e.evt.shiftKey;
     if (diagramMode == DEFAULT) {
-      selectSubOrg(org);
+      selectSubOrg(org, multipleSelectOn);
       e.cancelBubble = true; // Stop event propogation.
     }
   });
@@ -116,7 +118,7 @@ function addSubOrgToDiagram(org, x, y) {
   // Before drag+drop, first select the sub-org.
   group.on('dragstart', function (e) {
     if (diagramMode == DEFAULT) {
-      selectSubOrg(org);
+      selectSubOrg(org, true); // Keep any multiple selection...
     }
   });
 
@@ -137,6 +139,22 @@ function addSubOrgToDiagram(org, x, y) {
 
   // When dragging the rectangle, update existing arrow endpoints.
   group.on('dragmove', function (e) {
+    // Move other selected items.
+    for (var index in persons) {
+      var person = persons[index];
+      if (person.selected) {
+        person.group.move({x: e.evt.movementX,  y: e.evt.movementY});
+      }
+    }
+
+    for (var index in subOrgs) {
+      var subOrg = subOrgs[index];
+      if (subOrg.selected && subOrg != selectedSubOrg) {
+        subOrg.group.move({x: e.evt.movementX,  y: e.evt.movementY});
+      }
+    }
+
+    // Update arrows.
     updateRelationshipEndPoints(org);
   });
 
@@ -173,12 +191,15 @@ function addSubOrgToDiagram(org, x, y) {
 var selectedSubOrg = null;
 
 // Function to select sub-org.
-function selectSubOrg(org) {
+function selectSubOrg(org, keepExistingSelection) {
   // Deselect previous person.
-  selectNone();
+  if (!keepExistingSelection) {
+    selectNone();
+  }
 
   // Select the sub-org.
   selectedSubOrg = org;
+  org.selected = true;
 
   // Highlight the person.
   org.rect.stroke("blue");
