@@ -1853,9 +1853,11 @@ function updateDiagramBasedOnProperties() {
         selectedPerson = null;
 
         // Deselect sub-orgs.
-        if (selectedSubOrg) {
-          restoreBorderColor(selectedSubOrg);
-          selectedSubOrg.rect.strokeWidth(1)
+        for (var index in subOrgs) {
+          var subOrg = subOrgs[index];
+          restoreBorderColor(subOrg);
+          subOrg.rect.strokeWidth(1)
+          subOrg.selected = false;
         }
         selectedSubOrg = null;
       }
