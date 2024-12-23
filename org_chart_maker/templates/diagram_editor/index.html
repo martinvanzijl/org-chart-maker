@@ -1467,6 +1467,7 @@ function updateDiagramBasedOnProperties() {
 
       // Add click listener.
       stage.on('click', function() {
+        console.log("Stage click.");
         if (diagramMode == ADD_PERSON) {
           createNewPerson(stage.getRelativePointerPosition());
 
@@ -1480,6 +1481,64 @@ function updateDiagramBasedOnProperties() {
         else {
           // Clear current selection.
           selectNone();
+        }
+      });
+
+      // Add drag listener.
+      var doingRectangleSelect = false;
+
+      // Selection rectangle.
+      var marqueeSelectRect = new Konva.Rect({
+          x: 0,
+          y: 0,
+          width: 128,
+          height: 128,
+          fill: '#00FF00AA',
+          stroke: 'green',
+          strokeWidth: 1,
+          visible: false,
+      });
+
+      layer.add (marqueeSelectRect);
+
+
+      // TODO: Perhaps have a transparent rectangle below everything else to
+      // handle the events?
+      // Either that or check manually of the click was on an item...
+      stage.on('mousedown', function() {
+        if (diagramMode == DEFAULT) {
+          console.log("Mouse down...");
+          // Marquee select...
+          doingRectangleSelect = true;
+          marqueeSelectRect.visible(true);
+
+          var pos = stage.getRelativePointerPosition();
+          marqueeSelectRect.x (pos.x);
+          marqueeSelectRect.y (pos.y);
+          marqueeSelectRect.width (2);
+          marqueeSelectRect.height (2);
+        }
+      });
+
+      stage.on('mouseup', function() {
+        if (doingRectangleSelect) {
+          // Marquee select...
+          console.log("End rectangle select...");
+
+          // Deselect all.
+          selectNone();
+
+          // Select all in range.
+          for (var index in persons) {
+            var person = persons[index];
+
+            if (haveIntersection(person.rect, marqueeSelectRect)) {
+              selectPerson(person, true);
+            }
+          }
+
+          // Hide rectangle again.
+          marqueeSelectRect.visible(false);
         }
       });
 
@@ -1576,6 +1635,13 @@ function updateDiagramBasedOnProperties() {
         group.on('pointerdblclick', function () {
             showPersonDetails(personId);
         });
+
+        // Test for drag-select.
+        // DOES NOT WORK. Cancels the click+drag for the person.
+        // rect.on('mousedown', function (e) {
+        //   console.log("Rect mouse down.");
+        //   e.cancelBubble = true; // Stop event propogation.
+        // });
 
         rect.on('click', function (e) {
           var multipleSelectOn = e.evt.shiftKey;
@@ -2225,12 +2291,12 @@ stage.on('mousemove', function (e) {
   // from sub-orgs. What is the difference?
   // console.log("Mouse move event code...");
 
+  // Get position.
+  var pos = stage.getRelativePointerPosition();
+
   // Draw the actual arrow.
   if (drawingArrow) {
     // console.log("Drawing arrow with mouse move event.");
-
-    // Get position.
-    var pos = stage.getRelativePointerPosition();
 
     // Create arrow.
     if (!newRelationshipArrow) {
@@ -2258,6 +2324,19 @@ stage.on('mousemove', function (e) {
       var x2 = pos.x;
       var y2 = pos.y;
       newRelationshipArrow.points ( [x1, y1, x2, y2] );
+    }
+  }
+  else if (doingRectangleSelect) {
+    if (selectedRelationship || getSelectedItem()) {
+      // Do nothing...
+    }
+    else {
+      var x1 = marqueeSelectRect.x();
+      var y1 = marqueeSelectRect.y();
+      var x2 = pos.x;
+      var y2 = pos.y;
+      marqueeSelectRect.width (x2 - x1);
+      marqueeSelectRect.height (y2 - y1);
     }
   }
 });
