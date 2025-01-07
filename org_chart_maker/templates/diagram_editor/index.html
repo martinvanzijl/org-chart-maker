@@ -1532,13 +1532,29 @@ function updateDiagramBasedOnProperties() {
           for (var index in persons) {
             var person = persons[index];
 
-            if (haveIntersection(person.rect, marqueeSelectRect)) {
+            personRect = {
+              x: person.group.x(),
+              y: person.group.y(),
+              width: person.rect.width(),
+              height: person.rect.height(),
+            }
+
+            var finalSelectRect = {
+              x: marqueeSelectRect.x(),
+              y: marqueeSelectRect.y(),
+              width: marqueeSelectRect.width(),
+              height: marqueeSelectRect.height(),
+            }
+
+
+            if (haveIntersection(personRect, finalSelectRect)) {
               selectPerson(person, true);
             }
           }
 
           // Hide rectangle again.
           marqueeSelectRect.visible(false);
+          doingRectangleSelect = false;
         }
       });
 
@@ -2327,17 +2343,17 @@ stage.on('mousemove', function (e) {
     }
   }
   else if (doingRectangleSelect) {
-    if (selectedRelationship || getSelectedItem()) {
-      // Do nothing...
-    }
-    else {
+    // if (selectedRelationship || getSelectedItem()) {
+    //   // Do nothing...
+    // }
+    // else {
       var x1 = marqueeSelectRect.x();
       var y1 = marqueeSelectRect.y();
       var x2 = pos.x;
       var y2 = pos.y;
       marqueeSelectRect.width (x2 - x1);
       marqueeSelectRect.height (y2 - y1);
-    }
+    // }
   }
 });
 
