@@ -1467,7 +1467,6 @@ function updateDiagramBasedOnProperties() {
 
       // Add click listener.
       stage.on('click', function() {
-        console.log("Stage click.");
         if (diagramMode == ADD_PERSON) {
           createNewPerson(stage.getRelativePointerPosition());
 
@@ -1501,13 +1500,8 @@ function updateDiagramBasedOnProperties() {
 
       layer.add (marqueeSelectRect);
 
-
-      // TODO: Perhaps have a transparent rectangle below everything else to
-      // handle the events?
-      // Either that or check manually of the click was on an item...
       stage.on('mousedown', function() {
         if (diagramMode == DEFAULT) {
-          console.log("Mouse down...");
           // Marquee select...
           doingRectangleSelect = true;
           marqueeSelectRect.visible(true);
@@ -1523,7 +1517,7 @@ function updateDiagramBasedOnProperties() {
       stage.on('mouseup', function() {
         if (doingRectangleSelect) {
           // Marquee select...
-          console.log("End rectangle select...");
+          // console.log("End rectangle select...");
 
           // Deselect all.
           selectNone();
@@ -1545,7 +1539,6 @@ function updateDiagramBasedOnProperties() {
               width: marqueeSelectRect.width(),
               height: marqueeSelectRect.height(),
             }
-
 
             if (haveIntersection(personRect, finalSelectRect)) {
               selectPerson(person, true);
@@ -1651,13 +1644,6 @@ function updateDiagramBasedOnProperties() {
         group.on('pointerdblclick', function () {
             showPersonDetails(personId);
         });
-
-        // Test for drag-select.
-        // DOES NOT WORK. Cancels the click+drag for the person.
-        // rect.on('mousedown', function (e) {
-        //   console.log("Rect mouse down.");
-        //   e.cancelBubble = true; // Stop event propogation.
-        // });
 
         rect.on('click', function (e) {
           var multipleSelectOn = e.evt.shiftKey;
