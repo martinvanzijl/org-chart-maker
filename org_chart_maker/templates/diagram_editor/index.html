@@ -1501,7 +1501,7 @@ function updateDiagramBasedOnProperties() {
       layer.add (marqueeSelectRect);
 
       stage.on('mousedown', function() {
-        if (diagramMode == DEFAULT) {
+        if (diagramMode == DEFAULT && itemWasClicked == false) {
           // Marquee select...
           doingRectangleSelect = true;
           marqueeSelectRect.visible(true);
@@ -1513,6 +1513,9 @@ function updateDiagramBasedOnProperties() {
           marqueeSelectRect.height (2);
         }
       });
+
+      // Flag to enable marquee select only if clicking on an empty area...
+      var itemWasClicked = false;
 
       stage.on('mouseup', function() {
         if (doingRectangleSelect) {
@@ -1549,6 +1552,9 @@ function updateDiagramBasedOnProperties() {
           marqueeSelectRect.visible(false);
           doingRectangleSelect = false;
         }
+
+        // Reset flag.
+        itemWasClicked = false;
       });
 
       // Drawing arrows.
@@ -1668,6 +1674,7 @@ function updateDiagramBasedOnProperties() {
         });
 
         group.on('mousedown', function (e) {
+          itemWasClicked = true; // Disable marquee select...
           if (diagramMode == ADD_RELATIONSHIP) {
             newRelationshipParent = person;
             drawingArrow = true;
