@@ -305,6 +305,9 @@ def test_auto_layout():
     # Log in.
     login(driver)
 
+    # Wait a short while.
+    waitForSeconds(driver, 0.5)
+
     # Select the auto-layout menu item.
 
     # Hover over the "Diagram" menu, then click the menu item.
