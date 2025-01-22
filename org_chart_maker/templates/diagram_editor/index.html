@@ -1483,6 +1483,80 @@ function updateDiagramBasedOnProperties() {
         }
       });
 
+      // Add drag listener.
+      var doingRectangleSelect = false;
+
+      // Selection rectangle.
+      var marqueeSelectRect = new Konva.Rect({
+          x: 0,
+          y: 0,
+          width: 128,
+          height: 128,
+          fill: '#00FF00AA',
+          stroke: 'green',
+          strokeWidth: 1,
+          visible: false,
+      });
+
+      layer.add (marqueeSelectRect);
+
+      stage.on('mousedown', function() {
+        if (diagramMode == DEFAULT && itemWasClicked == false) {
+          // Marquee select...
+          doingRectangleSelect = true;
+          marqueeSelectRect.visible(true);
+
+          var pos = stage.getRelativePointerPosition();
+          marqueeSelectRect.x (pos.x);
+          marqueeSelectRect.y (pos.y);
+          marqueeSelectRect.width (2);
+          marqueeSelectRect.height (2);
+        }
+      });
+
+      // Flag to enable marquee select only if clicking on an empty area...
+      var itemWasClicked = false;
+
+      stage.on('mouseup', function() {
+        if (doingRectangleSelect) {
+          // Marquee select...
+          // console.log("End rectangle select...");
+
+          // Deselect all.
+          selectNone();
+
+          // Select all in range.
+          for (var index in persons) {
+            var person = persons[index];
+
+            personRect = {
+              x: person.group.x(),
+              y: person.group.y(),
+              width: person.rect.width(),
+              height: person.rect.height(),
+            }
+
+            var finalSelectRect = {
+              x: marqueeSelectRect.x(),
+              y: marqueeSelectRect.y(),
+              width: marqueeSelectRect.width(),
+              height: marqueeSelectRect.height(),
+            }
+
+            if (haveIntersection(personRect, finalSelectRect)) {
+              selectPerson(person, true);
+            }
+          }
+
+          // Hide rectangle again.
+          marqueeSelectRect.visible(false);
+          doingRectangleSelect = false;
+        }
+
+        // Reset flag.
+        itemWasClicked = false;
+      });
+
       // Drawing arrows.
       newRelationshipParent = null;
       newRelationshipChild = null;
@@ -1600,6 +1674,7 @@ function updateDiagramBasedOnProperties() {
         });
 
         group.on('mousedown', function (e) {
+          itemWasClicked = true; // Disable marquee select...
           if (diagramMode == ADD_RELATIONSHIP) {
             newRelationshipParent = person;
             drawingArrow = true;
@@ -2225,12 +2300,12 @@ stage.on('mousemove', function (e) {
   // from sub-orgs. What is the difference?
   // console.log("Mouse move event code...");
 
+  // Get position.
+  var pos = stage.getRelativePointerPosition();
+
   // Draw the actual arrow.
   if (drawingArrow) {
     // console.log("Drawing arrow with mouse move event.");
-
-    // Get position.
-    var pos = stage.getRelativePointerPosition();
 
     // Create arrow.
     if (!newRelationshipArrow) {
@@ -2259,6 +2334,19 @@ stage.on('mousemove', function (e) {
       var y2 = pos.y;
       newRelationshipArrow.points ( [x1, y1, x2, y2] );
     }
+  }
+  else if (doingRectangleSelect) {
+    // if (selectedRelationship || getSelectedItem()) {
+    //   // Do nothing...
+    // }
+    // else {
+      var x1 = marqueeSelectRect.x();
+      var y1 = marqueeSelectRect.y();
+      var x2 = pos.x;
+      var y2 = pos.y;
+      marqueeSelectRect.width (x2 - x1);
+      marqueeSelectRect.height (y2 - y1);
+    // }
   }
 });
 
