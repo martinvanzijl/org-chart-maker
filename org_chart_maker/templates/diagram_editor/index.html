@@ -1525,6 +1525,13 @@ function updateDiagramBasedOnProperties() {
           // Deselect all.
           selectNone();
 
+          var finalSelectRect = {
+            x: marqueeSelectRect.x(),
+            y: marqueeSelectRect.y(),
+            width: marqueeSelectRect.width(),
+            height: marqueeSelectRect.height(),
+          }
+
           // Select all in range.
           for (var index in persons) {
             var person = persons[index];
@@ -1536,15 +1543,25 @@ function updateDiagramBasedOnProperties() {
               height: person.rect.height(),
             }
 
-            var finalSelectRect = {
-              x: marqueeSelectRect.x(),
-              y: marqueeSelectRect.y(),
-              width: marqueeSelectRect.width(),
-              height: marqueeSelectRect.height(),
-            }
-
             if (haveIntersection(personRect, finalSelectRect)) {
               selectPerson(person, true);
+            }
+          }
+
+          for (var index in relationships) {
+            var relationship = relationships[index];
+
+            var points = relationship.arrow.points();
+
+            relationshipRect = {
+              x: points[0],
+              y: points[1],
+              width: relationship.arrow.width(),
+              height: relationship.arrow.height(),
+            };
+
+            if (haveIntersection(relationshipRect, finalSelectRect)) {
+              selectRelationship(relationship, true);
             }
           }
 
@@ -2079,9 +2096,11 @@ function updateDiagramBasedOnProperties() {
       }
 
       // Function to select relationship.
-      function selectRelationship(relationship) {
-        // Deselect previous item.
-        selectNone();
+      function selectRelationship(relationship, keepExistingSelection) {
+        // Deselect previous person.
+        if (!keepExistingSelection) {
+          selectNone();
+        }
 
         // Select the relationship.
         selectedRelationship = relationship;
