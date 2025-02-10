@@ -1520,7 +1520,6 @@ function updateDiagramBasedOnProperties() {
       stage.on('mouseup', function() {
         if (doingRectangleSelect) {
           // Marquee select...
-          // console.log("End rectangle select...");
 
           // Deselect all.
           selectNone();
@@ -1545,6 +1544,21 @@ function updateDiagramBasedOnProperties() {
 
             if (haveIntersection(personRect, finalSelectRect)) {
               selectPerson(person, true);
+            }
+          }
+
+          for (var index in subOrgs) {
+            var subOrg = subOrgs[index];
+
+            subOrgRect = {
+              x: subOrg.group.x(),
+              y: subOrg.group.y(),
+              width: subOrg.rect.width(),
+              height: subOrg.rect.height(),
+            }
+
+            if (haveIntersection(subOrgRect, finalSelectRect)) {
+              selectSubOrg(subOrg, true);
             }
           }
 
