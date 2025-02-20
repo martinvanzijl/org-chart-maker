@@ -8,6 +8,7 @@
 <script src="static/preferences.js"></script>
 <script src="static/sub-organizations.js"></script>
 <script src="static/undo.js"></script>
+<script src="static/line-rectangle-intersection.js"></script>
 
 <!-- Menu. -->
 {% if g.user and g.user.top_menu_type == 1 %}
@@ -1562,21 +1563,31 @@ function updateDiagramBasedOnProperties() {
             }
           }
 
+          // TODO for Issue #105: Use more precise collision checking!
           for (var index in relationships) {
             var relationship = relationships[index];
 
             var points = relationship.arrow.points();
 
-            relationshipRect = {
-              x: points[0],
-              y: points[1],
-              width: relationship.arrow.width(),
-              height: relationship.arrow.height(),
-            };
+            // relationshipRect = {
+            //   x: points[0],
+            //   y: points[1],
+            //   width: relationship.arrow.width(),
+            //   height: relationship.arrow.height(),
+            // };
 
-            if (haveIntersection(relationshipRect, finalSelectRect)) {
-              selectRelationship(relationship, true);
-            }
+            // if (haveIntersection(relationshipRect, finalSelectRect)) {
+            //   selectRelationship(relationship, true);
+            // }
+
+            if (lineIntersectsRectangle(
+                points[0], points[1], points[2], points[3],
+                finalSelectRect.x,
+                finalSelectRect.y,
+                finalSelectRect.x + finalSelectRect.width,
+                finalSelectRect.y + finalSelectRect.height))  {
+                  selectRelationship(relationship, true);
+                }
           }
 
           // Hide rectangle again.
