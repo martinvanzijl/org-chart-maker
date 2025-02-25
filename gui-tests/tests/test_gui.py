@@ -572,6 +572,8 @@ def test_profile_page():
     # Log in.
     login(driver)
 
+    waitForSeconds(driver, 0.5)
+
     # Go to the "My Account" page.
 
     # Hover over the "Options" menu, then click the link.
