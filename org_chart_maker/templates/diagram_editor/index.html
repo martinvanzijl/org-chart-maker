@@ -1503,6 +1503,9 @@ function updateDiagramBasedOnProperties() {
 
       stage.on('mousedown', function() {
         if (diagramMode == DEFAULT && itemWasClicked == false) {
+          // Debug for #104...
+          console.log("Stage mouse down start rectangle select!");
+
           // Marquee select...
           doingRectangleSelect = true;
           marqueeSelectRect.visible(true);
@@ -1696,6 +1699,8 @@ function updateDiagramBasedOnProperties() {
         rect.on('click', function (e) {
           var multipleSelectOn = e.evt.shiftKey;
           if (diagramMode == DEFAULT) {
+            // Debug for #104...
+            console.log("Click on rect...");
             selectPerson(person, multipleSelectOn);
             e.cancelBubble = true; // Stop event propogation.
           }
@@ -1704,6 +1709,8 @@ function updateDiagramBasedOnProperties() {
         text.on('click', function (e) {
           var multipleSelectOn = e.evt.shiftKey;
           if (diagramMode == DEFAULT) {
+            // Debug for #104...
+            console.log("Click on text...");
             selectPerson(person, multipleSelectOn);
             e.cancelBubble = true; // Stop event propogation.
           }
@@ -1711,11 +1718,21 @@ function updateDiagramBasedOnProperties() {
 
         group.on('dragstart', function (e) {
           if (diagramMode == DEFAULT) {
-            selectPerson(person, true); // Keep any multiple selection...
+            // Debug for #104...
+            console.log("Drag start on group...");
+
+            // If the person is not selected yet, un-select everything else and
+            // select it only.
+            if (!isSelected(person)) {
+              selectPerson(person);
+            }
           }
         });
 
         group.on('mousedown', function (e) {
+          // Debug for #104...
+          console.log("Mouse down for group event...");
+
           itemWasClicked = true; // Disable marquee select...
           if (diagramMode == ADD_RELATIONSHIP) {
             newRelationshipParent = person;
@@ -1981,6 +1998,9 @@ function updateDiagramBasedOnProperties() {
 
       // Function to select person.
       function selectPerson(person, keepExistingSelection) {
+        // Debug for #104...
+        console.log("Select persion with multiple select:", keepExistingSelection);
+
         // Deselect previous person.
         if (!keepExistingSelection) {
           selectNone();
