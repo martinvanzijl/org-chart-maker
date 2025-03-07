@@ -1711,7 +1711,11 @@ function updateDiagramBasedOnProperties() {
 
         group.on('dragstart', function (e) {
           if (diagramMode == DEFAULT) {
-            selectPerson(person, true); // Keep any multiple selection...
+            // If the person is not selected yet, un-select everything else and
+            // select it only.
+            if (!isSelected(person)) {
+              selectPerson(person);
+            }
           }
         });
 
