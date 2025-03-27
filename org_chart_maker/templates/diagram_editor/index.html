@@ -1502,6 +1502,7 @@ function updateDiagramBasedOnProperties() {
       layer.add (marqueeSelectRect);
 
       stage.on('mousedown', function() {
+        // console.log("Stage mousedown event.");
         if (diagramMode == DEFAULT && itemWasClicked == false) {
           // Marquee select...
           doingRectangleSelect = true;
@@ -1626,6 +1627,13 @@ function updateDiagramBasedOnProperties() {
 
         // Handle dragging other selected persons.
         group.on('dragmove', function (e) {
+          // Cancel marquee select.
+          // NOTE: The event is often not triggered!
+          doingRectangleSelect = false;
+          marqueeSelectRect.visible(false);
+          // console.log("Group drag move event.");
+
+          // Drag other selected items.
           for (var index in persons) {
             var person = persons[index];
             if (person.selected && person != selectedPerson) {
@@ -1720,6 +1728,7 @@ function updateDiagramBasedOnProperties() {
         });
 
         group.on('mousedown', function (e) {
+          // console.log("Group mousedown event.");
           itemWasClicked = true; // Disable marquee select...
           if (diagramMode == ADD_RELATIONSHIP) {
             newRelationshipParent = person;
