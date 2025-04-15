@@ -110,6 +110,14 @@
     </div>
 
     <div class="dropdown">
+      <button class="dropbtn">Edit</button>
+      <div class="dropdown-content">
+        <a href="javascript:undo();">Undo</a>
+        <a href="javascript:redo();">Redo</a>
+      </div>
+    </div>
+
+    <div class="dropdown">
       <button class="dropbtn">Export</button>
       <div class="dropdown-content">
         <a href="javascript:exportImage();">Image...</a>
@@ -1469,10 +1477,10 @@ function updateDiagramBasedOnProperties() {
       // Add click listener.
       stage.on('click', function() {
         if (diagramMode == ADD_PERSON) {
-          createNewPerson(stage.getRelativePointerPosition());
+          var person = createNewPerson(stage.getRelativePointerPosition());
 
           // Update undo stack.
-          addUndo();
+          addUndo(new AddPersonUndo(person));
         }
         else if (diagramMode == ADD_SUB_ORG) {
           createNewSubOrg(stage.getRelativePointerPosition());
@@ -1768,6 +1776,11 @@ function updateDiagramBasedOnProperties() {
         updateBoxToFitName(person);
 
         // Add to tree view.
+        addPersonToTreeView(person);
+      }
+
+      // Add a person to the tree view.
+      function addPersonToTreeView(person) {
         var row = personsTable.insertRow(personsTable.rows.length);
         var cell = row.insertCell(0);
         cell.innerHTML = person.name;
@@ -1775,7 +1788,7 @@ function updateDiagramBasedOnProperties() {
           goToPerson(person);
           selectPerson(person);
         }
-        personsTableRows[personId] = row;
+        personsTableRows[person.personId] = row;
       }
 
       // Scroll to given person.
@@ -2716,10 +2729,10 @@ con.addEventListener('drop', function (e) {
     // we can register it manually:
     stage.setPointersPositions(e);
 
-    createNewPerson(stage.getRelativePointerPosition());
+    var person = createNewPerson(stage.getRelativePointerPosition());
 
     // Update undo stack.
-    addUndo();
+    addUndo(new AddPersonUndo(person));
   }
   else if (data == "buttonAddSubOrg") {
     stage.setPointersPositions(e);
@@ -2740,7 +2753,7 @@ function createNewPerson(pos) {
   var personId = createPersonId();
 
   // Create person.
-  person = {
+  var person = {
       personId: personId,
       name: "New Person",
       title: "Associate",
@@ -2760,6 +2773,9 @@ function createNewPerson(pos) {
 
   // Reset the mode.
   setDiagramMode (DEFAULT);
+
+  // Return the person.
+  return person;
 }
 
 // Hide the active menu item from the top menu.
