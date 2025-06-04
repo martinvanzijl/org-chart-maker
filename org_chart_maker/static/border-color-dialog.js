@@ -64,3 +64,17 @@ function revertFillColor() {
     borderColorDialog.dialog( "close" );
   }
 }
+
+// Callback for when the user clicks OK.
+function borderColorDialogOKClicked() {
+  // Update undo stack.
+  var selectedItem = getSelectedItem();
+  if (selectedItem) {
+    if (previousBorderColor != selectedItem.borderColor) {
+      addUndo(new SetBorderColorUndo(selectedItem, previousBorderColor));
+    }
+  }
+
+  // Close window.
+  borderColorDialog.dialog( "close" );
+}

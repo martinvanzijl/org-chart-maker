@@ -355,7 +355,17 @@ function removeItemOnce(arr, value) {
 // Callback for clicking the "Delete Person" button.
 function deletePersonClicked()
 {
+  deleteSelectedItem(true);
+}
+
+function deleteSelectedItem(shouldAddUndoItem)
+{
   if (selectedPerson) {
+    // Update undo stack.
+    if (shouldAddUndoItem) {
+      addUndo(new DeletePersonUndo(selectedPerson));
+    }
+
     // Remove shapes from diagram.
     selectedPerson.group.remove();
 
@@ -377,14 +387,16 @@ function deletePersonClicked()
   }
 
   if (selectedRelationship) {
+    // Update undo stack.
+    if (shouldAddUndoItem) {
+      addUndo(new DeleteRelationshipUndo(selectedRelationship));
+    }
+
     // Delete.
     deleteRelationship(selectedRelationship);
 
     // Reset.
     selectedRelationship = null;
-
-    // Update undo stack.
-    addUndo();
   }
 }
 
@@ -442,7 +454,7 @@ $( document ).keydown(function() {
 // Create the dialog.
 var borderColorDialog = $( "#borderColorDialog" ).dialog({ autoOpen: false, closeOnEscape: true, modal: true, width: 445,
   buttons: {
-    "OK": function() { borderColorDialog.dialog( "close" ); },
+    "OK": function() { borderColorDialogOKClicked(); },
     "Cancel": function() { revertBorderColor(); }
   },
   maxHeight: ($(window).height() - 50)
@@ -651,6 +663,10 @@ function addPhotoClicked()
 
 // Function to save person details.
 function savePersonDetails() {
+  // Handle undo stack.
+  var undoItem = new EditPersonDetailsUndo(currentPerson);
+  undoItem.setOriginalPhotosList(previousListOfPhotos);
+
   // Update details.
   currentPerson.name = $( "#name" ).val();
   currentPerson.title = $( "#title" ).val();
@@ -658,21 +674,26 @@ function savePersonDetails() {
   currentPerson.department = $( "#department" ).val();
 
   // Update diagram.
-  currentPerson.text.text( currentPerson.name );
-  currentPerson.titleText.text( currentPerson.title );
-  updateBoxToFitName( currentPerson );
-  updateFilterStatus( currentPerson );
-
-  updateRelationshipEndPoints(currentPerson);
-
-  // Update tree view.
-  personsTableRows[currentPerson.personId].cells[0].innerHTML = currentPerson.name;
+  updatePersonBoxAndTreeViewEntry(currentPerson);
 
   // Close the dialog.
   personDetailsDialog.dialog( "close" );
 
   // Update undo stack.
-  addUndo();
+  undoItem.setAfterState(currentPerson); // TODO: Handle photos too!
+  addUndo(undoItem);
+}
+
+function updatePersonBoxAndTreeViewEntry(person) {
+  person.text.text( person.name );
+  person.titleText.text( person.title );
+  updateBoxToFitName( person );
+  updateFilterStatus( person );
+
+  updateRelationshipEndPoints(person);
+
+  // Update tree view.
+  personsTableRows[person.personId].cells[0].innerHTML = person.name;
 }
 
 // Function to get base name of file.
@@ -681,6 +702,9 @@ function getBaseName(path) {
   var name = list[list.length - 1];
   return name;
 }
+
+// List of photos for undo management.
+var previousListOfPhotos = null;
 
 // Function to show person details.
 function showPersonDetails(personId) {
@@ -700,6 +724,9 @@ function showPersonDetails(personId) {
   document.getElementById("url").value = person.url;
   document.getElementById("department").value = person.department;
 
+  // Store list of photos for undo.
+  previousListOfPhotos = person.photos.slice();
+
   // Add photos.
   var photosTable = document.getElementById("photosTable");
 
@@ -711,7 +738,7 @@ function showPersonDetails(personId) {
 
   for (var index in person.photos) {
     // Get parts.
-    var path = person.photos[index]
+    var path = person.photos[index];
     var name = getBaseName(path);
 
     // Add to list.
@@ -1726,6 +1753,10 @@ function updateDiagramBasedOnProperties() {
         });
 
         group.on('dragstart', function (e) {
+          // Update undo stack.
+          console.log("Group drag start.");
+          currentMoveUndoItem = new MovePersonUndo(person);
+
           if (diagramMode == DEFAULT) {
             // If the person is not selected yet, un-select everything else and
             // select it only.
@@ -2468,7 +2499,7 @@ stage.on('mouseup', function (e) {
           selectRelationship(relationship);
 
           // Update undo stack.
-          addUndo();
+          addUndo(new AddRelationshipUndo(relationship));
         }
       }
     }
@@ -2477,6 +2508,15 @@ stage.on('mouseup', function (e) {
     newRelationshipArrow = null;
     newRelationshipParent = null;
     newRelationshipChild = null;
+  }
+  else {
+    // TODO: Put pie here!
+    console.log("Stage mouse up event.");
+    if (currentMoveUndoItem) {
+      currentMoveUndoItem.setAfterState();
+      addUndo(currentMoveUndoItem);
+      currentMoveUndoItem = null;
+    }
   }
 });
 

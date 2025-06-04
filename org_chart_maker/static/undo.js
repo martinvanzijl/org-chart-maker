@@ -88,6 +88,7 @@ class UndoStack {
     var redoIndex = this.index + 1;
 
     if (redoIndex < this.stack.length) {
+      console.log("About to redo from stack:", this.stack[redoIndex]);
       this.stack[redoIndex].redo();
       this.index += 1;
     }
@@ -128,6 +129,7 @@ var undoStack = new UndoStack();
 
 // Redo an action.
 function redo() {
+  console.log("Redo function called.");
   undoStack.redo();
   hideActiveMenu(); // Should be in upper level function?
 }
@@ -172,14 +174,222 @@ class AddPersonUndo {
 
   undo() {
     selectPerson(this.person);
-    deletePersonClicked();
+    deleteSelectedItem();
   }
 
   redo () {
     // Add to canvas again.
     layer.add(this.person.group);
 
+    // Add to dictionary.
+    persons[this.person.personId] = this.person;
+
     // Add to tree view again.
     addPersonToTreeView(this.person);
+  }
+}
+
+class DeletePersonUndo {
+  constructor(person) {
+    this.person = person;
+  }
+
+  undo() {
+    // Add to canvas again.
+    layer.add(this.person.group);
+
+    // Add to tree view again.
+    addPersonToTreeView(this.person);
+
+    // TODO: Add relationships again.
+  }
+
+  redo () {
+    selectPerson(this.person);
+    deleteSelectedItem();
+  }
+}
+
+class AddRelationshipUndo {
+  constructor(relationship) {
+    this.relationship = relationship;
+  }
+
+  undo() {
+    console.log("Undo add relationship.");
+
+    selectRelationship(this.relationship);
+    deleteSelectedItem();
+  }
+
+  redo() {
+    console.log("Redo add relationship.");
+
+    // Add to canvas again.
+    layer.add(this.relationship.arrow);
+
+    // Add to dictionary.
+    relationships.push(this.relationship);
+
+    // Add relationships to persons.
+    persons[this.relationship.fromPersonId].relationships.push(this.relationship);
+    persons[this.relationship.toPersonId].relationships.push(this.relationship);
+
+    // Draw.
+    updateArrowEndPoints(this.relationship);
+  }
+}
+
+class DeleteRelationshipUndo {
+  constructor(relationship) {
+    this.relationship = relationship;
+  }
+
+  undo() {
+    // Add to canvas again.
+    layer.add(this.relationship.arrow);
+
+    // Add to dictionary.
+    relationships.push(this.relationship);
+
+    // Add relationships to persons.
+    persons[this.relationship.fromPersonId].relationships.push(this.relationship);
+    persons[this.relationship.toPersonId].relationships.push(this.relationship);
+  }
+
+  redo () {
+    selectRelationship(this.relationship);
+    deleteSelectedItem();
+  }
+}
+
+class EditPersonDetailsUndo {
+  constructor(person) {
+    this.person = person;
+
+    this.oldName = person.name;
+    this.oldTitle = person.title;
+    this.oldURL = person.url;
+    this.oldDepartment = person.department;
+    this.oldPhotos = person.photos;
+    this.oldActivePhotoIndex = person.activePhotoIndex;
+  }
+
+  setAfterState(person) {
+    this.newName = person.name;
+    this.newTitle = person.title;
+    this.newURL = person.url;
+    this.newDepartment = person.department;
+    this.newPhotos = person.photos;
+    this.newActivePhotoIndex = person.activePhotoIndex;
+  }
+
+  setOriginalPhotosList(photos) {
+    this.oldPhotos = photos;
+  }
+
+  undo() {
+    this.person.name = this.oldName;
+    this.person.title = this.oldTitle;
+    this.person.url = this.oldURL;
+    this.person.department = this.oldDepartment;
+    this.person.photos = this.oldPhotos;
+    this.person.activePhotoIndex = this.oldActivePhotoIndex;
+
+    updatePersonBoxAndTreeViewEntry( this.person );
+    updateThumbnail( this.person );
+  }
+
+  redo () {
+    this.person.name = this.newName;
+    this.person.title = this.newTitle;
+    this.person.url = this.newURL;
+    this.person.department = this.newDepartment;
+    this.person.photos = this.newPhotos;
+    this.person.activePhotoIndex = this.newActivePhotoIndex;
+
+    updatePersonBoxAndTreeViewEntry( this.person );
+    updateThumbnail( this.person );
+  }
+}
+
+class MovePersonUndo {
+  constructor(person) {
+    this.person = person;
+
+    this.oldX = person.group.x();
+    this.oldY = person.group.y();
+  }
+
+  setAfterState() {
+    this.newX = this.person.group.x();
+    this.newY = this.person.group.y();
+  }
+
+  undo() {
+    this.person.group.x( this.oldX );
+    this.person.group.y( this.oldY );
+    updateRelationshipEndPoints(this.person);
+  }
+
+  redo () {
+    this.person.group.x( this.newX );
+    this.person.group.y( this.newY );
+    updateRelationshipEndPoints(this.person);
+  }
+}
+
+// Undo item for the current move operation.
+var currentMoveUndoItem = null;
+
+class AutoLayoutUndo {
+  constructor() {
+    this.oldPositions = {};
+    this.newPositions = {};
+
+    for (var personId in persons) {
+      this.oldPositions[personId] = persons[personId].group.position();
+    }
+  }
+
+  setAfterState() {
+    for (var personId in persons) {
+      // Index is also the person ID so use that directly.
+      this.newPositions[personId] = persons[personId].group.position();
+    }
+  }
+
+  undo() {
+    for (var personId in persons) {
+      var person = persons[personId];
+      person.group.position(this.oldPositions[personId]);
+      updateRelationshipEndPoints(person);
+    }
+  }
+
+  redo () {
+    for (var personId in persons) {
+      var person = persons[personId];
+      person.group.position(this.newPositions[personId]);
+      updateRelationshipEndPoints(person);
+    }
+  }
+}
+
+class SetBorderColorUndo {
+  constructor(person, originalColor) {
+    this.person = person;
+    this.originalColor = originalColor;
+    this.newColor = person.borderColor;
+  }
+
+  undo() {
+    this.person.borderColor = this.originalColor;
+    restoreBorderColor(this.person);
+  }
+
+  redo () {
+    this.person.borderColor = this.newColor;
+    restoreBorderColor(this.person);
   }
 }
