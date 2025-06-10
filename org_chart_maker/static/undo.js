@@ -273,6 +273,8 @@ class EditPersonDetailsUndo {
     this.oldDepartment = person.department;
     this.oldPhotos = person.photos;
     this.oldActivePhotoIndex = person.activePhotoIndex;
+    this.oldBorderColor = person.borderColor;
+    this.oldFillColor = person.fillColor;
   }
 
   setAfterState(person) {
@@ -282,6 +284,8 @@ class EditPersonDetailsUndo {
     this.newDepartment = person.department;
     this.newPhotos = person.photos;
     this.newActivePhotoIndex = person.activePhotoIndex;
+    this.newBorderColor = person.borderColor;
+    this.newFillColor = person.fillColor;
   }
 
   setOriginalPhotosList(photos) {
@@ -295,9 +299,13 @@ class EditPersonDetailsUndo {
     this.person.department = this.oldDepartment;
     this.person.photos = this.oldPhotos;
     this.person.activePhotoIndex = this.oldActivePhotoIndex;
+    this.person.borderColor = this.oldBorderColor;
+    this.person.fillColor = this.oldFillColor;
 
     updatePersonBoxAndTreeViewEntry( this.person );
     updateThumbnail( this.person );
+    restoreBorderColor( this.person );
+    restoreFillColor( this.person );
   }
 
   redo () {
@@ -307,9 +315,13 @@ class EditPersonDetailsUndo {
     this.person.department = this.newDepartment;
     this.person.photos = this.newPhotos;
     this.person.activePhotoIndex = this.newActivePhotoIndex;
+    this.person.borderColor = this.newBorderColor;
+    this.person.fillColor = this.newFillColor;
 
     updatePersonBoxAndTreeViewEntry( this.person );
     updateThumbnail( this.person );
+    restoreBorderColor( this.person );
+    restoreFillColor( this.person );
   }
 }
 
@@ -391,5 +403,28 @@ class SetBorderColorUndo {
   redo () {
     this.person.borderColor = this.newColor;
     restoreBorderColor(this.person);
+  }
+}
+
+class AddSubOrgUndo {
+  constructor(subOrg) {
+    this.subOrg = subOrg;
+  }
+
+  undo() {
+    console.log("Undo add sub-org.");
+    selectSubOrg(this.subOrg);
+    deleteSelectedItem();
+  }
+
+  redo () {
+    // Add to canvas again.
+    layer.add(this.subOrg.group);
+
+    // Add to dictionary.
+    subOrgs[this.subOrg.id] = this.subOrg;
+
+    // Add to tree view again.
+    // addPersonToTreeView(this.subOrg);
   }
 }

@@ -386,6 +386,32 @@ function deleteSelectedItem(shouldAddUndoItem)
     selectedPerson = null;
   }
 
+  if (selectedSubOrg) {
+    // Update undo stack.
+    // if (shouldAddUndoItem) {
+    //   addUndo(new DeletePersonUndo(selectedPerson));
+    // }
+
+    // Remove shapes from diagram.
+    selectedSubOrg.group.remove();
+
+    // Remove relationships.
+    var arrayCopy = selectedSubOrg.relationships.slice(); // Copy array.
+    for (var index in arrayCopy) {
+      var relationship = arrayCopy[index];
+      deleteRelationship(relationship);
+    }
+
+    // Remove from tree view.
+    // personsTable.deleteRow(personsTableRows[selectedPerson.personId].rowIndex);
+
+    // Remove person from dictionary.
+    delete subOrgs[selectedSubOrg.id];
+
+    // Reset.
+    selectedSubOrg = null;
+  }
+
   if (selectedRelationship) {
     // Update undo stack.
     if (shouldAddUndoItem) {
@@ -664,6 +690,7 @@ function addPhotoClicked()
 // Function to save person details.
 function savePersonDetails() {
   // Handle undo stack.
+  // TODO: Save the original border and fill color before this point!
   var undoItem = new EditPersonDetailsUndo(currentPerson);
   undoItem.setOriginalPhotosList(previousListOfPhotos);
 
@@ -1510,8 +1537,10 @@ function updateDiagramBasedOnProperties() {
           addUndo(new AddPersonUndo(person));
         }
         else if (diagramMode == ADD_SUB_ORG) {
-          createNewSubOrg(stage.getRelativePointerPosition());
-          addUndo();
+          var subOrg = createNewSubOrg(stage.getRelativePointerPosition());
+
+          // Update undo stack.
+          addUndo(new AddSubOrgUndo(subOrg));
         }
         else {
           // Clear current selection.

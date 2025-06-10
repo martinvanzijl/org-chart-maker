@@ -276,6 +276,9 @@ function createNewSubOrg(pos) {
 
   // Reset the mode.
   setDiagramMode (DEFAULT);
+
+  // Return the new sub-org.
+  return org;
 }
 
 // Function to save sub-org details.
