@@ -428,3 +428,24 @@ class AddSubOrgUndo {
     // addPersonToTreeView(this.subOrg);
   }
 }
+
+class DeleteSubOrgUndo {
+  constructor(subOrg) {
+    this.subOrg = subOrg;
+  }
+
+  undo() {
+    // Add to canvas again.
+    layer.add(this.subOrg.group);
+
+    // Add to tree view again.
+    // addPersonToTreeView(this.person);
+
+    // TODO: Add relationships again.
+  }
+
+  redo () {
+    selectSubOrg(this.subOrg);
+    deleteSelectedItem();
+  }
+}

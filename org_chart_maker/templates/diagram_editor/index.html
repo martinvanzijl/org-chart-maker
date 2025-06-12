@@ -388,9 +388,9 @@ function deleteSelectedItem(shouldAddUndoItem)
 
   if (selectedSubOrg) {
     // Update undo stack.
-    // if (shouldAddUndoItem) {
-    //   addUndo(new DeletePersonUndo(selectedPerson));
-    // }
+    if (shouldAddUndoItem) {
+      addUndo(new DeleteSubOrgUndo(selectedSubOrg));
+    }
 
     // Remove shapes from diagram.
     selectedSubOrg.group.remove();
