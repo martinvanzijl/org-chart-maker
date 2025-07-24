@@ -358,6 +358,25 @@ function deletePersonClicked()
   deleteSelectedItem(true);
 }
 
+// Remove a person from the diagram without adding an unto item.
+function deletePerson(person) {
+  // Remove shapes from diagram.
+  person.group.remove();
+
+  // Remove relationships.
+  var arrayCopy = person.relationships.slice(); // Copy array.
+  for (var index in arrayCopy) {
+    var relationship = arrayCopy[index];
+    deleteRelationship(relationship);
+  }
+
+  // Remove from tree view.
+  personsTable.deleteRow(personsTableRows[person.personId].rowIndex);
+
+  // Remove person from dictionary.
+  delete persons[person.personId];
+}
+
 function deleteSelectedItem(shouldAddUndoItem)
 {
   if (selectedPerson) {
@@ -366,21 +385,8 @@ function deleteSelectedItem(shouldAddUndoItem)
       addUndo(new DeletePersonUndo(selectedPerson));
     }
 
-    // Remove shapes from diagram.
-    selectedPerson.group.remove();
-
-    // Remove relationships.
-    var arrayCopy = selectedPerson.relationships.slice(); // Copy array.
-    for (var index in arrayCopy) {
-      var relationship = arrayCopy[index];
-      deleteRelationship(relationship);
-    }
-
-    // Remove from tree view.
-    personsTable.deleteRow(personsTableRows[selectedPerson.personId].rowIndex);
-
-    // Remove person from dictionary.
-    delete persons[selectedPerson.personId];
+    // Delete from diagram.
+    deletePerson(selectedPerson);
 
     // Reset.
     selectedPerson = null;

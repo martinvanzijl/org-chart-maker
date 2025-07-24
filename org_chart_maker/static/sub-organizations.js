@@ -283,6 +283,8 @@ function createNewSubOrg(pos) {
 
 // Function to save sub-org details.
 function saveSubOrgDetails() {
+  var undoItem = new EditSubOrgDetailsUndo(currentSubOrg);
+
   // Update details.
   currentSubOrg.name = $( "#subOrgName" ).val();
   currentSubOrg.diagramId = $( "#subOrgDiagramId" ).val();
@@ -301,7 +303,8 @@ function saveSubOrgDetails() {
   subOrgDetailsDialog.dialog( "close" );
 
   // Update undo stack.
-  addUndo();
+  undoItem.setAfterState(currentSubOrg);
+  addUndo(undoItem);
 }
 
 // Callback for when the sub-org dialog "select diagram" button is clicked.

@@ -362,6 +362,7 @@ class AutoLayoutUndo {
     for (var personId in persons) {
       this.oldPositions[personId] = persons[personId].group.position();
     }
+    // TODO: Add sub-orgs.
   }
 
   setAfterState() {
@@ -369,6 +370,7 @@ class AutoLayoutUndo {
       // Index is also the person ID so use that directly.
       this.newPositions[personId] = persons[personId].group.position();
     }
+    // TODO: Add sub-orgs.
   }
 
   undo() {
@@ -377,6 +379,7 @@ class AutoLayoutUndo {
       person.group.position(this.oldPositions[personId]);
       updateRelationshipEndPoints(person);
     }
+    // TODO: Add sub-orgs.
   }
 
   redo () {
@@ -447,5 +450,67 @@ class DeleteSubOrgUndo {
   redo () {
     selectSubOrg(this.subOrg);
     deleteSelectedItem();
+  }
+}
+
+class EditSubOrgDetailsUndo {
+  constructor(subOrg) {
+    this.subOrg = subOrg;
+
+    this.oldName = subOrg.name;
+    this.oldDiagramId = subOrg.diagramId;
+  }
+
+  setAfterState(subOrg) {
+    this.newName = subOrg.name;
+    this.newDiagramId = subOrg.diagramId;
+  }
+
+  undo() {
+    this.subOrg.name = this.oldName;
+    this.subOrg.diagramId = this.oldDiagramId;
+
+    currentSubOrg.text.text( this.subOrg.name );
+    updateSubOrgBoxToFitName( this.subOrg );
+  }
+
+  redo () {
+    this.subOrg.name = this.newName;
+    this.subOrg.diagramId = this.newDiagramId;
+
+    currentSubOrg.text.text( this.subOrg.name );
+    updateSubOrgBoxToFitName( this.subOrg );
+  }
+}
+
+class ImportCSVUndo {
+  constructor(personList) {
+    this.personList = personList;
+  }
+
+  undo() {
+    console.log("Person list:", this.personList);
+    for (var personId in this.personList) {
+      console.log("Person ID:", personId);
+      var person = this.personList[personId];
+      deletePerson(person);
+    }
+  }
+
+  redo () {
+    for (var personId in this.personList) {
+      var person = this.personList[personId];
+
+      // Add to canvas again.
+      layer.add(person.group);
+
+      // Add to tree view again.
+      addPersonToTreeView(person);
+
+      // TODO: Add relationships again.
+
+      // TODO: Add person to dictionary again! Should really make a
+      // separate function for this...
+    }
   }
 }
