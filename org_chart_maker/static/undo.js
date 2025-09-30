@@ -192,6 +192,9 @@ class AddPersonUndo {
 class DeletePersonUndo {
   constructor(person) {
     this.person = person;
+
+    // Store relationships.
+    this.relationships = person.relationships.slice(); // Copy array.
   }
 
   undo() {
@@ -201,7 +204,12 @@ class DeletePersonUndo {
     // Add to tree view again.
     addPersonToTreeView(this.person);
 
-    // TODO: Add relationships again.
+    // Add relationships again.
+    for (var index in this.relationships) {
+      // Perhaps store a DeleteRelationshipUndo as a child object?
+      var relationship = this.relationships[index];
+      undoDeleteRelationship(relationship);
+    }
   }
 
   redo () {
@@ -237,6 +245,35 @@ class AddRelationshipUndo {
 
     // Draw.
     updateArrowEndPoints(this.relationship);
+  }
+}
+
+// Perhaps extract function here?
+function undoDeleteRelationship(relationship) {
+  // Add to canvas again.
+  layer.add(relationship.arrow);
+
+  // Add to dictionary.
+  relationships.push(relationship);
+
+  // Add relationships to persons involved.
+  // TODO: Need to differentiate between persons and sub-orgs here somehow
+  // so we choose the right dictionary! How?
+  if (relationship.fromPersonId in persons) {
+    persons[relationship.fromPersonId].relationships.push(relationship);
+  }
+  else {
+    subOrgs[relationship.fromPersonId].relationships.push(relationship);
+  }
+
+  // Hmm... What are the odds that the same ID could be in both
+  // dictionaries?
+  // Let's just make a design decision to assume that this won't happen!
+  if (relationship.toPersonId in persons) {
+    persons[relationship.toPersonId].relationships.push(relationship);
+  }
+  else {
+    subOrgs[relationship.toPersonId].relationships.push(relationship);
   }
 }
 
@@ -331,23 +368,72 @@ class MovePersonUndo {
 
     this.oldX = person.group.x();
     this.oldY = person.group.y();
+
+    this.oldPositions = {};
+    this.newPositions = {};
+    this.oldPositionsSubOrgs = {};
+    this.newPositionsSubOrgs = {};
+
+    for (var personId in persons) {
+      // Should narrow this down to selected persons only?
+      this.oldPositions[personId] = persons[personId].group.position();
+    }
+    // TODO: Add sub-orgs.
+    for (var subOrgId in subOrgs) {
+      this.oldPositionsSubOrgs[subOrgId] = subOrgs[subOrgId].group.position();
+    }
   }
 
   setAfterState() {
     this.newX = this.person.group.x();
     this.newY = this.person.group.y();
+
+    for (var personId in persons) {
+      // Should narrow this down to selected persons only?
+      this.newPositions[personId] = persons[personId].group.position();
+    }
+    // TODO: Add sub-orgs.
+    for (var subOrgId in subOrgs) {
+      this.newPositionsSubOrgs[subOrgId] = subOrgs[subOrgId].group.position();
+    }
   }
 
   undo() {
     this.person.group.x( this.oldX );
     this.person.group.y( this.oldY );
     updateRelationshipEndPoints(this.person);
+
+    for (var personId in persons) {
+      // Should narrow this down to selected persons only?
+      var person = persons[personId];
+      person.group.position(this.oldPositions[personId]);
+      updateRelationshipEndPoints(person);
+    }
+    // TODO: Add sub-orgs.
+    for (var subOrgId in subOrgs) {
+      var subOrg = subOrgs[subOrgId];
+      subOrg.group.position(this.oldPositionsSubOrgs[subOrgId]);
+      updateRelationshipEndPoints(subOrg);
+    }
   }
 
   redo () {
     this.person.group.x( this.newX );
     this.person.group.y( this.newY );
     updateRelationshipEndPoints(this.person);
+
+    for (var personId in persons) {
+      // Should narrow this down to selected persons only?
+      var person = persons[personId];
+      person.group.position(this.newPositions[personId]);
+      updateRelationshipEndPoints(person);
+    }
+    // TODO: Add sub-orgs.
+    for (var subOrgId in subOrgs) {
+      var subOrg = subOrgs[subOrgId];
+      subOrg.group.position(this.newPositionsSubOrgs[subOrgId]);
+      updateRelationshipEndPoints(subOrg);
+    }
   }
 }
 
@@ -358,11 +444,16 @@ class AutoLayoutUndo {
   constructor() {
     this.oldPositions = {};
     this.newPositions = {};
+    this.oldPositionsSubOrgs = {};
+    this.newPositionsSubOrgs = {};
 
     for (var personId in persons) {
       this.oldPositions[personId] = persons[personId].group.position();
     }
     // TODO: Add sub-orgs.
+    for (var subOrgId in subOrgs) {
+      this.oldPositionsSubOrgs[subOrgId] = subOrgs[subOrgId].group.position();
+    }
   }
 
   setAfterState() {
@@ -371,6 +462,9 @@ class AutoLayoutUndo {
       this.newPositions[personId] = persons[personId].group.position();
     }
     // TODO: Add sub-orgs.
+    for (var subOrgId in subOrgs) {
+      this.newPositionsSubOrgs[subOrgId] = subOrgs[subOrgId].group.position();
+    }
   }
 
   undo() {
@@ -380,6 +474,11 @@ class AutoLayoutUndo {
       updateRelationshipEndPoints(person);
     }
     // TODO: Add sub-orgs.
+    for (var subOrgId in subOrgs) {
+      var subOrg = subOrgs[subOrgId];
+      subOrg.group.position(this.oldPositionsSubOrgs[subOrgId]);
+      updateRelationshipEndPoints(subOrg);
+    }
   }
 
   redo () {
@@ -387,6 +486,12 @@ class AutoLayoutUndo {
       var person = persons[personId];
       person.group.position(this.newPositions[personId]);
       updateRelationshipEndPoints(person);
+    }
+    // TODO: Add sub-orgs.
+    for (var subOrgId in subOrgs) {
+      var subOrg = subOrgs[subOrgId];
+      subOrg.group.position(this.newPositionsSubOrgs[subOrgId]);
+      updateRelationshipEndPoints(subOrg);
     }
   }
 }
@@ -435,6 +540,9 @@ class AddSubOrgUndo {
 class DeleteSubOrgUndo {
   constructor(subOrg) {
     this.subOrg = subOrg;
+
+    // Store relationships.
+    this.relationships = subOrg.relationships.slice(); // Copy array.
   }
 
   undo() {
@@ -444,7 +552,15 @@ class DeleteSubOrgUndo {
     // Add to tree view again.
     // addPersonToTreeView(this.person);
 
-    // TODO: Add relationships again.
+    // Add to dictionary.
+    subOrgs[this.subOrg.id] = this.subOrg;
+
+    // Add relationships again.
+    for (var index in this.relationships) {
+      // Perhaps store a DeleteRelationshipUndo as a child object?
+      var relationship = this.relationships[index];
+      undoDeleteRelationship(relationship);
+    }
   }
 
   redo () {
