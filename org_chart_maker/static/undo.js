@@ -204,6 +204,9 @@ class DeletePersonUndo {
     // Add to tree view again.
     addPersonToTreeView(this.person);
 
+    // Add to dictionary.
+    persons[this.person.personId] = this.person;
+
     // Add relationships again.
     for (var index in this.relationships) {
       // Perhaps store a DeleteRelationshipUndo as a child object?
@@ -255,6 +258,8 @@ function undoDeleteRelationship(relationship) {
 
   // Add to dictionary.
   relationships.push(relationship);
+
+  console.log("Relationship:", relationship.fromPersonId, "-->", relationship.toPersonId);
 
   // Add relationships to persons involved.
   // TODO: Need to differentiate between persons and sub-orgs here somehow
