@@ -88,7 +88,6 @@ class UndoStack {
     var redoIndex = this.index + 1;
 
     if (redoIndex < this.stack.length) {
-      console.log("About to redo from stack:", this.stack[redoIndex]);
       this.stack[redoIndex].redo();
       this.index += 1;
     }
@@ -129,7 +128,6 @@ var undoStack = new UndoStack();
 
 // Redo an action.
 function redo() {
-  console.log("Redo function called.");
   undoStack.redo();
   hideActiveMenu(); // Should be in upper level function?
 }
@@ -153,13 +151,11 @@ function addUndo(item) {
 
 // Mark as saved.
 function markSaved() {
-  // undoStack.markSaved();
   _unsavedChangesExist = false;
 }
 
 // Check if unsaved changes exist.
 function unsavedChangesExist() {
-  // return undoStack.unsavedChangesExist();
   return _unsavedChangesExist;
 }
 
@@ -227,15 +223,11 @@ class AddRelationshipUndo {
   }
 
   undo() {
-    console.log("Undo add relationship.");
-
     selectRelationship(this.relationship);
     deleteSelectedItem();
   }
 
   redo() {
-    console.log("Redo add relationship.");
-
     // Add to canvas again.
     layer.add(this.relationship.arrow);
 
@@ -262,8 +254,6 @@ function undoDeleteRelationship(relationship) {
   console.log("Relationship:", relationship.fromPersonId, "-->", relationship.toPersonId);
 
   // Add relationships to persons involved.
-  // TODO: Need to differentiate between persons and sub-orgs here somehow
-  // so we choose the right dictionary! How?
   if (relationship.fromPersonId in persons) {
     persons[relationship.fromPersonId].relationships.push(relationship);
   }
@@ -383,7 +373,7 @@ class MovePersonUndo {
       // Should narrow this down to selected persons only?
       this.oldPositions[personId] = persons[personId].group.position();
     }
-    // TODO: Add sub-orgs.
+.
     for (var subOrgId in subOrgs) {
       this.oldPositionsSubOrgs[subOrgId] = subOrgs[subOrgId].group.position();
     }
@@ -397,7 +387,7 @@ class MovePersonUndo {
       // Should narrow this down to selected persons only?
       this.newPositions[personId] = persons[personId].group.position();
     }
-    // TODO: Add sub-orgs.
+.
     for (var subOrgId in subOrgs) {
       this.newPositionsSubOrgs[subOrgId] = subOrgs[subOrgId].group.position();
     }
@@ -414,7 +404,7 @@ class MovePersonUndo {
       person.group.position(this.oldPositions[personId]);
       updateRelationshipEndPoints(person);
     }
-    // TODO: Add sub-orgs.
+
     for (var subOrgId in subOrgs) {
       var subOrg = subOrgs[subOrgId];
       subOrg.group.position(this.oldPositionsSubOrgs[subOrgId]);
@@ -433,7 +423,7 @@ class MovePersonUndo {
       person.group.position(this.newPositions[personId]);
       updateRelationshipEndPoints(person);
     }
-    // TODO: Add sub-orgs.
+
     for (var subOrgId in subOrgs) {
       var subOrg = subOrgs[subOrgId];
       subOrg.group.position(this.newPositionsSubOrgs[subOrgId]);
@@ -455,7 +445,7 @@ class AutoLayoutUndo {
     for (var personId in persons) {
       this.oldPositions[personId] = persons[personId].group.position();
     }
-    // TODO: Add sub-orgs.
+
     for (var subOrgId in subOrgs) {
       this.oldPositionsSubOrgs[subOrgId] = subOrgs[subOrgId].group.position();
     }
@@ -466,7 +456,7 @@ class AutoLayoutUndo {
       // Index is also the person ID so use that directly.
       this.newPositions[personId] = persons[personId].group.position();
     }
-    // TODO: Add sub-orgs.
+
     for (var subOrgId in subOrgs) {
       this.newPositionsSubOrgs[subOrgId] = subOrgs[subOrgId].group.position();
     }
@@ -478,7 +468,7 @@ class AutoLayoutUndo {
       person.group.position(this.oldPositions[personId]);
       updateRelationshipEndPoints(person);
     }
-    // TODO: Add sub-orgs.
+
     for (var subOrgId in subOrgs) {
       var subOrg = subOrgs[subOrgId];
       subOrg.group.position(this.oldPositionsSubOrgs[subOrgId]);
@@ -492,7 +482,7 @@ class AutoLayoutUndo {
       person.group.position(this.newPositions[personId]);
       updateRelationshipEndPoints(person);
     }
-    // TODO: Add sub-orgs.
+
     for (var subOrgId in subOrgs) {
       var subOrg = subOrgs[subOrgId];
       subOrg.group.position(this.newPositionsSubOrgs[subOrgId]);
@@ -525,7 +515,6 @@ class AddSubOrgUndo {
   }
 
   undo() {
-    console.log("Undo add sub-org.");
     selectSubOrg(this.subOrg);
     deleteSelectedItem();
   }
@@ -610,9 +599,7 @@ class ImportCSVUndo {
   }
 
   undo() {
-    console.log("Person list:", this.personList);
     for (var personId in this.personList) {
-      console.log("Person ID:", personId);
       var person = this.personList[personId];
       deletePerson(person);
     }

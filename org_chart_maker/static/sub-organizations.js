@@ -118,7 +118,6 @@ function addSubOrgToDiagram(org, x, y) {
   // Before drag+drop, first select the sub-org.
   group.on('dragstart', function (e) {
     // Update undo stack.
-    console.log("Group drag start.");
     currentMoveUndoItem = new MovePersonUndo(org);
 
     if (diagramMode == DEFAULT) {
