@@ -373,7 +373,7 @@ class MovePersonUndo {
       // Should narrow this down to selected persons only?
       this.oldPositions[personId] = persons[personId].group.position();
     }
-.
+
     for (var subOrgId in subOrgs) {
       this.oldPositionsSubOrgs[subOrgId] = subOrgs[subOrgId].group.position();
     }
@@ -387,7 +387,7 @@ class MovePersonUndo {
       // Should narrow this down to selected persons only?
       this.newPositions[personId] = persons[personId].group.position();
     }
-.
+
     for (var subOrgId in subOrgs) {
       this.newPositionsSubOrgs[subOrgId] = subOrgs[subOrgId].group.position();
     }
@@ -615,10 +615,18 @@ class ImportCSVUndo {
       // Add to tree view again.
       addPersonToTreeView(person);
 
-      // TODO: Add relationships again.
+      // Add relationships again.
+      for (var relationship in person.relationships) {
+        // Add the arrow to the layer.
+        layer.add(relationship.arrow);
+
+        // Add to dictionary.
+        relationships.push(relationship);
+      }
 
       // TODO: Add person to dictionary again! Should really make a
       // separate function for this...
+      persons[person.personId] = person;
     }
   }
 }
