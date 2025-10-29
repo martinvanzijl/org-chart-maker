@@ -117,6 +117,9 @@ function addSubOrgToDiagram(org, x, y) {
 
   // Before drag+drop, first select the sub-org.
   group.on('dragstart', function (e) {
+    // Update undo stack.
+    currentMoveUndoItem = new MovePersonUndo(org);
+
     if (diagramMode == DEFAULT) {
       selectSubOrg(org, true); // Keep any multiple selection...
     }
@@ -276,10 +279,15 @@ function createNewSubOrg(pos) {
 
   // Reset the mode.
   setDiagramMode (DEFAULT);
+
+  // Return the new sub-org.
+  return org;
 }
 
 // Function to save sub-org details.
 function saveSubOrgDetails() {
+  var undoItem = new EditSubOrgDetailsUndo(currentSubOrg);
+
   // Update details.
   currentSubOrg.name = $( "#subOrgName" ).val();
   currentSubOrg.diagramId = $( "#subOrgDiagramId" ).val();
@@ -298,7 +306,8 @@ function saveSubOrgDetails() {
   subOrgDetailsDialog.dialog( "close" );
 
   // Update undo stack.
-  addUndo();
+  undoItem.setAfterState(currentSubOrg);
+  addUndo(undoItem);
 }
 
 // Callback for when the sub-org dialog "select diagram" button is clicked.

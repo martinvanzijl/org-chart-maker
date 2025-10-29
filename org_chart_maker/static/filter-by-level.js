@@ -105,7 +105,12 @@ function autoLayoutRow(items, startY) {
 // Automatically layout the diagram.
 function autoLayout()
 {
+    var undoItem = new AutoLayoutUndo();
+
     autoLayoutItems(persons);
+
+    undoItem.setAfterState();
+    addUndo(undoItem);
 }
 
 // Automatically layout the given persons.

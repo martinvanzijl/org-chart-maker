@@ -180,9 +180,16 @@ def test_person_right_click_menu_remove():
     action = webdriver.common.action_chains.ActionChains(driver)
     action.context_click(canvas).perform()
 
+    # Wait for menu to show.
+    # TODO: It never shows! Tampering?
+    waitForSeconds(driver, 0.5)
+
     # Click on the "Remove" option.
     edit_menu_item = driver.find_element(by=By.ID, value="person-context-menu-remove-button")
     edit_menu_item.click()
+
+    # Wait for action to take effect.
+    waitForSeconds(driver, 0.5)
 
     # Check the person is removed.
     personCount = driver.execute_script('return Object.keys(persons).length;')

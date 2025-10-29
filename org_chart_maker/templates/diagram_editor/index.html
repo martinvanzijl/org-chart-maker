@@ -110,6 +110,14 @@
     </div>
 
     <div class="dropdown">
+      <button class="dropbtn">Edit</button>
+      <div class="dropdown-content">
+        <a href="javascript:undo();">Undo</a>
+        <a href="javascript:redo();">Redo</a>
+      </div>
+    </div>
+
+    <div class="dropdown">
       <button class="dropbtn">Export</button>
       <div class="dropdown-content">
         <a href="javascript:exportImage();">Image...</a>
@@ -347,36 +355,80 @@ function removeItemOnce(arr, value) {
 // Callback for clicking the "Delete Person" button.
 function deletePersonClicked()
 {
+  deleteSelectedItem(true);
+}
+
+// Remove a person from the diagram without adding an unto item.
+function deletePerson(person) {
+  // Remove shapes from diagram.
+  person.group.remove();
+
+  // Remove relationships.
+  var arrayCopy = person.relationships.slice(); // Copy array.
+  for (var index in arrayCopy) {
+    var relationship = arrayCopy[index];
+    deleteRelationship(relationship);
+  }
+
+  // Remove from tree view.
+  personsTable.deleteRow(personsTableRows[person.personId].rowIndex);
+
+  // Remove person from dictionary.
+  delete persons[person.personId];
+}
+
+function deleteSelectedItem(shouldAddUndoItem)
+{
   if (selectedPerson) {
+    // Update undo stack.
+    if (shouldAddUndoItem) {
+      addUndo(new DeletePersonUndo(selectedPerson));
+    }
+
+    // Delete from diagram.
+    deletePerson(selectedPerson);
+
+    // Reset.
+    selectedPerson = null;
+  }
+
+  if (selectedSubOrg) {
+    // Update undo stack.
+    if (shouldAddUndoItem) {
+      addUndo(new DeleteSubOrgUndo(selectedSubOrg));
+    }
+
     // Remove shapes from diagram.
-    selectedPerson.group.remove();
+    selectedSubOrg.group.remove();
 
     // Remove relationships.
-    var arrayCopy = selectedPerson.relationships.slice(); // Copy array.
+    var arrayCopy = selectedSubOrg.relationships.slice(); // Copy array.
     for (var index in arrayCopy) {
       var relationship = arrayCopy[index];
       deleteRelationship(relationship);
     }
 
     // Remove from tree view.
-    personsTable.deleteRow(personsTableRows[selectedPerson.personId].rowIndex);
+    // personsTable.deleteRow(personsTableRows[selectedPerson.personId].rowIndex);
 
     // Remove person from dictionary.
-    delete persons[selectedPerson.personId];
+    delete subOrgs[selectedSubOrg.id];
 
     // Reset.
-    selectedPerson = null;
+    selectedSubOrg = null;
   }
 
   if (selectedRelationship) {
+    // Update undo stack.
+    if (shouldAddUndoItem) {
+      addUndo(new DeleteRelationshipUndo(selectedRelationship));
+    }
+
     // Delete.
     deleteRelationship(selectedRelationship);
 
     // Reset.
     selectedRelationship = null;
-
-    // Update undo stack.
-    addUndo();
   }
 }
 
@@ -434,7 +486,7 @@ $( document ).keydown(function() {
 // Create the dialog.
 var borderColorDialog = $( "#borderColorDialog" ).dialog({ autoOpen: false, closeOnEscape: true, modal: true, width: 445,
   buttons: {
-    "OK": function() { borderColorDialog.dialog( "close" ); },
+    "OK": function() { borderColorDialogOKClicked(); },
     "Cancel": function() { revertBorderColor(); }
   },
   maxHeight: ($(window).height() - 50)
@@ -643,6 +695,11 @@ function addPhotoClicked()
 
 // Function to save person details.
 function savePersonDetails() {
+  // Handle undo stack.
+  // TODO: Save the original border and fill color before this point!
+  var undoItem = new EditPersonDetailsUndo(currentPerson);
+  undoItem.setOriginalPhotosList(previousListOfPhotos);
+
   // Update details.
   currentPerson.name = $( "#name" ).val();
   currentPerson.title = $( "#title" ).val();
@@ -650,21 +707,26 @@ function savePersonDetails() {
   currentPerson.department = $( "#department" ).val();
 
   // Update diagram.
-  currentPerson.text.text( currentPerson.name );
-  currentPerson.titleText.text( currentPerson.title );
-  updateBoxToFitName( currentPerson );
-  updateFilterStatus( currentPerson );
-
-  updateRelationshipEndPoints(currentPerson);
-
-  // Update tree view.
-  personsTableRows[currentPerson.personId].cells[0].innerHTML = currentPerson.name;
+  updatePersonBoxAndTreeViewEntry(currentPerson);
 
   // Close the dialog.
   personDetailsDialog.dialog( "close" );
 
   // Update undo stack.
-  addUndo();
+  undoItem.setAfterState(currentPerson); // TODO: Handle photos too!
+  addUndo(undoItem);
+}
+
+function updatePersonBoxAndTreeViewEntry(person) {
+  person.text.text( person.name );
+  person.titleText.text( person.title );
+  updateBoxToFitName( person );
+  updateFilterStatus( person );
+
+  updateRelationshipEndPoints(person);
+
+  // Update tree view.
+  personsTableRows[person.personId].cells[0].innerHTML = person.name;
 }
 
 // Function to get base name of file.
@@ -673,6 +735,9 @@ function getBaseName(path) {
   var name = list[list.length - 1];
   return name;
 }
+
+// List of photos for undo management.
+var previousListOfPhotos = null;
 
 // Function to show person details.
 function showPersonDetails(personId) {
@@ -692,6 +757,9 @@ function showPersonDetails(personId) {
   document.getElementById("url").value = person.url;
   document.getElementById("department").value = person.department;
 
+  // Store list of photos for undo.
+  previousListOfPhotos = person.photos.slice();
+
   // Add photos.
   var photosTable = document.getElementById("photosTable");
 
@@ -703,7 +771,7 @@ function showPersonDetails(personId) {
 
   for (var index in person.photos) {
     // Get parts.
-    var path = person.photos[index]
+    var path = person.photos[index];
     var name = getBaseName(path);
 
     // Add to list.
@@ -1469,14 +1537,16 @@ function updateDiagramBasedOnProperties() {
       // Add click listener.
       stage.on('click', function() {
         if (diagramMode == ADD_PERSON) {
-          createNewPerson(stage.getRelativePointerPosition());
+          var person = createNewPerson(stage.getRelativePointerPosition());
 
           // Update undo stack.
-          addUndo();
+          addUndo(new AddPersonUndo(person));
         }
         else if (diagramMode == ADD_SUB_ORG) {
-          createNewSubOrg(stage.getRelativePointerPosition());
-          addUndo();
+          var subOrg = createNewSubOrg(stage.getRelativePointerPosition());
+
+          // Update undo stack.
+          addUndo(new AddSubOrgUndo(subOrg));
         }
         else {
           // Clear current selection.
@@ -1718,6 +1788,10 @@ function updateDiagramBasedOnProperties() {
         });
 
         group.on('dragstart', function (e) {
+          // Update undo stack.
+          console.log("Group drag start.");
+          currentMoveUndoItem = new MovePersonUndo(person);
+
           if (diagramMode == DEFAULT) {
             // If the person is not selected yet, un-select everything else and
             // select it only.
@@ -1768,6 +1842,11 @@ function updateDiagramBasedOnProperties() {
         updateBoxToFitName(person);
 
         // Add to tree view.
+        addPersonToTreeView(person);
+      }
+
+      // Add a person to the tree view.
+      function addPersonToTreeView(person) {
         var row = personsTable.insertRow(personsTable.rows.length);
         var cell = row.insertCell(0);
         cell.innerHTML = person.name;
@@ -1775,7 +1854,7 @@ function updateDiagramBasedOnProperties() {
           goToPerson(person);
           selectPerson(person);
         }
-        personsTableRows[personId] = row;
+        personsTableRows[person.personId] = row;
       }
 
       // Scroll to given person.
@@ -2455,7 +2534,7 @@ stage.on('mouseup', function (e) {
           selectRelationship(relationship);
 
           // Update undo stack.
-          addUndo();
+          addUndo(new AddRelationshipUndo(relationship));
         }
       }
     }
@@ -2464,6 +2543,15 @@ stage.on('mouseup', function (e) {
     newRelationshipArrow = null;
     newRelationshipParent = null;
     newRelationshipChild = null;
+  }
+  else {
+    // TODO: Put pie here!
+    console.log("Stage mouse up event.");
+    if (currentMoveUndoItem) {
+      currentMoveUndoItem.setAfterState();
+      addUndo(currentMoveUndoItem);
+      currentMoveUndoItem = null;
+    }
   }
 });
 
@@ -2716,10 +2804,10 @@ con.addEventListener('drop', function (e) {
     // we can register it manually:
     stage.setPointersPositions(e);
 
-    createNewPerson(stage.getRelativePointerPosition());
+    var person = createNewPerson(stage.getRelativePointerPosition());
 
     // Update undo stack.
-    addUndo();
+    addUndo(new AddPersonUndo(person));
   }
   else if (data == "buttonAddSubOrg") {
     stage.setPointersPositions(e);
@@ -2740,7 +2828,7 @@ function createNewPerson(pos) {
   var personId = createPersonId();
 
   // Create person.
-  person = {
+  var person = {
       personId: personId,
       name: "New Person",
       title: "Associate",
@@ -2760,6 +2848,9 @@ function createNewPerson(pos) {
 
   // Reset the mode.
   setDiagramMode (DEFAULT);
+
+  // Return the person.
+  return person;
 }
 
 // Hide the active menu item from the top menu.

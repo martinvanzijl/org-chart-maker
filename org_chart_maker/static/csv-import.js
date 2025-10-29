@@ -77,5 +77,5 @@ function addCsvDataToDiagram (data) {
   autoLayoutItems(personList);
 
   // Update undo stack.
-  addUndo();
+  addUndo(new ImportCSVUndo(personList));
 }
