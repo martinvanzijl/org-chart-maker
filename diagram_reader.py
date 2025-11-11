@@ -469,7 +469,7 @@ def export_to_csv(name, persons, relationships, subOrgs):
         # Create CSV document.
         with open(dest, 'w', newline='') as csvfile:
             writer = csv.writer(csvfile)
-            writer.writerow(['Name', 'Title', 'URL', 'Department', 'Reports To']);
+            writer.writerow(['Name', 'Title', 'URL', 'Department', 'X', 'Y', 'Reports To']);
 
             # Read relationships.
             reportsTo = {};
@@ -485,7 +485,9 @@ def export_to_csv(name, persons, relationships, subOrgs):
 
             # Write persons.
             for person in persons.values():
-                row = [person["name"], person["title"], person["url"], person["department"]];
+                group = loads(person["group"])
+                attr = group["attrs"]
+                row = [person["name"], person["title"], person["url"], person["department"], attr["x"], attr["y"]];
 
                 personId = person["personId"];
                 if personId in reportsTo:
