@@ -499,7 +499,10 @@ def export_to_csv(name, persons, relationships, subOrgs):
 
             # Write persons.
             for subOrg in subOrgs.values():
-                row = ["(sub-org) " + subOrg["name"], "", "", ""];
+                group = loads(subOrg["group"])
+                attr = group["attrs"]
+
+                row = ["(sub-org) " + subOrg["name"], "", "", "", attr["x"], attr["y"]];
 
                 id = subOrg["id"];
                 if id in reportsTo:
