@@ -487,13 +487,16 @@ def export_to_csv(name, persons, relationships, subOrgs):
             for person in persons.values():
                 group = loads(person["group"])
                 attr = group["attrs"]
-                row = [person["name"], person["title"], person["url"], person["department"], attr["x"], attr["y"]];
+                row = [person["name"], person["title"], person["url"], person["department"]];
 
                 personId = person["personId"];
                 if personId in reportsTo:
                     row.append(reportsTo[personId]);
                 else:
                     row.append("");
+
+                row.append(attr["x"]);
+                row.append(attr["y"]);
 
                 writer.writerow(row);
 
@@ -502,13 +505,16 @@ def export_to_csv(name, persons, relationships, subOrgs):
                 group = loads(subOrg["group"])
                 attr = group["attrs"]
 
-                row = ["(sub-org) " + subOrg["name"], "", "", "", attr["x"], attr["y"]];
+                row = ["(sub-org) " + subOrg["name"], "", "", ""];
 
                 id = subOrg["id"];
                 if id in reportsTo:
                     row.append(reportsTo[id]);
                 else:
                     row.append("");
+
+                row.append(attr["x"]);
+                row.append(attr["y"]);
 
                 writer.writerow(row);
 
