@@ -469,7 +469,7 @@ def export_to_csv(name, persons, relationships, subOrgs):
         # Create CSV document.
         with open(dest, 'w', newline='') as csvfile:
             writer = csv.writer(csvfile)
-            writer.writerow(['Name', 'Title', 'URL', 'Department', 'Reports To']);
+            writer.writerow(['Name', 'Title', 'URL', 'Department', 'X', 'Y', 'Reports To']);
 
             # Read relationships.
             reportsTo = {};
@@ -485,6 +485,8 @@ def export_to_csv(name, persons, relationships, subOrgs):
 
             # Write persons.
             for person in persons.values():
+                group = loads(person["group"])
+                attr = group["attrs"]
                 row = [person["name"], person["title"], person["url"], person["department"]];
 
                 personId = person["personId"];
@@ -493,10 +495,16 @@ def export_to_csv(name, persons, relationships, subOrgs):
                 else:
                     row.append("");
 
+                row.append(attr["x"]);
+                row.append(attr["y"]);
+
                 writer.writerow(row);
 
             # Write persons.
             for subOrg in subOrgs.values():
+                group = loads(subOrg["group"])
+                attr = group["attrs"]
+
                 row = ["(sub-org) " + subOrg["name"], "", "", ""];
 
                 id = subOrg["id"];
@@ -504,6 +512,9 @@ def export_to_csv(name, persons, relationships, subOrgs):
                     row.append(reportsTo[id]);
                 else:
                     row.append("");
+
+                row.append(attr["x"]);
+                row.append(attr["y"]);
 
                 writer.writerow(row);
 
