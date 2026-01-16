@@ -355,7 +355,44 @@ function removeItemOnce(arr, value) {
 // Callback for clicking the "Delete Person" button.
 function deletePersonClicked()
 {
-  deleteSelectedItem(true);
+  // Delete all selected items, not just the currently focused one!
+  var undoItem = new DeleteSelectionUndo();
+
+  // Delete relationships first for ease of managing the undo stack.
+
+  // First add them to the undo item to avoid the deleting while iterating
+  // probolem.
+  for (var index in relationships) {
+    var relationship = relationships[index];
+    if (relationship.selected) {
+      undoItem.addRelationship(relationship);
+    }
+  }
+
+  // Now actually delete them.
+  for (var index in undoItem.relationships) {
+        deleteRelationship(undoItem.relationships[index]);
+  }
+
+  for (var index in persons) {
+    var person = persons[index];
+    if (person.selected) {
+      deletePerson(person);
+      undoItem.addPerson(person);
+    }
+  }
+
+  for (var index in subOrgs) {
+    var subOrg = subOrgs[index];
+    if (subOrg.selected) {
+      deletePerson(subOrg);
+      undoItem.addSubOrg(subOrg);
+    }
+  }
+
+  // deleteSelectedItem(true);
+
+  addUndo(undoItem);
 }
 
 // Remove a person from the diagram without adding an unto item.
@@ -2046,9 +2083,11 @@ function updateDiagramBasedOnProperties() {
       // De-select all items.
       function selectNone() {
         // Deselect relationships.
-        if (selectedRelationship) {
-          restoreArrowColor(selectedRelationship);
+        for (var index in relationships) {
+          var relationship = relationships[index];
+          restoreArrowColor(relationship);
           // selectedRelationship.arrow.strokeWidth(2);
+          relationship.selected = false;
         }
         selectedRelationship = null;
 
@@ -2221,6 +2260,7 @@ function updateDiagramBasedOnProperties() {
 
         // Select the relationship.
         selectedRelationship = relationship;
+        relationship.selected = true;
 
         // Highlight the relationship.
         relationship.arrow.stroke("blue");
