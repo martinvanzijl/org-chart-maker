@@ -630,3 +630,82 @@ class ImportCSVUndo {
     }
   }
 }
+
+function restoreDeletedPerson(person) {
+  // Add to canvas again.
+  layer.add(person.group);
+
+  // Add to tree view again.
+  addPersonToTreeView(person);
+
+  // Add relationships again.
+  for (var relationship in person.relationships) {
+    // Add the arrow to the layer.
+    layer.add(relationship.arrow);
+
+    // Add to dictionary.
+    relationships.push(relationship);
+  }
+
+  // Add person to dictionary again.
+  persons[person.personId] = person;
+}
+
+class DeleteSelectionUndo {
+  constructor() {
+    this.persons = [];
+    this.subOrgs = [];
+    this.relationships = [];
+  }
+
+  addPerson(person) {
+    this.persons.push(person);
+  }
+
+  addSubOrg(subOrg) {
+    this.subOrgs.push(subOrg);
+  }
+
+  addRelationship(relationship) {
+    console.log("Adding relationship to undo item.");
+    this.relationships.push(relationship);
+  }
+
+  undo () {
+    for (var id in this.persons) {
+      var person = this.persons[id];
+      restoreDeletedPerson(person);
+    }
+
+    for (var id in this.subOrgs) {
+      var subOrg = this.subOrgs[id];
+      restoreDeletedPerson(subOrg);
+    }
+
+    // TODO: Check that the relation hasn't been deleted already?
+    for (var index in this.relationships) {
+      var relationship = this.relationships[index];
+      undoDeleteRelationship(relationship);
+    }
+  }
+
+  redo () {
+    console.log("In DeleteSelectionUndo::redo()...")
+
+    for (var id in this.persons) {
+      var person = this.persons[id];
+      deletePerson(person);
+    }
+
+    for (var id in this.subOrgs) {
+      var subOrg = this.subOrgs[id];
+      deletePerson(subOrg);
+    }
+
+    // TODO: Check that the relation hasn't been restored already?
+    for (var index in relationships) {
+      var relationship = relationships[index];
+      deleteRelationship(relationship);
+    }
+  }
+}
