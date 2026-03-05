@@ -1742,9 +1742,14 @@ function updateDiagramBasedOnProperties() {
 
           // Drag other selected items.
           for (var index in persons) {
-            var person = persons[index];
-            if (person.selected && person != selectedPerson) {
-              person.group.move({x: e.evt.movementX,  y: e.evt.movementY});
+            var otherPerson = persons[index];
+            if (otherPerson.selected) {
+              // Move person.
+              if (otherPerson != person) {
+                otherPerson.group.move({x: e.evt.movementX,  y: e.evt.movementY});
+              }
+              // Move relationships.
+              updateRelationshipEndPoints(otherPerson);
             }
           }
         });
@@ -1853,10 +1858,10 @@ function updateDiagramBasedOnProperties() {
           }
         });
 
-        group.on('dragmove', function (e) {
-          // Move relationships.
-          updateRelationshipEndPoints(person);
-        });
+        // group.on('dragmove', function (e) {
+        //   // Move relationships.
+        //   updateRelationshipEndPoints(person);
+        // });
 
         // Add pointers to shapes.
         person.rect = rect;
@@ -1929,7 +1934,8 @@ function updateDiagramBasedOnProperties() {
 
       // Check if item is selected.
       function isSelected(item) {
-        return selectedPerson == item || selectedSubOrg == item;
+        // return selectedPerson == item || selectedSubOrg == item;
+        return item.selected;
       }
 
       // Reset border color for the given person.
@@ -2085,9 +2091,11 @@ function updateDiagramBasedOnProperties() {
         // Deselect relationships.
         for (var index in relationships) {
           var relationship = relationships[index];
-          restoreArrowColor(relationship);
-          // selectedRelationship.arrow.strokeWidth(2);
-          relationship.selected = false;
+          if (relationship.selected) {
+            restoreArrowColor(relationship);
+            // selectedRelationship.arrow.strokeWidth(2);
+            relationship.selected = false;
+          }
         }
         selectedRelationship = null;
 
@@ -2265,6 +2273,9 @@ function updateDiagramBasedOnProperties() {
         // Highlight the relationship.
         relationship.arrow.stroke("blue");
         // relationship.arrow.strokeWidth(3);
+
+        // Set flag.
+        relationship.selected = true;
       }
 
       // Contents top left. This may be set by "canvasContent" below.
