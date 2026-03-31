@@ -143,19 +143,8 @@ function addSubOrgToDiagram(org, x, y) {
   // When dragging the rectangle, update existing arrow endpoints.
   group.on('dragmove', function (e) {
     // Cancel marquee select.
-    // I honestly have to copy the entire code for Persons here...
-    // Perhaps extract into a separate function first?
-    // Let's just test it before doing that!
     doingRectangleSelect = false;
     marqueeSelectRect.visible(false);
-
-    // Move other selected items.
-    // for (var index in persons) {
-    //   var person = persons[index];
-    //   if (person.selected) {
-    //     person.group.move({x: e.evt.movementX,  y: e.evt.movementY});
-    //   }
-    // }
 
     // Drag other selected items.
     for (var index in persons) {
@@ -169,13 +158,6 @@ function addSubOrgToDiagram(org, x, y) {
         updateRelationshipEndPoints(otherPerson);
       }
     }
-
-    // for (var index in subOrgs) {
-    //   var subOrg = subOrgs[index];
-    //   if (subOrg.selected && subOrg != selectedSubOrg) {
-    //     subOrg.group.move({x: e.evt.movementX,  y: e.evt.movementY});
-    //   }
-    // }
 
     // Drag other selected items.
     for (var index in subOrgs) {
