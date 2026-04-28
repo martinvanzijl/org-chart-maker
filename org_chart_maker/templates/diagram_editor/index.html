@@ -2606,6 +2606,15 @@ stage.on('mouseup', function (e) {
   }
 });
 
+// Cancel the selection rectangle if the mouse leaves the canvas.
+stage.on('mouseleave', function (e) {
+  // console.log("Stage mouse leave event.");
+  if (doingRectangleSelect) {
+    marqueeSelectRect.visible(false);
+    doingRectangleSelect = false;
+  }
+});
+
 // Set up context menu for persons.
 let currentShape;
 var personMenuNode = document.getElementById('person-context-menu');
