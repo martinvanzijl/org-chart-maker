@@ -474,6 +474,32 @@ def test_linking_diagram_to_sub_org():
     # Close the driver.
     driver.quit()
 
+# Test case for checking the link button in the sub-org dialog works.
+def test_sub_org_link_button():
+    # Create the driver.
+    driver = webdriver.Chrome("./chromedriver")
+
+    # Log in.
+    login(driver)
+
+    # TODO:
+    # 1) Open an existing standard diagram with a sub-org ("selenium_user" --> "sub-org-test").
+    driver.get("http://localhost:5001/?diagram=sub-org-test")
+
+    # 2) Simulate a click on the link button and check the new tab/window has the required diagram.
+    # First double click on the sub-org diagram item...
+    # Move cursor to their location
+    # Check online for something like action.move_to_element() for the mouse
+
+    # Double click
+    canvas.click()
+    canvas.click()
+
+    # Then click on the link button...
+
+    # Close the driver.
+    driver.quit()
+
 # Test case for the preferences window.
 def test_preferences_window():
     # Create the driver.
